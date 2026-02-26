@@ -1,6 +1,7 @@
 package com.hotpot.repository.menu;
 
 import com.hotpot.entity.menu.Restaurant;
+
 import com.hotpot.entity.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
