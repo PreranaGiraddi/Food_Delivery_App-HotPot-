@@ -1,8 +1,7 @@
 package com.hotpot.dto.tracking;
 
-import org.antlr.v4.runtime.misc.NotNull;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 
 public class OrderStatusDTO {
 
