@@ -45,10 +45,10 @@ public class Restaurant {
         this.createdAt = LocalDateTime.now();
     }
 
-    // ✅ No-arg Constructor
+   
     public Restaurant() {}
 
-    // ✅ All-arg Constructor
+    
     public Restaurant(Long id, String name, String location, String contactNumber,
                       String description, String imageUrl, boolean isActive,
                       User owner, LocalDateTime createdAt) {

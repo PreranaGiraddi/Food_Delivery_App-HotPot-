@@ -51,10 +51,10 @@ public class MenuItem {
         VEG, NONVEG
     }
 
-    // ✅ No-arg Constructor
+   
     public MenuItem() {}
 
-    // ✅ All-arg Constructor
+  
     public MenuItem(Long id, String name, String description, Double price,
                     Double discountPrice, String imageUrl, String availabilityTime,
                     DietaryType dietaryType, String tasteInfo, String nutritionalInfo,
