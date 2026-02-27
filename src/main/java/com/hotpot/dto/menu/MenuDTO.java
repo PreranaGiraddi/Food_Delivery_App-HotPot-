@@ -1,6 +1,5 @@
 package com.hotpot.dto.menu;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.*;
 
 public class MenuDTO {
