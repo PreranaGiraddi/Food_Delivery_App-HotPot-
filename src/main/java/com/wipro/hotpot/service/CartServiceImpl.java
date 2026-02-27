@@ -33,16 +33,20 @@ public class CartServiceImpl implements ICartService {
 	@Autowired
 	private IMenuRepository menuRepository;
 
-	// ✅ Get or create cart for user
+	
 	@Override
 	public Cart getCartByUserId(Long userId) {
-		return cartRepository.findByUserId(userId).orElseGet(() -> {
-			User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-			Cart newCart = new Cart();
-			newCart.setUser(user);
-			newCart.setTotalPrice(0.0);
-			return cartRepository.save(newCart);
-		});
+		if (!cartRepository.isCartExists(userId)) {
+		    User user = userRepository.findById(userId)
+		            .orElseThrow(() -> new RuntimeException("User not found!"));
+		    Cart newCart = new Cart();
+		    newCart.setUser(user);
+		    newCart.setTotalPrice(0.0);
+		    cartRepository.save(newCart);
+		}
+		return cartRepository.findByUserId(userId)
+		        .orElseThrow(() -> new RuntimeException("Cart not found!"));
+		
 	}
 
 	// ✅ Add item to cart
