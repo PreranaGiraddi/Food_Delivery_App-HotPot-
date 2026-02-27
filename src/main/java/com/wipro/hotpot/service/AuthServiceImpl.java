@@ -27,8 +27,9 @@ public class AuthServiceImpl implements IAuthService {
 	@Override
 	public User registerUser(RegisterRequest request) {
 
-		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new RuntimeException("Email already registered!");
+		if (userRepository.isEmailExists(request.getEmail())) {
+		    throw new RuntimeException("Email already registered!");
+		
 		}
 
 		User user = new User();
@@ -104,7 +105,7 @@ public class AuthServiceImpl implements IAuthService {
 	}
 
 	@Override
-	public boolean emailExists(String email) {
-		return userRepository.existsByEmail(email);
+	public boolean isEmailExists(String email) {
+	    return userRepository.isEmailExists(email);
 	}
 }

@@ -23,5 +23,5 @@ public interface IAuthService {
 
 	void deleteUser(Long id);
 
-	boolean emailExists(String email);
+	boolean isEmailExists(String email);
 }
