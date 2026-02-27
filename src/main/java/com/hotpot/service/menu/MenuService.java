@@ -25,5 +25,9 @@ public interface MenuService {
     void deleteMenuItem(Long id);
 
     void markOutOfStock(Long id);
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> feature-auth-restaurant

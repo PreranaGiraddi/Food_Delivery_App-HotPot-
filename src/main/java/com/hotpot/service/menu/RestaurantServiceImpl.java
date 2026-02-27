@@ -92,4 +92,9 @@ public class RestaurantServiceImpl implements RestaurantService {
     public List<Restaurant> searchRestaurants(String keyword) {
         return restaurantRepository.searchByName(keyword);
     }
+<<<<<<< HEAD
 }
+=======
+}
+
+>>>>>>> feature-auth-restaurant

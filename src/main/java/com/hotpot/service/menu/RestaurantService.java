@@ -22,4 +22,7 @@ public interface RestaurantService {
 
     List<Restaurant> searchRestaurants(String keyword);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature-auth-restaurant
