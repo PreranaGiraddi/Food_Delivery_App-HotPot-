@@ -1,6 +1,6 @@
 package com.hotpot.dto.tracking;
 
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import jakarta.validation.constraints.NotBlank;
 
