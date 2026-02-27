@@ -1,6 +1,8 @@
 package com.wipro.hotpot.repository;
 
+
 import java.util.List;
+
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,7 +21,8 @@ public interface IRestaurantRepository extends JpaRepository<Restaurant, Long> {
 
 	Optional<Restaurant> findByName(String name);
 
-	boolean existsByName(String name);
+	@Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Restaurant r WHERE r.name = :name")
+	boolean isRestaurantNameExists(String name);
 
 	List<Restaurant> findByLocation(String location);
 

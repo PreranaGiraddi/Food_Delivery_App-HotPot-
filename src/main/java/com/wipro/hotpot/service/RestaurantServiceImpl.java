@@ -26,7 +26,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 
 		User owner = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 
-		if (restaurantRepository.existsByName(dto.getName())) {
+		if (restaurantRepository.isRestaurantNameExists(dto.getName())) {
 			throw new RuntimeException("Restaurant name already exists!");
 		}
 
