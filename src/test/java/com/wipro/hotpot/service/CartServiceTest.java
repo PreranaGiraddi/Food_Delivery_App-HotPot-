@@ -24,10 +24,9 @@ import com.wipro.hotpot.repository.ICartItemRepository;
 import com.wipro.hotpot.repository.ICartRepository;
 import com.wipro.hotpot.repository.IMenuRepository;
 import com.wipro.hotpot.repository.IUserRepository;
-import com.wipro.hotpot.service.CartServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class ICartServiceTest {
+public class CartServiceTest {
 
     @Mock
     private ICartRepository cartRepository;

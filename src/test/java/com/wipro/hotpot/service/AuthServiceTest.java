@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.wipro.hotpot.dto.RegisterRequest;
 import com.wipro.hotpot.repository.IUserRepository;
 @ExtendWith(MockitoExtension.class)
-public class IAuthServiceTest {
+public class AuthServiceTest {
 
     @Mock
     private IUserRepository userRepository;
