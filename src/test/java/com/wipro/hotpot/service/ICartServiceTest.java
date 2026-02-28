@@ -1,4 +1,4 @@
-package com.wipro.hotpot.cart;
+package com.wipro.hotpot.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
