@@ -22,44 +22,30 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    // ✅ Define which routes are PUBLIC and which are PROTECTED
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            // Disable CSRF (not needed for REST APIs)
             .csrf(csrf -> csrf.disable())
 
-            // Define route permissions
             .authorizeHttpRequests(auth -> auth
-
-                // ✅ PUBLIC routes — anyone can access
+                // PUBLIC routes
                 .requestMatchers(
                     "/api/auth/register",
                     "/api/auth/login",
                     "/api/auth/isEmailExists/**",
-                    "/api/menu/search",
-                    "/api/menu/restaurant/**",
-                    "/api/menu/available/**",
-                    "/api/menu/filter",
-                    "/api/restaurant/all",
-                    "/api/restaurant/active",
-                    "/api/restaurant/search",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/api-docs/**"
+                    "/v3/api-docs/**"
                 ).permitAll()
 
-                // ✅ ADMIN only routes
+                // ADMIN only
                 .requestMatchers(
                     "/api/auth/users",
-                    "/api/auth/user/**",
-                    "/api/restaurant/add",
-                    "/api/restaurant/delete/**"
+                    "/api/auth/user/**"
                 ).hasRole("ADMIN")
 
-                // ✅ RESTAURANT only routes
+                // RESTAURANT only
                 .requestMatchers(
                     "/api/menu/add",
                     "/api/menu/update/**",
@@ -71,7 +57,7 @@ public class SecurityConfig {
                     "/api/tracking/restaurant/**"
                 ).hasRole("RESTAURANT")
 
-                // ✅ USER only routes
+                // USER only
                 .requestMatchers(
                     "/api/cart/**",
                     "/api/order/place/**",
@@ -80,28 +66,24 @@ public class SecurityConfig {
                     "/api/tracking/user/**"
                 ).hasRole("USER")
 
-                // ✅ Any other route needs authentication
+                // Any other route requires authentication
                 .anyRequest().authenticated()
             )
-
-            // Use stateless session (JWT based)
+            // JWT-based stateless session
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // Add JWT filter before Spring's default auth filter
+            // Add JWT filter before UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // ✅ Password encoder — BCrypt hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Authentication manager
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
