@@ -80,7 +80,7 @@ public class TrackingServiceTest {
         tracking.setUpdatedAt(LocalDateTime.now());
     }
 
-    // ✅ TEST 1 — Create tracking when order is placed
+    // TEST 1 — Create tracking when order is placed
     @Test
     public void testCreateTracking_Success() {
 
@@ -103,7 +103,7 @@ public class TrackingServiceTest {
         System.out.println("✅ Create Tracking Test Passed!");
     }
 
-    // ✅ TEST 2 — Create tracking fails if order not found
+    // TEST 2 — Create tracking fails if order not found
     @Test
     public void testCreateTracking_OrderNotFound() {
 
@@ -122,7 +122,7 @@ public class TrackingServiceTest {
         System.out.println("✅ Order Not Found Test Passed!");
     }
 
-    // ✅ TEST 3 — Update order status successfully
+    // TEST 3 — Update order status successfully
     @Test
     public void testUpdateOrderStatus_Success() {
 
@@ -153,7 +153,7 @@ public class TrackingServiceTest {
         System.out.println("✅ Update Order Status Test Passed!");
     }
 
-    // ✅ TEST 4 — Get tracking details as DTO
+    //TEST 4 — Get tracking details as DTO
     @Test
     public void testGetTrackingDetails_Success() {
 
