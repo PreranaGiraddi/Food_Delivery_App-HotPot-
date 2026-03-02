@@ -20,7 +20,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 	@Autowired
 	private IUserRepository userRepository;
 
-	// ✅ Add restaurant
+	// Add restaurant
 	@Override
 	public Restaurant addRestaurant(RestaurantDTO dto, Long userId) {
 
@@ -42,33 +42,33 @@ public class RestaurantServiceImpl implements IRestaurantService {
 		return restaurantRepository.save(restaurant);
 	}
 
-	// ✅ Get restaurant by id
+	// Get restaurant by id
 	@Override
 	public Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + id));
 	}
 
-	// ✅ Get restaurant by owner id
+	// Get restaurant by owner id
 	@Override
 	public Restaurant getRestaurantByOwnerId(Long ownerId) {
 		return restaurantRepository.findByOwnerId(ownerId)
 				.orElseThrow(() -> new RuntimeException("Restaurant not found!"));
 	}
 
-	// ✅ Get all restaurants
+	// Get all restaurants
 	@Override
 	public List<Restaurant> getAllRestaurants() {
 		return restaurantRepository.findAll();
 	}
 
-	// ✅ Get all active restaurants
+	//  Get all active restaurants
 	@Override
 	public List<Restaurant> getAllActiveRestaurants() {
 		return restaurantRepository.findByIsActive(true);
 	}
 
-	// ✅ Update restaurant
+	// Update restaurant
 	@Override
 	public Restaurant updateRestaurant(Long id, RestaurantDTO dto) {
 		Restaurant restaurant = getRestaurantById(id);
@@ -80,7 +80,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 		return restaurantRepository.save(restaurant);
 	}
 
-	// ✅ Delete restaurant
+	// Delete restaurant
 	@Override
 	public void deleteRestaurant(Long id) {
 		Restaurant restaurant = getRestaurantById(id);
@@ -88,7 +88,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 		restaurantRepository.save(restaurant);
 	}
 
-	// ✅ Search restaurants
+	// Search restaurants
 	@Override
 	public List<Restaurant> searchRestaurants(String keyword) {
 		return restaurantRepository.searchByName(keyword);
