@@ -1,0 +1,51 @@
+package com.wipro.hotpot.config;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SwaggerConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+
+        // ✅ JWT Security Scheme name
+        final String securitySchemeName = "bearerAuth";
+
+        return new OpenAPI()
+
+            // ✅ API Information
+            .info(new Info()
+                .title("🍲 HotPot - Online Food Delivery API")
+                .version("1.0")
+                .description("API documentation for HotPot Online Food Delivery Application")
+                .contact(new Contact()
+                    .name("HotPot Team")
+                    .email("hotpot@wipro.com")
+                )
+            )
+
+            // ✅ This adds the Authorize button in Swagger
+            .addSecurityItem(new SecurityRequirement()
+                .addList(securitySchemeName)
+            )
+
+            // ✅ This defines Bearer Token as the security scheme
+            .components(new Components()
+                .addSecuritySchemes(securitySchemeName,
+                    new SecurityScheme()
+                        .name(securitySchemeName)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .description("Paste your JWT token here. Get it from /api/auth/login")
+                )
+            );
+    }
+}

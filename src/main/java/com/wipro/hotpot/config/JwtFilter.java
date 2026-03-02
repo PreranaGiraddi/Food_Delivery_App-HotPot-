@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.wipro.hotpot.entity.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.wipro.hotpot.entity.User;
 import com.wipro.hotpot.repository.IUserRepository;
 
 import jakarta.servlet.FilterChain;
@@ -34,50 +34,81 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ Step 1 - Get Authorization header from request
-        String authHeader = request.getHeader("Authorization");
+        try {
+            // ✅ Step 1 - Get Authorization header
+            String authHeader = request.getHeader("Authorization");
 
-        String token = null;
-        String email = null;
+            // ✅ DEBUG - print what we received
+            System.out.println("=== JWT FILTER ===");
+            System.out.println("Request URL : " + request.getRequestURI());
+            System.out.println("Auth Header : " + authHeader);
 
-        // ✅ Step 2 - Check if header starts with "Bearer "
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7); // remove "Bearer " prefix
-            email = jwtUtil.extractEmail(token);
-        }
+            String token = null;
+            String email = null;
 
-        // ✅ Step 3 - Validate token and set authentication
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // ✅ Step 2 - Extract token from header
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7).trim(); // trim any spaces
+                System.out.println("Token found : " + token.substring(0, 20) + "...");
 
-            // Find user from database
-            User user = userRepository.findByEmail(email).orElse(null);
+                try {
+                    email = jwtUtil.extractEmail(token);
+                    System.out.println("Email extracted : " + email);
+                } catch (Exception e) {
+                    System.out.println("Token extraction failed: " + e.getMessage());
+                }
+            } else {
+                System.out.println("No Bearer token found in header!");
+            }
 
-            if (user != null && jwtUtil.isTokenValid(token)) {
+            // ✅ Step 3 - Validate and set authentication
+            if (email != null &&
+                SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Extract role from token
-                String role = jwtUtil.extractRole(token);
+                User user = userRepository.findByEmail(email).orElse(null);
 
-                // Create authentication token with role
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                email,
-                                null,
-                                Collections.singletonList(
-                                        new SimpleGrantedAuthority("ROLE_" + role)
-                                )
+                if (user != null) {
+                    System.out.println("User found: " + user.getEmail());
+
+                    if (jwtUtil.isTokenValid(token)) {
+                        System.out.println("Token is valid!");
+
+                        String role = jwtUtil.extractRole(token);
+                        System.out.println("Role: " + role);
+
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        email,
+                                        null,
+                                        Collections.singletonList(
+                                                new SimpleGrantedAuthority("ROLE_" + role)
+                                        )
+                                );
+
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource()
+                                        .buildDetails(request)
                         );
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(authToken);
 
-                // Set authentication in security context
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                        System.out.println("Authentication set successfully!");
+
+                    } else {
+                        System.out.println("Token is INVALID or EXPIRED!");
+                    }
+                } else {
+                    System.out.println("User NOT found in database!");
+                }
             }
+
+        } catch (Exception e) {
+            System.out.println("JwtFilter error: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        // ✅ Step 4 - Continue with filter chain
+        // ✅ Step 4 - Continue filter chain
         filterChain.doFilter(request, response);
     }
 }
-
