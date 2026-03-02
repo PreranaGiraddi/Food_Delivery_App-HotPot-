@@ -11,7 +11,7 @@ public class EmailService {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	// ✅ Send order confirmation email
+	// Send order confirmation email
 	public void sendOrderConfirmationEmail(String toEmail, String userName, Long orderId) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(toEmail);
@@ -22,7 +22,7 @@ public class EmailService {
 		mailSender.send(message);
 	}
 
-	// ✅ Send order status update email
+	// Send order status update email
 	public void sendOrderStatusEmail(String toEmail, String userName, Long orderId, String status) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(toEmail);

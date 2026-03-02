@@ -59,7 +59,7 @@ public class Restaurant {
 		this.createdAt = createdAt;
 	}
 
-	// ✅ Getters
+	//  Getters
 	public Long getId() {
 		return id;
 	}
@@ -96,7 +96,7 @@ public class Restaurant {
 		return createdAt;
 	}
 
-	// ✅ Setters
+	// Setters
 	public void setId(Long id) {
 		this.id = id;
 	}

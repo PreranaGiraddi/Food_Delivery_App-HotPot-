@@ -53,26 +53,26 @@ public class MenuServiceImpl implements IMenuService {
 		return menuRepository.save(item);
 	}
 
-	// ✅ Get menu item by id
+	// Get menu item by id
 	@Override
 	public MenuItem getMenuItemById(Long id) {
 		return menuRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Menu item not found with id: " + id));
 	}
 
-	// ✅ Get all menu items by restaurant
+	// Get all menu items by restaurant
 	@Override
 	public List<MenuItem> getAllMenuItemsByRestaurant(Long restaurantId) {
 		return menuRepository.findByRestaurantId(restaurantId);
 	}
 
-	// ✅ Get available menu items
+	//Get available menu items
 	@Override
 	public List<MenuItem> getAvailableMenuItems(Long restaurantId) {
 		return menuRepository.findByRestaurantIdAndIsAvailable(restaurantId, true);
 	}
 
-	// ✅ Get menu items by category
+	//Get menu items by category
 	@Override
 	public List<MenuItem> getMenuItemsByCategory(Long categoryId) {
 		Category category = categoryRepository.findById(categoryId)
@@ -80,19 +80,19 @@ public class MenuServiceImpl implements IMenuService {
 		return menuRepository.findByCategory(category);
 	}
 
-	// ✅ Filter by dietary type
+	// Filter by dietary type
 	@Override
 	public List<MenuItem> filterByDietaryType(Long restaurantId, String dietaryType) {
 		return menuRepository.findByRestaurantIdAndDietaryType(restaurantId, MenuItem.DietaryType.valueOf(dietaryType));
 	}
 
-	// ✅ Search menu items
+	// Search menu items
 	@Override
 	public List<MenuItem> searchMenuItems(String keyword) {
 		return menuRepository.globalSearch(keyword);
 	}
 
-	// ✅ Update menu item
+	// Update menu item
 	@Override
 	public MenuItem updateMenuItem(Long id, MenuDTO dto) {
 		MenuItem item = getMenuItemById(id);
@@ -109,13 +109,13 @@ public class MenuServiceImpl implements IMenuService {
 		return menuRepository.save(item);
 	}
 
-	// ✅ Delete menu item
+	// Delete menu item
 	@Override
 	public void deleteMenuItem(Long id) {
 		menuRepository.deleteById(id);
 	}
 
-	// ✅ Mark out of stock
+	//Mark out of stock
 	@Override
 	public void markOutOfStock(Long id) {
 		MenuItem item = getMenuItemById(id);
