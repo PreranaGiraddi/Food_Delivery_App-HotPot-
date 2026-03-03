@@ -13,6 +13,7 @@ import com.wipro.hotpot.entity.Cart;
 import com.wipro.hotpot.entity.CartItem;
 import com.wipro.hotpot.entity.MenuItem;
 import com.wipro.hotpot.entity.User;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.ICartItemRepository;
 import com.wipro.hotpot.repository.ICartRepository;
 import com.wipro.hotpot.repository.IMenuRepository;
@@ -38,14 +39,14 @@ public class CartServiceImpl implements ICartService {
 	public Cart getCartByUserId(Long userId) {
 		if (!cartRepository.isCartExists(userId)) {
 		    User user = userRepository.findById(userId)
-		            .orElseThrow(() -> new RuntimeException("User not found!"));
+		    		.orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 		    Cart newCart = new Cart();
 		    newCart.setUser(user);
 		    newCart.setTotalPrice(0.0);
 		    cartRepository.save(newCart);
 		}
 		return cartRepository.findByUserId(userId)
-		        .orElseThrow(() -> new RuntimeException("Cart not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
 		
 	}
 
@@ -56,7 +57,7 @@ public class CartServiceImpl implements ICartService {
 		Cart cart = getCartByUserId(userId);
 
 		MenuItem menuItem = menuRepository.findById(menuItemId)
-				.orElseThrow(() -> new RuntimeException("Menu item not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Menu item not found!"));
 
 		// Check if item already in cart
 		Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId);
@@ -97,7 +98,7 @@ public class CartServiceImpl implements ICartService {
 		Cart cart = getCartByUserId(userId);
 
 		CartItem cartItem = cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId)
-				.orElseThrow(() -> new RuntimeException("Item not in cart!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Item not in cart!"));
 
 		if (quantity <= 0) {
 			cartItemRepository.delete(cartItem);

@@ -10,6 +10,7 @@ import com.wipro.hotpot.dto.LoginRequest;
 import com.wipro.hotpot.dto.LoginResponse;
 import com.wipro.hotpot.dto.RegisterRequest;
 import com.wipro.hotpot.entity.User;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.IUserRepository;
 
 @Service
@@ -49,7 +50,7 @@ public class AuthServiceImpl implements IAuthService {
 	public LoginResponse loginUser(LoginRequest request) {
 
 		User user = userRepository.findByEmail(request.getEmail())
-				.orElseThrow(() -> new RuntimeException("User not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			throw new RuntimeException("Invalid password!");
@@ -73,13 +74,13 @@ public class AuthServiceImpl implements IAuthService {
 
 	@Override
 	public User getUserById(Long id) {
-		return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+		return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 	}
 
 	@Override
 	public User getUserByEmail(String email) {
 		return userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 	}
 
 	@Override

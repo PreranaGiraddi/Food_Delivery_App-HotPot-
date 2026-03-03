@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.wipro.hotpot.dto.RestaurantDTO;
 import com.wipro.hotpot.entity.Restaurant;
 import com.wipro.hotpot.entity.User;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.IRestaurantRepository;
 import com.wipro.hotpot.repository.IUserRepository;
 
@@ -24,7 +25,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 	@Override
 	public Restaurant addRestaurant(RestaurantDTO dto, Long userId) {
 
-		User owner = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		User owner = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
 		if (restaurantRepository.isRestaurantNameExists(dto.getName())) {
 			throw new RuntimeException("Restaurant name already exists!");
@@ -46,14 +47,15 @@ public class RestaurantServiceImpl implements IRestaurantService {
 	@Override
 	public Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + id));
 	}
 
 	// Get restaurant by owner id
 	@Override
 	public Restaurant getRestaurantByOwnerId(Long ownerId) {
 		return restaurantRepository.findByOwnerId(ownerId)
-				.orElseThrow(() -> new RuntimeException("Restaurant not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
+
 	}
 
 	// Get all restaurants

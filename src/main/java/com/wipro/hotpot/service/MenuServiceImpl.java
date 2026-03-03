@@ -9,6 +9,7 @@ import com.wipro.hotpot.dto.MenuDTO;
 import com.wipro.hotpot.entity.Category;
 import com.wipro.hotpot.entity.MenuItem;
 import com.wipro.hotpot.entity.Restaurant;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.ICategoryRepository;
 import com.wipro.hotpot.repository.IMenuRepository;
 import com.wipro.hotpot.repository.IRestaurantRepository;
@@ -30,10 +31,10 @@ public class MenuServiceImpl implements IMenuService {
 	public MenuItem addMenuItem(MenuDTO dto) {
 
 		Restaurant restaurant = restaurantRepository.findById(dto.getRestaurantId())
-				.orElseThrow(() -> new RuntimeException("Restaurant not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
 
 		Category category = categoryRepository.findById(dto.getCategoryId())
-				.orElseThrow(() -> new RuntimeException("Category not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found!"));
 
 		MenuItem item = new MenuItem();
 		item.setName(dto.getName());
@@ -57,7 +58,8 @@ public class MenuServiceImpl implements IMenuService {
 	@Override
 	public MenuItem getMenuItemById(Long id) {
 		return menuRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Menu item not found with id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
+
 	}
 
 	// Get all menu items by restaurant

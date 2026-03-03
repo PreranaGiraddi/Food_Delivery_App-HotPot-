@@ -13,6 +13,7 @@ import com.wipro.hotpot.entity.Order;
 import com.wipro.hotpot.entity.OrderItem;
 import com.wipro.hotpot.entity.Restaurant;
 import com.wipro.hotpot.entity.User;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.ICartItemRepository;
 import com.wipro.hotpot.repository.ICartRepository;
 import com.wipro.hotpot.repository.IOrderRepository;
@@ -47,12 +48,12 @@ public class OrderServiceImpl implements IOrderService {
 	@Override
 	public Order placeOrder(Long userId, OrderDTO dto) {
 
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
 		Restaurant restaurant = restaurantRepository.findById(dto.getRestaurantId())
-				.orElseThrow(() -> new RuntimeException("Restaurant not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
 
-		Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Cart is empty!"));
+		Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart is empty!"));
 
 		List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
 
@@ -96,7 +97,7 @@ public class OrderServiceImpl implements IOrderService {
 	@Override
 	public Order getOrderById(Long orderId) {
 		return orderRepository.findById(orderId)
-				.orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 	}
 
 	// ✅ Get orders by user

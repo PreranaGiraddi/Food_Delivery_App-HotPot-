@@ -1,49 +1,33 @@
 package com.wipro.hotpot.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import jakarta.validation.constraints.*;
 
 public class OrderStatusDTO {
 
-	@NotNull(message = "Order ID is required")
-	private Long orderId;
+    @NotNull(message = "Order ID is required")
+    private Long orderId;
 
-	@NotBlank(message = "Status is required")
-	private String status;
+    @NotBlank(message = "Status is required")
+    @Pattern(regexp = "PLACED|CONFIRMED|PROCESSING|DISPATCHED|OUT_FOR_DELIVERY|DELIVERED|CANCELLED",
+             message = "Invalid status! Must be one of: PLACED, CONFIRMED, PROCESSING, DISPATCHED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED")
+    private String status;
 
-	private String message;
+    @NotBlank(message = "Message is required")
+    private String message;
 
-	public OrderStatusDTO() {
-	}
+    public OrderStatusDTO() {}
 
-	public OrderStatusDTO(Long orderId, String status, String message) {
-		this.orderId = orderId;
-		this.status = status;
-		this.message = message;
-	}
+    public OrderStatusDTO(Long orderId, String status, String message) {
+        this.orderId = orderId;
+        this.status = status;
+        this.message = message;
+    }
 
-	public Long getOrderId() {
-		return orderId;
-	}
+    public Long getOrderId() { return orderId; }
+    public String getStatus() { return status; }
+    public String getMessage() { return message; }
 
-	public String getStatus() {
-		return status;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setOrderId(Long orderId) { this.orderId = orderId; }
+    public void setStatus(String status) { this.status = status; }
+    public void setMessage(String message) { this.message = message; }
 }

@@ -9,6 +9,7 @@ import com.wipro.hotpot.dto.OrderStatusDTO;
 import com.wipro.hotpot.dto.TrackingDTO;
 import com.wipro.hotpot.entity.Order;
 import com.wipro.hotpot.entity.OrderTracking;
+import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.IOrderRepository;
 import com.wipro.hotpot.repository.ITrackingRepository;
 
@@ -27,7 +28,7 @@ public class TrackingServiceImpl implements ITrackingService {
 	// ✅ Create tracking when order is placed
 	@Override
 	public OrderTracking createTracking(Long orderId) {
-		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found!"));
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
 
 		OrderTracking tracking = new OrderTracking();
 		tracking.setOrder(order);
@@ -42,7 +43,7 @@ public class TrackingServiceImpl implements ITrackingService {
 	public OrderTracking updateOrderStatus(OrderStatusDTO dto) {
 
 		OrderTracking tracking = trackingRepository.findByOrderId(dto.getOrderId())
-				.orElseThrow(() -> new RuntimeException("Tracking not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Tracking not found!"));
 
 		// Update tracking status
 		tracking.setStatus(OrderTracking.TrackingStatus.valueOf(dto.getStatus()));
@@ -66,7 +67,8 @@ public class TrackingServiceImpl implements ITrackingService {
 	@Override
 	public OrderTracking getTrackingByOrderId(Long orderId) {
 		return trackingRepository.findByOrderId(orderId)
-				.orElseThrow(() -> new RuntimeException("Tracking not found for order: " + orderId));
+				.orElseThrow(() -> new ResourceNotFoundException("Tracking not found for order: " + orderId));
+
 	}
 
 	// ✅ Get all trackings by user
