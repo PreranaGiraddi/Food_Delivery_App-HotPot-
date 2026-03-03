@@ -70,4 +70,3 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 }
-

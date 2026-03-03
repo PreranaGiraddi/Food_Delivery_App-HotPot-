@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,20 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+    // ✅ Ignore Swagger completely from security
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/v3/api-docs",
+            "/api-docs/**",
+            "/webjars/**",
+            "/swagger-resources/**"
+        );
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -29,23 +44,30 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
 
             .authorizeHttpRequests(auth -> auth
-                // PUBLIC routes
+
+                // ✅ PUBLIC routes
                 .requestMatchers(
                     "/api/auth/register",
                     "/api/auth/login",
                     "/api/auth/isEmailExists/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**"
+                    "/api/menu/search",
+                    "/api/menu/restaurant/**",
+                    "/api/menu/available/**",
+                    "/api/menu/filter",
+                    "/api/restaurant/all",
+                    "/api/restaurant/active",
+                    "/api/restaurant/search"
                 ).permitAll()
 
-                // ADMIN only
+                // ✅ ADMIN only routes
                 .requestMatchers(
                     "/api/auth/users",
-                    "/api/auth/user/**"
+                    "/api/auth/user/**",
+                    "/api/restaurant/add",
+                    "/api/restaurant/delete/**"
                 ).hasRole("ADMIN")
 
-                // RESTAURANT only
+                // ✅ RESTAURANT only routes
                 .requestMatchers(
                     "/api/menu/add",
                     "/api/menu/update/**",
@@ -57,23 +79,27 @@ public class SecurityConfig {
                     "/api/tracking/restaurant/**"
                 ).hasRole("RESTAURANT")
 
-                // USER only
+                // ✅ USER only routes
                 .requestMatchers(
-                    "/api/cart/**",
-                    "/api/order/place/**",
-                    "/api/order/history/**",
-                    "/api/order/cancel/**",
-                    "/api/tracking/user/**"
-                ).hasRole("USER")
+                	    "/api/cart",
+                	    "/api/cart/**",
+                	    "/api/order/place/**",
+                	    "/api/order/user/**",
+                	    "/api/order/history/**",
+                	    "/api/order/cancel/**",
+                	    "/api/tracking/user/**",
+                	    "/api/tracking/order/**",
+                	    "/api/tracking/details/**",
+                	    "/api/tracking/create/**"
+                	).hasRole("USER")
 
-                // Any other route requires authentication
                 .anyRequest().authenticated()
             )
-            // JWT-based stateless session
+
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // Add JWT filter before UsernamePasswordAuthenticationFilter
+
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
