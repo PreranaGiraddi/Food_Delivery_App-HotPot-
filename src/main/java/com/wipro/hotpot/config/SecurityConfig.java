@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,20 +22,6 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    // ✅ Ignore Swagger completely from security
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/v3/api-docs",
-            "/api-docs/**",
-            "/webjars/**",
-            "/swagger-resources/**"
-        );
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -45,7 +30,7 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ PUBLIC routes
+                // ✅ 1. PUBLIC — no token needed at all
                 .requestMatchers(
                     "/api/auth/register",
                     "/api/auth/login",
@@ -53,46 +38,53 @@ public class SecurityConfig {
                     "/api/menu/search",
                     "/api/menu/restaurant/**",
                     "/api/menu/available/**",
+                    "/api/menu/category/**",
                     "/api/menu/filter",
                     "/api/restaurant/all",
                     "/api/restaurant/active",
-                    "/api/restaurant/search"
+                    "/api/restaurant/search",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/api-docs/**"
                 ).permitAll()
 
-                // ✅ ADMIN only routes
+                // ✅ 2. ADMIN only routes
                 .requestMatchers(
                     "/api/auth/users",
-                    "/api/auth/user/**",
                     "/api/restaurant/add",
                     "/api/restaurant/delete/**"
                 ).hasRole("ADMIN")
 
-                // ✅ RESTAURANT only routes
+                // ✅ 3. RESTAURANT only routes
                 .requestMatchers(
                     "/api/menu/add",
                     "/api/menu/update/**",
                     "/api/menu/delete/**",
                     "/api/menu/outofstock/**",
-                    "/api/restaurant/update/**",
-                    "/api/order/restaurant/**",
-                    "/api/tracking/update",
-                    "/api/tracking/restaurant/**"
+                    "/api/restaurant/update/**"
                 ).hasRole("RESTAURANT")
 
-                // ✅ USER only routes
+                // ✅ 4. USER only routes
                 .requestMatchers(
-                	    "/api/cart",
-                	    "/api/cart/**",
-                	    "/api/order/place/**",
-                	    "/api/order/user/**",
-                	    "/api/order/history/**",
-                	    "/api/order/cancel/**",
-                	    "/api/tracking/user/**",
-                	    "/api/tracking/order/**",
-                	    "/api/tracking/details/**",
-                	    "/api/tracking/create/**"
-                	).hasRole("USER")
+                    "/api/cart/**",
+                    "/api/order/place/**",
+                    "/api/order/history/**",
+                    "/api/order/cancel/**",
+                    "/api/order/user/**"
+                ).hasRole("USER")
 
+                // ✅ 5. Any logged in user can access
+                // (USER + RESTAURANT + ADMIN)
+                .requestMatchers(
+                    "/api/order/**",
+                    "/api/tracking/**",
+                    "/api/auth/user/**",
+                    "/api/restaurant/**",
+                    "/api/menu/**"
+                ).authenticated()
+
+                // ✅ 6. Everything else needs login
                 .anyRequest().authenticated()
             )
 
@@ -100,7 +92,8 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter,
+                    UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
