@@ -50,7 +50,7 @@ public class CartServiceImpl implements ICartService {
 		
 	}
 
-	// ✅ Add item to cart
+
 	@Override
 	public Cart addItemToCart(Long userId, Long menuItemId, Integer quantity) {
 
@@ -59,17 +59,17 @@ public class CartServiceImpl implements ICartService {
 		MenuItem menuItem = menuRepository.findById(menuItemId)
 				.orElseThrow(() -> new ResourceNotFoundException("Menu item not found!"));
 
-		// Check if item already in cart
+		
 		Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId);
 
 		if (existingItem.isPresent()) {
-			// Update quantity if already exists
+		
 			CartItem cartItem = existingItem.get();
 			cartItem.setQuantity(cartItem.getQuantity() + quantity);
 			cartItem.setTotalItemPrice(cartItem.getQuantity() * menuItem.getPrice());
 			cartItemRepository.save(cartItem);
 		} else {
-			// Add new item
+			
 			CartItem cartItem = new CartItem();
 			cartItem.setCart(cart);
 			cartItem.setMenuItem(menuItem);
@@ -78,12 +78,11 @@ public class CartServiceImpl implements ICartService {
 			cartItemRepository.save(cartItem);
 		}
 
-		// Update total price
 		updateCartTotal(cart);
 		return cartRepository.save(cart);
 	}
 
-	// ✅ Remove item from cart
+
 	@Override
 	public Cart removeItemFromCart(Long userId, Long menuItemId) {
 		Cart cart = getCartByUserId(userId);
@@ -92,7 +91,7 @@ public class CartServiceImpl implements ICartService {
 		return cartRepository.save(cart);
 	}
 
-	// ✅ Update item quantity
+	
 	@Override
 	public Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity) {
 		Cart cart = getCartByUserId(userId);
@@ -112,7 +111,7 @@ public class CartServiceImpl implements ICartService {
 		return cartRepository.save(cart);
 	}
 
-	// ✅ Clear cart
+	
 	@Override
 	public void clearCart(Long userId) {
 		Cart cart = getCartByUserId(userId);
@@ -121,7 +120,7 @@ public class CartServiceImpl implements ICartService {
 		cartRepository.save(cart);
 	}
 
-	// ✅ Get cart details as DTO
+	
 	@Override
 	public CartDTO getCartDetails(Long userId) {
 		Cart cart = getCartByUserId(userId);
@@ -147,7 +146,7 @@ public class CartServiceImpl implements ICartService {
 		return cartDTO;
 	}
 
-	// ✅ Helper - update cart total
+	
 	private void updateCartTotal(Cart cart) {
 		List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
 		double total = 0.0;

@@ -23,17 +23,17 @@ public interface ICartItemRepository extends JpaRepository<CartItem, Long> {
 
     Optional<CartItem> findByCartIdAndMenuItemId(Long cartId, Long menuItemId);
 
-    // ✅ Add @Transactional and @Modifying here
+   
     @Transactional
     @Modifying
     void deleteByCart(Cart cart);
 
-    // ✅ Add @Transactional and @Modifying here
+   
     @Transactional
     @Modifying
     void deleteByCartId(Long cartId);
 
-    // ✅ Add @Transactional and @Modifying here
+   
     @Transactional
     @Modifying
     void deleteByCartIdAndMenuItemId(Long cartId, Long menuItemId);

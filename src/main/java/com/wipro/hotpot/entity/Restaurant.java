@@ -48,10 +48,10 @@ public class Restaurant {
         this.createdAt = LocalDateTime.now();
     }
 
-    // ✅ No-arg Constructor
+   
     public Restaurant() {}
 
-    // ✅ All-arg Constructor
+ 
     public Restaurant(Long id, String name, String location, String contactNumber,
                       String description, String imageUrl, boolean isActive,
                       User owner, LocalDateTime createdAt) {
@@ -66,7 +66,7 @@ public class Restaurant {
         this.createdAt = createdAt;
     }
 
-    // ✅ Getters
+ 
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getLocation() { return location; }
@@ -77,7 +77,7 @@ public class Restaurant {
     public User getOwner() { return owner; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
-    // ✅ Setters
+ 
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setLocation(String location) { this.location = location; }

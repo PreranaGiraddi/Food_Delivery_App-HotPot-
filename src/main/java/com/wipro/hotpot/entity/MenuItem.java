@@ -47,10 +47,10 @@ public class MenuItem {
         VEG, NONVEG
     }
 
-    // ✅ No-arg Constructor
+  
     public MenuItem() {}
 
-    // ✅ All-arg Constructor
+   
     public MenuItem(Long id, String name, String description, Double price,
                     Double discountPrice, String imageUrl, String availabilityTime,
                     DietaryType dietaryType, String tasteInfo, String nutritionalInfo,
@@ -72,7 +72,7 @@ public class MenuItem {
         this.restaurant = restaurant;
     }
 
-    // ✅ Getters
+  
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -88,7 +88,7 @@ public class MenuItem {
     public Category getCategory() { return category; }
     public Restaurant getRestaurant() { return restaurant; }
 
-    // ✅ Setters
+    
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setDescription(String description) { this.description = description; }

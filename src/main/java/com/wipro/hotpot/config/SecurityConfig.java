@@ -30,7 +30,7 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ 1. PUBLIC — no token needed at all
+               
                 .requestMatchers(
                     "/api/auth/register",
                     "/api/auth/login",
@@ -49,14 +49,14 @@ public class SecurityConfig {
                     "/api-docs/**"
                 ).permitAll()
 
-                // ✅ 2. ADMIN only routes
+               
                 .requestMatchers(
                     "/api/auth/users",
                     "/api/restaurant/add",
                     "/api/restaurant/delete/**"
                 ).hasRole("ADMIN")
 
-                // ✅ 3. RESTAURANT only routes
+             
                 .requestMatchers(
                     "/api/menu/add",
                     "/api/menu/update/**",
@@ -65,7 +65,7 @@ public class SecurityConfig {
                     "/api/restaurant/update/**"
                 ).hasRole("RESTAURANT")
 
-                // ✅ 4. USER only routes
+               
                 .requestMatchers(
                     "/api/cart/**",
                     "/api/order/place/**",
@@ -74,8 +74,7 @@ public class SecurityConfig {
                     "/api/order/user/**"
                 ).hasRole("USER")
 
-                // ✅ 5. Any logged in user can access
-                // (USER + RESTAURANT + ADMIN)
+                
                 .requestMatchers(
                     "/api/order/**",
                     "/api/tracking/**",
@@ -84,7 +83,7 @@ public class SecurityConfig {
                     "/api/menu/**"
                 ).authenticated()
 
-                // ✅ 6. Everything else needs login
+               
                 .anyRequest().authenticated()
             )
 

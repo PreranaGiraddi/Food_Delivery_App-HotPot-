@@ -51,18 +51,18 @@ public class MenuServiceTest {
     @BeforeEach
     public void setUp() {
 
-        // Sample restaurant
+        
         restaurant = new Restaurant();
         restaurant.setId(1L);
         restaurant.setName("HotPot Restaurant");
 
-        // Sample category
+      
         category = new Category();
         category.setId(1L);
         category.setName("Burger");
         category.setRestaurant(restaurant);
 
-        // Sample menuDTO (what user sends)
+        
         menuDTO = new MenuDTO();
         menuDTO.setName("Chicken Burger");
         menuDTO.setDescription("Juicy chicken burger");
@@ -76,7 +76,7 @@ public class MenuServiceTest {
         menuDTO.setRestaurantId(1L);
         menuDTO.setAvailable(true);
 
-        // Sample saved menuItem
+      
         menuItem = new MenuItem();
         menuItem.setId(1L);
         menuItem.setName("Chicken Burger");
@@ -87,11 +87,11 @@ public class MenuServiceTest {
         menuItem.setRestaurant(restaurant);
     }
 
-    //  TEST 1 — Add menu item successfully
+   
     @Test
     public void testAddMenuItem_Success() {
 
-        // ARRANGE
+       
         when(restaurantRepository.findById(1L))
                 .thenReturn(Optional.of(restaurant));
         when(categoryRepository.findById(1L))
@@ -99,10 +99,10 @@ public class MenuServiceTest {
         when(menuRepository.save(any(MenuItem.class)))
                 .thenReturn(menuItem);
 
-        // ACT
+       
         MenuItem result = menuService.addMenuItem(menuDTO);
 
-        // ASSERT
+       
         assertNotNull(result);
         assertEquals("Chicken Burger", result.getName());
         assertEquals(199.0, result.getPrice());
@@ -114,15 +114,15 @@ public class MenuServiceTest {
         System.out.println("Add Menu Item Test Passed!");
     }
 
-    //  TEST 2 — Add menu item fails if restaurant not found
+   
     @Test
     public void testAddMenuItem_RestaurantNotFound() {
 
-        // ARRANGE
+     
         when(restaurantRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        // ACT + ASSERT
+     
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             menuService.addMenuItem(menuDTO);
         });
@@ -133,19 +133,19 @@ public class MenuServiceTest {
         System.out.println("Restaurant Not Found Test Passed!");
     }
 
-    //  TEST 3 — Get all menu items by restaurant
+  
     @Test
     public void testGetAllMenuItemsByRestaurant() {
 
-        // ARRANGE
+      
         List<MenuItem> menuItems = Arrays.asList(menuItem);
         when(menuRepository.findByRestaurantId(1L))
                 .thenReturn(menuItems);
 
-        // ACT
+       
         List<MenuItem> result = menuService.getAllMenuItemsByRestaurant(1L);
 
-        // ASSERT
+       
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Chicken Burger", result.get(0).getName());
@@ -153,20 +153,20 @@ public class MenuServiceTest {
         System.out.println("Get Menu Items By Restaurant Test Passed!");
     }
 
-    // TEST 4 — Mark menu item as out of stock
+    
     @Test
     public void testMarkOutOfStock() {
 
-        // ARRANGE
+       
         when(menuRepository.findById(1L))
                 .thenReturn(Optional.of(menuItem));
         when(menuRepository.save(any(MenuItem.class)))
                 .thenReturn(menuItem);
 
-        // ACT
+       
         menuService.markOutOfStock(1L);
 
-        // ASSERT
+       
         assertFalse(menuItem.isAvailable()); // should be false now
 
         verify(menuRepository, times(1)).save(menuItem);

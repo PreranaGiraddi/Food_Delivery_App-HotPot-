@@ -44,7 +44,7 @@ public class OrderServiceImpl implements IOrderService {
 	@Autowired
 	private EmailService emailService;
 
-	// ✅ Place order
+	
 	@Override
 	public Order placeOrder(Long userId, OrderDTO dto) {
 
@@ -61,7 +61,7 @@ public class OrderServiceImpl implements IOrderService {
 			throw new RuntimeException("Cart is empty! Add items before ordering.");
 		}
 
-		// Create order
+		
 		Order order = new Order();
 		order.setUser(user);
 		order.setRestaurant(restaurant);
@@ -70,7 +70,7 @@ public class OrderServiceImpl implements IOrderService {
 		order.setTotalAmount(cart.getTotalPrice());
 		order.setStatus(Order.OrderStatus.PLACED);
 
-		// Create order items from cart items
+		
 		List<OrderItem> orderItems = new ArrayList<>();
 		for (CartItem cartItem : cartItems) {
 			OrderItem orderItem = new OrderItem();
@@ -84,41 +84,41 @@ public class OrderServiceImpl implements IOrderService {
 
 		Order savedOrder = orderRepository.save(order);
 
-		// Clear cart after order placed
+		
 		cartService.clearCart(userId);
 
-		// Send confirmation email
+		
 		emailService.sendOrderConfirmationEmail(user.getEmail(), user.getName(), savedOrder.getId());
 
 		return savedOrder;
 	}
 
-	// ✅ Get order by id
+
 	@Override
 	public Order getOrderById(Long orderId) {
 		return orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 	}
 
-	// ✅ Get orders by user
+	
 	@Override
 	public List<Order> getOrdersByUser(Long userId) {
 		return orderRepository.findByUserId(userId);
 	}
 
-	// ✅ Get orders by restaurant
+	
 	@Override
 	public List<Order> getOrdersByRestaurant(Long restaurantId) {
 		return orderRepository.findByRestaurantId(restaurantId);
 	}
 
-	// ✅ Get order history
+	
 	@Override
 	public List<Order> getOrderHistory(Long userId) {
 		return orderRepository.findOrderHistoryByUser(userId);
 	}
 
-	// ✅ Cancel order
+
 	@Override
 	public Order cancelOrder(Long orderId) {
 		Order order = getOrderById(orderId);

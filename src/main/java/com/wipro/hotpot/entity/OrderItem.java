@@ -35,10 +35,10 @@ public class OrderItem {
     private Integer quantity;
     private Double price;
 
-    // ✅ No-arg Constructor
+  
     public OrderItem() {}
 
-    // ✅ All-arg Constructor
+   
     public OrderItem(Long id, Order order, MenuItem menuItem,
                      Integer quantity, Double price) {
         this.id = id;
@@ -48,14 +48,14 @@ public class OrderItem {
         this.price = price;
     }
 
-    // ✅ Getters
+   
     public Long getId() { return id; }
     public Order getOrder() { return order; }
     public MenuItem getMenuItem() { return menuItem; }
     public Integer getQuantity() { return quantity; }
     public Double getPrice() { return price; }
 
-    // ✅ Setters
+
     public void setId(Long id) { this.id = id; }
     public void setOrder(Order order) { this.order = order; }
     public void setMenuItem(MenuItem menuItem) { this.menuItem = menuItem; }

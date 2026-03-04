@@ -35,10 +35,10 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
-            // ✅ Step 1 - Get Authorization header
+            
             String authHeader = request.getHeader("Authorization");
 
-            // ✅ DEBUG - print what we received
+         
             System.out.println("=== JWT FILTER ===");
             System.out.println("Request URL : " + request.getRequestURI());
             System.out.println("Auth Header : " + authHeader);
@@ -46,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = null;
             String email = null;
 
-            // ✅ Step 2 - Extract token from header
+           
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7).trim(); // trim any spaces
                 System.out.println("Token found : " + token.substring(0, 20) + "...");
@@ -61,7 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 System.out.println("No Bearer token found in header!");
             }
 
-            // ✅ Step 3 - Validate and set authentication
+           
             if (email != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -108,7 +108,7 @@ public class JwtFilter extends OncePerRequestFilter {
             e.printStackTrace();
         }
 
-        // ✅ Step 4 - Continue filter chain
+       
         filterChain.doFilter(request, response);
     }
 }

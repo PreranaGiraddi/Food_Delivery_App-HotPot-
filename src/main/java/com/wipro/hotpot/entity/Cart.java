@@ -35,10 +35,10 @@ public class Cart {
 
     private Double totalPrice = 0.0;
 
-    // ✅ No-arg Constructor
+  
     public Cart() {}
 
-    // ✅ All-arg Constructor
+    
     public Cart(Long id, User user, List<CartItem> cartItems, Double totalPrice) {
         this.id = id;
         this.user = user;
@@ -46,13 +46,13 @@ public class Cart {
         this.totalPrice = totalPrice;
     }
 
-    // ✅ Getters
+
     public Long getId() { return id; }
     public User getUser() { return user; }
     public List<CartItem> getCartItems() { return cartItems; }
     public Double getTotalPrice() { return totalPrice; }
 
-    // ✅ Setters
+
     public void setId(Long id) { this.id = id; }
     public void setUser(User user) { this.user = user; }
     public void setCartItems(List<CartItem> cartItems) { this.cartItems = cartItems; }

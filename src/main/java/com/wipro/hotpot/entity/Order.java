@@ -62,10 +62,9 @@ public class Order {
         PLACED, CONFIRMED, PROCESSING, DISPATCHED, DELIVERED, CANCELLED
     }
 
-    // ✅ No-arg Constructor
+  
     public Order() {}
 
-    // ✅ All-arg Constructor
     public Order(Long id, User user, Restaurant restaurant, List<OrderItem> orderItems,
                  OrderStatus status, Double totalAmount, String deliveryAddress,
                  String paymentMethod, LocalDateTime orderedAt) {
@@ -80,7 +79,7 @@ public class Order {
         this.orderedAt = orderedAt;
     }
 
-    // ✅ Getters
+ 
     public Long getId() { return id; }
     public User getUser() { return user; }
     public Restaurant getRestaurant() { return restaurant; }
@@ -91,7 +90,7 @@ public class Order {
     public String getPaymentMethod() { return paymentMethod; }
     public LocalDateTime getOrderedAt() { return orderedAt; }
 
-    // ✅ Setters
+  
     public void setId(Long id) { this.id = id; }
     public void setUser(User user) { this.user = user; }
     public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }

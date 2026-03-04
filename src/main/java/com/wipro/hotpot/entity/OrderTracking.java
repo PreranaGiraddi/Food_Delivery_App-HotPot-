@@ -50,10 +50,9 @@ public class OrderTracking {
         DELIVERED, CANCELLED
     }
 
-    // ✅ No-arg Constructor
     public OrderTracking() {}
 
-    // ✅ All-arg Constructor
+
     public OrderTracking(Long id, Order order, TrackingStatus status,
                          String message, LocalDateTime updatedAt) {
         this.id = id;
@@ -63,14 +62,14 @@ public class OrderTracking {
         this.updatedAt = updatedAt;
     }
 
-    // ✅ Getters
+
     public Long getId() { return id; }
     public Order getOrder() { return order; }
     public TrackingStatus getStatus() { return status; }
     public String getMessage() { return message; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    // ✅ Setters
+    
     public void setId(Long id) { this.id = id; }
     public void setOrder(Order order) { this.order = order; }
     public void setStatus(TrackingStatus status) { this.status = status; }

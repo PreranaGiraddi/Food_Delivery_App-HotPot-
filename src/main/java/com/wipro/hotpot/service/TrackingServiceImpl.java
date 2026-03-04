@@ -25,7 +25,7 @@ public class TrackingServiceImpl implements ITrackingService {
 	@Autowired
 	private EmailService emailService;
 
-	// ✅ Create tracking when order is placed
+	
 	@Override
 	public OrderTracking createTracking(Long orderId) {
 		Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
@@ -38,32 +38,32 @@ public class TrackingServiceImpl implements ITrackingService {
 		return trackingRepository.save(tracking);
 	}
 
-	// ✅ Update order status
+	
 	@Override
 	public OrderTracking updateOrderStatus(OrderStatusDTO dto) {
 
 		OrderTracking tracking = trackingRepository.findByOrderId(dto.getOrderId())
 				.orElseThrow(() -> new ResourceNotFoundException("Tracking not found!"));
 
-		// Update tracking status
+	
 		tracking.setStatus(OrderTracking.TrackingStatus.valueOf(dto.getStatus()));
 		tracking.setMessage(dto.getMessage());
 
-		// Also update order status
+	
 		Order order = tracking.getOrder();
 		order.setStatus(Order.OrderStatus.valueOf(dto.getStatus()));
 		orderRepository.save(order);
 
 		OrderTracking updated = trackingRepository.save(tracking);
 
-		// Send email notification to user
+		
 		emailService.sendOrderStatusEmail(order.getUser().getEmail(), order.getUser().getName(), order.getId(),
 				dto.getStatus());
 
 		return updated;
 	}
 
-	// ✅ Get tracking by order id
+
 	@Override
 	public OrderTracking getTrackingByOrderId(Long orderId) {
 		return trackingRepository.findByOrderId(orderId)
@@ -71,19 +71,19 @@ public class TrackingServiceImpl implements ITrackingService {
 
 	}
 
-	// ✅ Get all trackings by user
+	
 	@Override
 	public List<OrderTracking> getTrackingsByUserId(Long userId) {
 		return trackingRepository.findAllByUserId(userId);
 	}
 
-	// ✅ Get all trackings by restaurant
+
 	@Override
 	public List<OrderTracking> getTrackingsByRestaurantId(Long restaurantId) {
 		return trackingRepository.findAllByRestaurantId(restaurantId);
 	}
 
-	// ✅ Get tracking as DTO
+	
 	@Override
 	public TrackingDTO getTrackingDetails(Long orderId) {
 		OrderTracking tracking = getTrackingByOrderId(orderId);

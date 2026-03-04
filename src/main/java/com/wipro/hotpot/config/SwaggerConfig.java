@@ -15,12 +15,12 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
 
-        // ✅ JWT Security Scheme name
+       
         final String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
 
-            // ✅ API Information
+          
             .info(new Info()
                 .title("🍲 HotPot - Online Food Delivery API")
                 .version("1.0")
@@ -31,12 +31,12 @@ public class SwaggerConfig {
                 )
             )
 
-            // ✅ This adds the Authorize button in Swagger
+           
             .addSecurityItem(new SecurityRequirement()
                 .addList(securitySchemeName)
             )
 
-            // ✅ This defines Bearer Token as the security scheme
+           
             .components(new Components()
                 .addSecuritySchemes(securitySchemeName,
                     new SecurityScheme()

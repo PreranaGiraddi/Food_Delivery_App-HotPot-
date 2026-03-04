@@ -48,9 +48,7 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    // ✅ Get all orders by restaurant
-    // Input  : restaurantId (path variable)
-    // Return : List of Order objects
+    
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<List<Order>> getOrdersByRestaurant(
             @PathVariable Long restaurantId) {

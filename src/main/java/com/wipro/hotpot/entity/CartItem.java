@@ -34,10 +34,10 @@ public class CartItem {
     private Integer quantity;
     private Double totalItemPrice;
 
-    // ✅ No-arg Constructor
+   
     public CartItem() {}
 
-    // ✅ All-arg Constructor
+  
     public CartItem(Long id, Cart cart, MenuItem menuItem,
                     Integer quantity, Double totalItemPrice) {
         this.id = id;
@@ -47,14 +47,14 @@ public class CartItem {
         this.totalItemPrice = totalItemPrice;
     }
 
-    // ✅ Getters
+  
     public Long getId() { return id; }
     public Cart getCart() { return cart; }
     public MenuItem getMenuItem() { return menuItem; }
     public Integer getQuantity() { return quantity; }
     public Double getTotalItemPrice() { return totalItemPrice; }
 
-    // ✅ Setters
+   
     public void setId(Long id) { this.id = id; }
     public void setCart(Cart cart) { this.cart = cart; }
     public void setMenuItem(MenuItem menuItem) { this.menuItem = menuItem; }

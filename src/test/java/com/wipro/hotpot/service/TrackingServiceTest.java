@@ -52,18 +52,18 @@ public class TrackingServiceTest {
     @BeforeEach
     public void setUp() {
 
-        // Sample user
+      
         user = new User();
         user.setId(1L);
         user.setName("John");
         user.setEmail("john@gmail.com");
 
-        // Sample restaurant
+       
         restaurant = new Restaurant();
         restaurant.setId(1L);
         restaurant.setName("HotPot Restaurant");
 
-        // Sample order
+      
         order = new Order();
         order.setId(1L);
         order.setUser(user);
@@ -71,7 +71,7 @@ public class TrackingServiceTest {
         order.setStatus(Order.OrderStatus.PLACED);
         order.setTotalAmount(500.0);
 
-        // Sample tracking
+     
         tracking = new OrderTracking();
         tracking.setId(1L);
         tracking.setOrder(order);
@@ -80,20 +80,20 @@ public class TrackingServiceTest {
         tracking.setUpdatedAt(LocalDateTime.now());
     }
 
-    // TEST 1 — Create tracking when order is placed
+  
     @Test
     public void testCreateTracking_Success() {
 
-        // ARRANGE
+       
         when(orderRepository.findById(1L))
                 .thenReturn(Optional.of(order));
         when(trackingRepository.save(any(OrderTracking.class)))
                 .thenReturn(tracking);
 
-        // ACT
+      
         OrderTracking result = trackingService.createTracking(1L);
 
-        // ASSERT
+      
         assertNotNull(result);
         assertEquals(OrderTracking.TrackingStatus.PLACED, result.getStatus());
         assertEquals("Your order has been placed successfully!", result.getMessage());
@@ -103,15 +103,15 @@ public class TrackingServiceTest {
         System.out.println("✅ Create Tracking Test Passed!");
     }
 
-    // TEST 2 — Create tracking fails if order not found
+    
     @Test
     public void testCreateTracking_OrderNotFound() {
 
-        // ARRANGE
+       
         when(orderRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
-        // ACT + ASSERT
+
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             trackingService.createTracking(99L);
         });
@@ -122,11 +122,11 @@ public class TrackingServiceTest {
         System.out.println("✅ Order Not Found Test Passed!");
     }
 
-    // TEST 3 — Update order status successfully
+    
     @Test
     public void testUpdateOrderStatus_Success() {
 
-        // ARRANGE
+       
         OrderStatusDTO dto = new OrderStatusDTO();
         dto.setOrderId(1L);
         dto.setStatus("DISPATCHED");
@@ -139,32 +139,32 @@ public class TrackingServiceTest {
         when(trackingRepository.save(any(OrderTracking.class)))
                 .thenReturn(tracking);
 
-        // ACT
+     
         OrderTracking result = trackingService.updateOrderStatus(dto);
 
-        // ASSERT
+       
         assertNotNull(result);
         assertEquals(OrderTracking.TrackingStatus.DISPATCHED, tracking.getStatus());
 
-        // Verify email was sent
+      
         verify(emailService, times(1))
                 .sendOrderStatusEmail(anyString(), anyString(), anyLong(), anyString());
 
         System.out.println("✅ Update Order Status Test Passed!");
     }
 
-    //TEST 4 — Get tracking details as DTO
+  
     @Test
     public void testGetTrackingDetails_Success() {
 
-        // ARRANGE
+    
         when(trackingRepository.findByOrderId(1L))
                 .thenReturn(Optional.of(tracking));
 
-        // ACT
+       
         TrackingDTO result = trackingService.getTrackingDetails(1L);
 
-        // ASSERT
+       
         assertNotNull(result);
         assertEquals(1L, result.getOrderId());
         assertEquals("PLACED", result.getStatus());
