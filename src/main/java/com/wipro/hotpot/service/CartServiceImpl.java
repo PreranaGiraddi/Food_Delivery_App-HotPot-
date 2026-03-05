@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.wipro.hotpot.dto.CartDTO;
 import com.wipro.hotpot.dto.CartItemDTO;
 import com.wipro.hotpot.entity.Cart;
@@ -84,13 +84,21 @@ public class CartServiceImpl implements ICartService {
 
 
 	@Override
+	@Transactional
 	public Cart removeItemFromCart(Long userId, Long menuItemId) {
-		Cart cart = getCartByUserId(userId);
-		cartItemRepository.deleteByCartIdAndMenuItemId(cart.getId(), menuItemId);
-		updateCartTotal(cart);
-		return cartRepository.save(cart);
-	}
+	    Cart cart = cartRepository.findByUserId(userId)
+	        .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
 
+	    // ✅ Delete the item
+	    cartItemRepository.deleteByCartIdAndMenuItemId(cart.getId(), menuItemId);
+	    
+	    // ✅ Force flush and clear cache so updateCartTotal reads fresh data
+	    cartItemRepository.flush();
+
+	    // ✅ Now recalculate total with fresh data
+	    updateCartTotal(cart);
+	    return cartRepository.save(cart);
+	}
 	
 	@Override
 	public Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity) {
@@ -111,13 +119,21 @@ public class CartServiceImpl implements ICartService {
 		return cartRepository.save(cart);
 	}
 
-	
 	@Override
-	public void clearCart(Long userId) {
-		Cart cart = getCartByUserId(userId);
-		cartItemRepository.deleteByCartId(cart.getId());
-		cart.setTotalPrice(0.0);
-		cartRepository.save(cart);
+	@Transactional
+	public String clearCart(Long userId) {
+	    Cart cart = cartRepository.findByUserId(userId)
+	        .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
+
+	    // ✅ Delete all items
+	    cartItemRepository.deleteByCartId(cart.getId());
+	    
+	    // ✅ Flush cache
+	    cartItemRepository.flush();
+	    
+	    cart.setTotalPrice(0.0);
+	    cartRepository.save(cart);
+	    return "Cart cleared successfully!";
 	}
 
 	
@@ -148,11 +164,11 @@ public class CartServiceImpl implements ICartService {
 
 	
 	private void updateCartTotal(Cart cart) {
-		List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
-		double total = 0.0;
-		for (CartItem item : items) {
-			total += item.getTotalItemPrice();
-		}
-		cart.setTotalPrice(total);
+	    List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+	    double total = items.stream()
+	        .mapToDouble(item -> item.getTotalItemPrice() != null ?
+	                     item.getTotalItemPrice() : 0.0)
+	        .sum();
+	    cart.setTotalPrice(total);
 	}
 }

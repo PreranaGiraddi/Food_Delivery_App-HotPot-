@@ -134,146 +134,230 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API    = 'http://localhost:8080';
-    const token  = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    const name   = localStorage.getItem('userName');
+const API    = 'http://localhost:8080';
+const token  = localStorage.getItem('token');
+const userId = localStorage.getItem('userId');
+const name   = localStorage.getItem('userName');
 
-    window.onload = function () {
-        if (!token || !userId) {
-            window.location.href = 'login.html';
-            return;
-        }
-        document.getElementById('userName').textContent = '👤 ' + name;
-        loadCart();
+
+window.onload = function () {
+    if (!token || !userId) {
+        window.location.href = 'login.html';
+        return;
     }
+    document.getElementById('userName').textContent = '👤 ' + name;
+    loadCart();
+}
 
-    async function loadCart() {
-        try {
-            const response = await fetch(`${API}/api/cart/${userId}`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const data = await response.json();
 
-            document.getElementById('loadingSection').classList.add('d-none');
+async function loadCart() {
 
-            if (!data.cartItems || data.cartItems.length === 0) {
-                document.getElementById('emptyCart').classList.remove('d-none');
-            } else {
-                document.getElementById('cartContent').classList.remove('d-none');
-                displayCart(data);
-            }
-        } catch (error) {
-            document.getElementById('loadingSection').classList.add('d-none');
-            showAlert('danger', 'Cannot load cart!');
-        }
-    }
+    document.getElementById('loadingSection').classList.remove('d-none');
+    document.getElementById('cartContent').classList.add('d-none');
+    document.getElementById('emptyCart').classList.add('d-none');
+    document.getElementById('cartItemsList').innerHTML = '';
 
-    function displayCart(cartData) {
-        const list = document.getElementById('cartItemsList');
-        list.innerHTML = '';
-
-        document.getElementById('itemCountBadge').textContent =
-            cartData.cartItems.length + ' items';
-        document.getElementById('subtotal').textContent =
-            '₹' + cartData.totalPrice.toFixed(2);
-        document.getElementById('totalPrice').textContent =
-            '₹' + cartData.totalPrice.toFixed(2);
-
-        cartData.cartItems.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'border-bottom py-3';
-            div.id = `item_${item.menuItemId}`;
-            div.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-1">${item.menuItemName}</h6>
-                        <small class="text-muted">₹${item.price} each</small>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="qty-btn"
-                                    onclick="updateQuantity(${item.menuItemId}, ${item.quantity - 1})">
-                                −
-                            </button>
-                            <span class="qty-display" id="qty_${item.menuItemId}">
-                                ${item.quantity}
-                            </span>
-                            <button class="qty-btn"
-                                    onclick="updateQuantity(${item.menuItemId}, ${item.quantity + 1})">
-                                +
-                            </button>
-                        </div>
-                        <span class="price-tag" id="itemPrice_${item.menuItemId}">
-                            ₹${item.totalItemPrice.toFixed(2)}
-                        </span>
-                        <button class="btn btn-outline-danger btn-sm"
-                                onclick="removeItem(${item.menuItemId})">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </div>`;
-            list.appendChild(div);
+    try {
+        const response = await fetch(`${API}/api/cart/${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
         });
-    }
 
-    async function updateQuantity(menuItemId, newQty) {
-        if (newQty < 1) {
-            removeItem(menuItemId);
+        const data = await response.json();
+        document.getElementById('loadingSection').classList.add('d-none');
+
+  
+        if (!data || !data.cartItems || data.cartItems.length === 0) {
+            document.getElementById('emptyCart').classList.remove('d-none');
             return;
         }
-        try {
-            const response = await fetch(
-                `${API}/api/cart/update?userId=${userId}&menuItemId=${menuItemId}&quantity=${newQty}`,
-                { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token } }
-            );
-            if (response.ok) loadCart();
-        } catch (error) {
-            showAlert('danger', 'Update failed!');
-        }
-    }
 
-    async function removeItem(menuItemId) {
-        try {
-            const response = await fetch(
-                `${API}/api/cart/remove?userId=${userId}&menuItemId=${menuItemId}`,
-                { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }
-            );
-            if (response.ok) loadCart();
-        } catch (error) {
-            showAlert('danger', 'Remove failed!');
-        }
-    }
+     
+        document.getElementById('cartContent').classList.remove('d-none');
+        displayCart(data);
 
-    async function clearCart() {
-        if (!confirm('Clear entire cart?')) return;
-        try {
-            const response = await fetch(`${API}/api/cart/clear/${userId}`, {
+    } catch (error) {
+        document.getElementById('loadingSection').classList.add('d-none');
+        showAlert('danger', 'Cannot load cart!');
+    }
+}
+
+
+function displayCart(cartData) {
+    const list  = document.getElementById('cartItemsList');
+    list.innerHTML = '';
+
+    const items = cartData.cartItems;
+
+
+    document.getElementById('itemCountBadge').textContent = items.length + ' items';
+    document.getElementById('subtotal').textContent       = '₹' + cartData.totalPrice.toFixed(2);
+    document.getElementById('totalPrice').textContent     = '₹' + cartData.totalPrice.toFixed(2);
+
+   
+    	items.forEach(item => {
+    	    // ✅ Handle BOTH formats
+    	    // Format 1 - CartDTO:   item.menuItemId, item.menuItemName
+    	    // Format 2 - Entity:    item.menuItem.id, item.menuItem.name
+
+    	    const id    = item.menuItemId    || item.menuItem.id;
+    	    const name  = item.menuItemName  || item.menuItem.name;
+    	    const price = item.price         || item.menuItem.discountPrice || item.menuItem.price;
+    	    const total = item.totalItemPrice;
+    	    const qty   = item.quantity;
+
+    	    const div = document.createElement('div');
+    	    div.className = 'border-bottom py-3';
+    	    div.id = 'item_' + id;
+
+    	    div.innerHTML = `
+    	        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    	            <div class="flex-grow-1">
+    	                <h6 class="fw-bold mb-1">${name}</h6>
+    	                <small class="text-muted">₹${price} each</small>
+    	            </div>
+    	            <div class="d-flex align-items-center gap-3">
+    	                <button class="qty-btn" onclick="clickMinus(${id})">−</button>
+    	                <span class="qty-display" id="qty_${id}">${qty}</span>
+    	                <button class="qty-btn" onclick="clickPlus(${id})">+</button>
+    	                <span class="price-tag" id="total_${id}">₹${total.toFixed(2)}</span>
+    	                <button class="btn btn-outline-danger btn-sm"
+    	                        onclick="removeItem(${id})">
+    	                    <i class="bi bi-trash"></i>
+    	                </button>
+    	            </div>
+    	        </div>`;
+
+    	    list.appendChild(div);
+    	});
+}
+
+// ===== Minus Button Clicked =====
+function clickMinus(itemId) {
+    // Read current qty from screen
+    const qtySpan = document.getElementById('qty_' + itemId);
+    const currentQty = parseInt(qtySpan.textContent.trim());
+
+    if (currentQty <= 1) {
+        // If qty is 1 and minus clicked — ask to remove
+        if (confirm('Remove this item from cart?')) {
+            removeItem(itemId);
+        }
+    } else {
+        // Reduce by 1
+        updateQuantity(itemId, currentQty - 1);
+    }
+}
+
+// ===== Plus Button Clicked =====
+function clickPlus(itemId) {
+    // Read current qty from screen
+    const qtySpan = document.getElementById('qty_' + itemId);
+    const currentQty = parseInt(qtySpan.textContent.trim());
+
+    // Increase by 1
+    updateQuantity(itemId, currentQty + 1);
+}
+
+// ===== Update Quantity API Call =====
+async function updateQuantity(menuItemId, newQty) {
+    try {
+        const response = await fetch(
+            `${API}/api/cart/update?userId=${userId}&menuItemId=${menuItemId}&quantity=${newQty}`,
+            {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }
+        );
+
+        if (response.ok) {
+            loadCart(); // Reload cart to show updated values
+        } else {
+            const err = await response.json();
+            showAlert('danger', err.message || 'Update failed!');
+        }
+
+    } catch (error) {
+        showAlert('danger', 'Server error during update!');
+    }
+}
+
+// ===== Remove Single Item =====
+async function removeItem(menuItemId) {
+    try {
+        const response = await fetch(
+            `${API}/api/cart/remove?userId=${userId}&menuItemId=${menuItemId}`,
+            {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (response.ok) loadCart();
-        } catch (error) {
-            showAlert('danger', 'Clear failed!');
+            }
+        );
+
+        if (response.ok) {
+            loadCart(); // Reload cart
+        } else {
+            const err = await response.json();
+            showAlert('danger', err.message || 'Remove failed!');
         }
+
+    } catch (error) {
+        showAlert('danger', 'Server error during remove!');
+    }
+}
+
+async function clearCart() {
+    if (!confirm('Clear entire cart?')) return;
+
+    try {
+        const response = await fetch(`${API}/api/cart/clear/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (response.ok) {
+            // ✅ Add these two lines — clear restaurant tracking
+            localStorage.removeItem('cartRestaurantId');
+            localStorage.removeItem('cartRestaurantName');
+
+            document.getElementById('cartContent').classList.add('d-none');
+            document.getElementById('cartItemsList').innerHTML = '';
+            document.getElementById('emptyCart').classList.remove('d-none');
+            showAlert('success', 'Cart cleared successfully!');
+        } else {
+            const err = await response.json();
+            showAlert('danger', err.message || 'Clear failed!');
+        }
+    } catch (error) {
+        showAlert('danger', 'Server error during clear!');
+    }
+}
+
+// ===== Go to Checkout =====
+function goToCheckout() {
+    const totalText = document.getElementById('totalPrice').textContent;
+    const total = parseFloat(totalText.replace('₹', ''));
+
+    if (!total || total <= 0) {
+        showAlert('warning', 'Cart is empty! Add items first.');
+        return;
     }
 
-    function goToCheckout() {
-        window.location.href = 'checkout.html';
-    }
+    window.location.href = 'checkout.html';
+}
 
-    function showAlert(type, msg) {
-        const el = document.getElementById('alertBox');
-        el.className = `alert alert-${type}`;
-        el.textContent = msg;
-        el.classList.remove('d-none');
-        setTimeout(() => el.classList.add('d-none'), 3000);
-    }
+// ===== Show Alert =====
+function showAlert(type, msg) {
+    const el = document.getElementById('alertBox');
+    el.className = 'alert alert-' + type;
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 3000);
+}
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
+// ===== Logout =====
+function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+}
 </script>
 </body>
 </html>

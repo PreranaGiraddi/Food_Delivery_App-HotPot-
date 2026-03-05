@@ -2,6 +2,7 @@ package com.wipro.hotpot.dto;
 
 public class LoginResponse {
 
+	private Long id;
 	private String token;
 	private String name;
 	private String email;
@@ -17,6 +18,14 @@ public class LoginResponse {
 		this.email = email;
 		this.role = role;
 		this.message = message;
+	}
+
+	public Long getId() {
+	    return id;
+	}
+
+	public void setId(Long id) {
+	    this.id = id;
 	}
 
 	public String getToken() {

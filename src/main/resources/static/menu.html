@@ -230,6 +230,68 @@ html
             return;
         }
 
+        // ✅ Check if user is adding from different restaurant
+        const currentRestaurantId   = localStorage.getItem('selectedRestaurantId');
+        const currentRestaurantName = localStorage.getItem('selectedRestaurantName');
+        const cartRestaurantId      = localStorage.getItem('cartRestaurantId');
+        const cartRestaurantName    = localStorage.getItem('cartRestaurantName');
+
+        // ✅ If cart already has items from a DIFFERENT restaurant
+        if (cartRestaurantId && cartRestaurantId !== currentRestaurantId) {
+            const confirmClear = confirm(
+                `⚠️ Your cart has items from "${cartRestaurantName}"!\n\n` +
+                `Do you want to clear cart and order from "${currentRestaurantName}" instead?\n\n` +
+                `Click OK to clear cart and add this item.\n` +
+                `Click Cancel to keep current cart.`
+            );
+
+            if (confirmClear) {
+                // ✅ Clear cart first then add new item
+                await clearCartAndAdd(userId, token, menuItemId,
+                                      itemName, currentRestaurantId,
+                                      currentRestaurantName);
+            } else {
+                showAlert('warning',
+                    `Your cart has items from "${cartRestaurantName}". ` +
+                    `Clear cart first to order from "${currentRestaurantName}"!`);
+            }
+            return;
+        }
+
+        // ✅ Normal add to cart
+        await doAddToCart(userId, token, menuItemId, itemName,
+                          currentRestaurantId, currentRestaurantName);
+    }
+
+    // ✅ Clear cart then add new item
+    async function clearCartAndAdd(userId, token, menuItemId, itemName,
+                                    restaurantId, restaurantName) {
+        try {
+            // Clear cart first
+            const clearResponse = await fetch(`${API}/api/cart/clear/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+
+            if (clearResponse.ok) {
+                // Remove old restaurant from localStorage
+                localStorage.removeItem('cartRestaurantId');
+                localStorage.removeItem('cartRestaurantName');
+
+                // Now add new item
+                await doAddToCart(userId, token, menuItemId, itemName,
+                                  restaurantId, restaurantName);
+            } else {
+                showAlert('danger', 'Failed to clear cart!');
+            }
+        } catch (error) {
+            showAlert('danger', 'Server error!');
+        }
+    }
+
+    // ✅ Actual add to cart API call
+    async function doAddToCart(userId, token, menuItemId, itemName,
+                                restaurantId, restaurantName) {
         const btn = document.getElementById(`addBtn_${menuItemId}`);
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
@@ -244,29 +306,36 @@ html
             );
 
             if (response.ok) {
+                // ✅ Save which restaurant items are from
+                localStorage.setItem('cartRestaurantId',   restaurantId);
+                localStorage.setItem('cartRestaurantName', restaurantName);
+
                 cartItemCount++;
-                document.getElementById('cartCount').textContent     = cartItemCount;
+                document.getElementById('cartCount').textContent      = cartItemCount;
                 document.getElementById('cartFloatCount').textContent = cartItemCount;
+
                 showAlert('success', `✅ ${itemName} added to cart!`);
-                btn.innerHTML = '<i class="bi bi-check"></i> Added';
+                btn.innerHTML      = '<i class="bi bi-check"></i> Added';
                 btn.style.background = '#28a745';
+
                 setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
+                    btn.disabled       = false;
+                    btn.innerHTML      = '<i class="bi bi-cart-plus"></i> Add';
                     btn.style.background = '#ff6b35';
                 }, 2000);
+
             } else {
-                showAlert('danger', 'Failed to add item!');
-                btn.disabled = false;
+                const err = await response.json();
+                showAlert('danger', err.message || 'Failed to add item!');
+                btn.disabled  = false;
                 btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
             }
         } catch (error) {
             showAlert('danger', 'Server error!');
-            btn.disabled = false;
+            btn.disabled  = false;
             btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
         }
     }
-
     function showAlert(type, msg) {
         const el = document.getElementById('alertBox');
         el.className = `alert alert-${type}`;

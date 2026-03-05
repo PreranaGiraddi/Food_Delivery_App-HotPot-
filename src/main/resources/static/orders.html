@@ -342,66 +342,114 @@ footer {
 
     // ===== Track Order =====
     async function trackOrder(orderId) {
-        document.getElementById('trackingOrderId').textContent = 'Order #' + orderId;
-        document.getElementById('trackingSteps').innerHTML =
-            '<div class="text-center"><div class="spinner-border text-warning"></div></div>';
+    document.getElementById('trackingOrderId').textContent = 'Order #' + orderId;
+    document.getElementById('trackingSteps').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-warning"></div>
+            <p class="mt-2 text-muted">Loading tracking...</p>
+        </div>`;
 
-        const modal = new bootstrap.Modal(document.getElementById('trackingModal'));
-        modal.show();
+    const modal = new bootstrap.Modal(
+        document.getElementById('trackingModal'));
+    modal.show();
 
-        try {
-            const response = await fetch(`${API}/api/tracking/order/${orderId}`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
+    try {
+        const response = await fetch(
+            `${API}/api/tracking/order/${orderId}`,
+            { headers: { 'Authorization': 'Bearer ' + token } }
+        );
 
-            if (response.ok) {
-                const tracking = await response.json();
-                displayTrackingSteps(tracking.status);
-            } else {
-                document.getElementById('trackingSteps').innerHTML =
-                    '<p class="text-muted text-center">Tracking not available yet.</p>';
-            }
-        } catch (error) {
+        console.log('Tracking response status:', response.status);
+
+        if (response.ok) {
+            const tracking = await response.json();
+            console.log('Tracking data:', JSON.stringify(tracking));
+
+            // ✅ Handle both direct status and nested status
+            const status = tracking.status
+                        || (tracking.order && tracking.order.status)
+                        || 'PLACED';
+
+            displayTrackingSteps(status, tracking.message);
+
+        } else if (response.status === 404) {
+            // ✅ Tracking not created yet — show PLACED as default
+            displayTrackingSteps('PLACED', 'Order placed successfully!');
+        } else {
             document.getElementById('trackingSteps').innerHTML =
-                '<p class="text-muted text-center">Cannot load tracking.</p>';
+                '<p class="text-danger text-center">Failed to load tracking!</p>';
         }
-    }
 
-    function displayTrackingSteps(currentStatus) {
+    } catch (error) {
+        console.error('Tracking error:', error);
+        // ✅ Show default PLACED status on error
+        displayTrackingSteps('PLACED', 'Order placed successfully!');
+    }
+}
+    function displayTrackingSteps(currentStatus, message) {
         const container = document.getElementById('trackingSteps');
         container.innerHTML = '';
+
+        // ✅ Show current status message at top
+        if (message) {
+            container.innerHTML += `
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-info-circle"></i> <strong>${message}</strong>
+                </div>`;
+        }
 
         const currentIndex = allSteps.findIndex(s => s.key === currentStatus);
 
         allSteps.forEach((step, index) => {
-            let dotClass = 'pending';
-            if (index < currentIndex)  dotClass = 'done';
-            if (index === currentIndex) dotClass = 'current';
+            let dotClass  = 'pending';
+            let textClass = 'text-muted';
 
-            const stepDiv = document.createElement('div');
-            stepDiv.innerHTML = `
+            if (index < currentIndex) {
+                dotClass  = 'done';
+                textClass = '';
+            }
+            if (index === currentIndex) {
+                dotClass  = 'current';
+                textClass = '';
+            }
+
+            const isLast = index === allSteps.length - 1;
+
+            container.innerHTML += `
                 <div class="tracking-step">
-                    <div>
+                    <div class="d-flex flex-column align-items-center me-3">
                         <div class="tracking-dot ${dotClass}"></div>
-                        ${index < allSteps.length - 1 ?
-                            '<div class="tracking-line"></div>' : ''}
+                        ${!isLast ? '<div class="tracking-line"></div>' : ''}
                     </div>
-                    <div class="ms-2">
-                        <div class="fw-bold ${dotClass === 'pending' ? 'text-muted' : ''}">
+                    <div class="pb-3">
+                        <div class="fw-bold ${textClass}">
                             ${step.icon} ${step.label}
                         </div>
-                        ${index === currentIndex ?
-                            '<small class="text-warning fw-bold">← Current Status</small>' :
-                            index < currentIndex ?
-                            '<small class="text-success">Completed ✓</small>' :
-                            '<small class="text-muted">Pending</small>'
-                        }
+                        <small class="${
+                            index === currentIndex ? 'text-warning fw-bold' :
+                            index < currentIndex   ? 'text-success'         :
+                                                     'text-muted'
+                        }">
+                            ${
+                                index === currentIndex ? '← You are here' :
+                                index < currentIndex   ? 'Completed ✓'    :
+                                                         'Pending'
+                            }
+                        </small>
                     </div>
                 </div>`;
-            container.appendChild(stepDiv);
         });
-    }
 
+        // ✅ If CANCELLED show special message
+        if (currentStatus === 'CANCELLED') {
+            container.innerHTML = `
+                <div class="text-center py-3">
+                    <div style="font-size:3rem">❌</div>
+                    <h5 class="text-danger mt-2">Order Cancelled</h5>
+                    <p class="text-muted">This order has been cancelled.</p>
+                </div>`;
+        }
+    }
     // ===== Cancel Order =====
     async function cancelOrder(orderId) {
         if (!confirm('Are you sure you want to cancel this order?')) return;

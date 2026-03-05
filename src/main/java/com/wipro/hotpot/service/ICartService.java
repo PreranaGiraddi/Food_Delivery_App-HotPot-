@@ -13,7 +13,7 @@ public interface ICartService {
 
 	Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity);
 
-	void clearCart(Long userId);
+	String clearCart(Long userId);
 
 	CartDTO getCartDetails(Long userId);
 }

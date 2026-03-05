@@ -160,132 +160,173 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API           = 'http://localhost:8080';
-    const token         = localStorage.getItem('token');
-    const userId        = localStorage.getItem('userId');
-    const restaurantId  = localStorage.getItem('selectedRestaurantId');
-    let   selectedPayment = 'CASH_ON_DELIVERY';
-    let   cartTotal       = 0;
+const API          = 'http://localhost:8080';
+const token        = localStorage.getItem('token');
+const userId       = localStorage.getItem('userId');
+const restaurantId = localStorage.getItem('selectedRestaurantId');
+let   selectedPayment = 'CASH_ON_DELIVERY';
+let   cartTotal       = 0;
+let   cartItems       = []; // ✅ Store cart items
 
-    window.onload = function () {
-        if (!token || !userId) {
-            window.location.href = 'login.html';
-            return;
-        }
-        document.getElementById('userName').textContent =
-            '👤 ' + localStorage.getItem('userName');
-        loadCartSummary();
+window.onload = function () {
+    if (!token || !userId) {
+        window.location.href = 'login.html';
+        return;
     }
+    document.getElementById('userName').textContent =
+        '👤 ' + localStorage.getItem('userName');
+    loadCartSummary();
+}
 
-    async function loadCartSummary() {
-        try {
-            const response = await fetch(`${API}/api/cart/${userId}`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const data = await response.json();
+async function loadCartSummary() {
+    try {
+        const response = await fetch(`${API}/api/cart/${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
 
-            document.getElementById('summaryLoading').classList.add('d-none');
-            document.getElementById('summaryContent').classList.remove('d-none');
+        const data = await response.json();
+        console.log('Checkout cart data:', data); // debug
 
-            if (!data.cartItems || data.cartItems.length === 0) {
-                showAlert('warning', 'Cart is empty! Add items first.');
-                setTimeout(() => window.location.href = 'restaurants.html', 2000);
-                return;
-            }
+        document.getElementById('summaryLoading').classList.add('d-none');
+        document.getElementById('summaryContent').classList.remove('d-none');
 
-            cartTotal = data.totalPrice;
-            const items = document.getElementById('summaryItems');
-            items.innerHTML = '';
-
-            data.cartItems.forEach(item => {
-                items.innerHTML += `
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">
-                            ${item.menuItemName} × ${item.quantity}
-                        </span>
-                        <span class="fw-bold">₹${item.totalItemPrice.toFixed(2)}</span>
-                    </div>`;
-            });
-
-            document.getElementById('summarySubtotal').textContent =
-                '₹' + data.totalPrice.toFixed(2);
-            document.getElementById('summaryTotal').textContent =
-                '₹' + data.totalPrice.toFixed(2);
-
-        } catch (error) {
-            showAlert('danger', 'Cannot load cart!');
-        }
-    }
-
-    function selectPayment(method) {
-        selectedPayment = method;
-        document.querySelectorAll('.payment-option').forEach(el =>
-            el.classList.remove('selected'));
-        document.getElementById('pay_' + (method === 'CASH_ON_DELIVERY' ? 'COD' : 'ONLINE'))
-                .classList.add('selected');
-    }
-
-    async function placeOrder() {
-        const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
-        const spinner = document.getElementById('orderSpinner');
-
-        if (!deliveryAddress) {
-            showAlert('warning', 'Please enter delivery address!');
+        // ✅ Strict empty cart check
+        if (!data || !data.cartItems || data.cartItems.length === 0) {
+            showAlert('warning', 'Your cart is empty! Add items first.');
+            setTimeout(() => window.location.href = 'restaurants.html', 2000);
             return;
         }
 
-        if (!restaurantId) {
-            showAlert('warning', 'Restaurant not selected! Go back to menu.');
-            return;
+        // ✅ Store cart data for order
+        cartTotal = data.totalPrice;
+        cartItems = data.cartItems;
+
+        // ✅ Pre-fill delivery address from localStorage if saved
+        const savedAddress = localStorage.getItem('userAddress');
+        if (savedAddress) {
+            document.getElementById('deliveryAddress').value = savedAddress;
         }
 
+        const items = document.getElementById('summaryItems');
+        items.innerHTML = '';
+
+        data.cartItems.forEach(item => {
+            const itemName  = item.menuItemName || (item.menuItem && item.menuItem.name) || 'Item';
+            const itemTotal = item.totalItemPrice || 0;
+            const itemQty   = item.quantity || 1;
+
+            items.innerHTML += `
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">
+                        ${itemName} × ${itemQty}
+                    </span>
+                    <span class="fw-bold">₹${itemTotal.toFixed(2)}</span>
+                </div>`;
+        });
+
+        document.getElementById('summarySubtotal').textContent =
+            '₹' + data.totalPrice.toFixed(2);
+        document.getElementById('summaryTotal').textContent =
+            '₹' + data.totalPrice.toFixed(2);
+
+    } catch (error) {
+        console.error('Checkout load error:', error);
+        showAlert('danger', 'Cannot load cart!');
+    }
+}
+
+function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-option').forEach(el =>
+        el.classList.remove('selected'));
+    document.getElementById(
+        'pay_' + (method === 'CASH_ON_DELIVERY' ? 'COD' : 'ONLINE')
+    ).classList.add('selected');
+}
+
+async function placeOrder() {
+    const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+    const spinner = document.getElementById('orderSpinner');
+
+    // ✅ Validations before placing order
+    if (!deliveryAddress) {
+        showAlert('warning', 'Please enter delivery address!');
+        return;
+    }
+
+    // ✅ Check cart still has items
+    if (!cartItems || cartItems.length === 0 || cartTotal <= 0) {
+        showAlert('warning', 'Cart is empty! Cannot place order.');
+        setTimeout(() => window.location.href = 'restaurants.html', 2000);
+        return;
+    }
+
+    // ✅ Get restaurantId from cart items if not in localStorage
+    let restId = restaurantId;
+    if (!restId && cartItems.length > 0) {
+        showAlert('warning', 'Restaurant not found! Go back and select restaurant.');
+        return;
+    }
+
+    console.log('Placing order:', {
+        userId, restaurantId: restId,
+        deliveryAddress, selectedPayment, cartTotal
+    }); // debug
+
+    spinner.classList.remove('d-none');
+
+    try {
+        const response = await fetch(`${API}/api/order/place/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                restaurantId:    parseInt(restId),
+                deliveryAddress: deliveryAddress,
+                paymentMethod:   selectedPayment,
+                totalAmount:     cartTotal
+            })
+        });
+
+        const data = await response.json();
+        console.log('Order response:', data); // debug
+
+        if (response.ok) {
+            // ✅ Clear cart data from memory
+            cartTotal = 0;
+            cartItems = [];
+
+            document.getElementById('modalOrderId').textContent =
+                'Order ID: #' + data.id;
+            const modal = new bootstrap.Modal(
+                document.getElementById('successModal'));
+            modal.show();
+        } else {
+            showAlert('danger', data.message || 'Order placement failed!');
+        }
+
+    } catch (error) {
+        console.error('Order error:', error);
+        showAlert('danger', 'Server error! Please try again.');
+    } finally {
         spinner.classList.remove('d-none');
-
-        try {
-            const response = await fetch(`${API}/api/order/place/${userId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({
-                    restaurantId: parseInt(restaurantId),
-                    deliveryAddress,
-                    paymentMethod: selectedPayment,
-                    totalAmount: cartTotal
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                document.getElementById('modalOrderId').textContent =
-                    'Order ID: #' + data.id;
-                const modal = new bootstrap.Modal(
-                    document.getElementById('successModal'));
-                modal.show();
-            } else {
-                showAlert('danger', data.message || 'Order failed!');
-            }
-
-        } catch (error) {
-            showAlert('danger', 'Server error!');
-        } finally {
-            spinner.classList.add('d-none');
-        }
+        spinner.classList.add('d-none');
     }
+}
 
-    function goToOrders() {
-        window.location.href = 'orders.html';
-    }
+function goToOrders() {
+    window.location.href = 'orders.html';
+}
 
-    function showAlert(type, msg) {
-        const el = document.getElementById('alertBox');
-        el.className = `alert alert-${type}`;
-        el.textContent = msg;
-        el.classList.remove('d-none');
-        setTimeout(() => el.classList.add('d-none'), 3000);
-    }
+function showAlert(type, msg) {
+    const el = document.getElementById('alertBox');
+    el.className = `alert alert-${type}`;
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 4000);
+}
 </script>
 </body>
 </html>

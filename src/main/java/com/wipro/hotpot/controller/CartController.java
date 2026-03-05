@@ -16,6 +16,7 @@ import com.wipro.hotpot.dto.CartDTO;
 import com.wipro.hotpot.entity.Cart;
 import com.wipro.hotpot.service.ICartService;
 
+import org.springframework.transaction.annotation.Transactional;
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
@@ -39,24 +40,26 @@ public class CartController {
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
-  
+    @Transactional
     @DeleteMapping("/remove")
-    public ResponseEntity<Cart> removeItemFromCart(@RequestParam Long userId,
-                                                   @RequestParam Long menuItemId) {
-        Cart cart = cartService.removeItemFromCart(userId, menuItemId);
-        return new ResponseEntity<>(cart, HttpStatus.OK);
+    public ResponseEntity<CartDTO> removeItemFromCart(
+            @RequestParam Long userId,
+            @RequestParam Long menuItemId) {
+        cartService.removeItemFromCart(userId, menuItemId);
+       
+        return ResponseEntity.ok(cartService.getCartDetails(userId));
     }
-
-   
+    @Transactional
     @PutMapping("/update")
-    public ResponseEntity<Cart> updateItemQuantity(@RequestParam Long userId,
-                                                   @RequestParam Long menuItemId,
-                                                   @RequestParam Integer quantity) {
-        Cart cart = cartService.updateItemQuantity(userId, menuItemId, quantity);
-        return new ResponseEntity<>(cart, HttpStatus.OK);
+    public ResponseEntity<CartDTO> updateItemQuantity(
+            @RequestParam Long userId,
+            @RequestParam Long menuItemId,
+            @RequestParam Integer quantity) {
+        cartService.updateItemQuantity(userId, menuItemId, quantity);
+        return ResponseEntity.ok(cartService.getCartDetails(userId));
     }
 
-    
+    @Transactional
     @DeleteMapping("/clear/{userId}")
     public ResponseEntity<String> clearCart(@PathVariable Long userId) {
         cartService.clearCart(userId);
