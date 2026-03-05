@@ -1,6 +1,8 @@
 package com.wipro.hotpot.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class MenuDTO {
 
@@ -25,7 +27,8 @@ public class MenuDTO {
 	private boolean isAvailable;
 	private Long categoryId;
 	private Long restaurantId;
-
+	private String ingredients;
+	
 	public MenuDTO() {
 	}
 
@@ -103,6 +106,8 @@ public class MenuDTO {
 	public Long getRestaurantId() {
 		return restaurantId;
 	}
+	public String getIngredients() { return ingredients; }
+
 
 	public void setId(Long id) {
 		this.id = id;
@@ -159,4 +164,5 @@ public class MenuDTO {
 	public void setRestaurantId(Long restaurantId) {
 		this.restaurantId = restaurantId;
 	}
+	public void setIngredients(String ingredients) { this.ingredients = ingredients; }
 }

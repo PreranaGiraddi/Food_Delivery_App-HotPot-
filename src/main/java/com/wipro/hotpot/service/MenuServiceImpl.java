@@ -35,6 +35,7 @@ public class MenuServiceImpl implements IMenuService {
 
 		Category category = categoryRepository.findById(dto.getCategoryId())
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found!"));
+		
 
 		MenuItem item = new MenuItem();
 		item.setName(dto.getName());
@@ -47,6 +48,7 @@ public class MenuServiceImpl implements IMenuService {
 		item.setTasteInfo(dto.getTasteInfo());
 		item.setNutritionalInfo(dto.getNutritionalInfo());
 		item.setCookingTime(dto.getCookingTime());
+		item.setIngredients(dto.getIngredients());
 		item.setAvailable(true);
 		item.setCategory(category);
 		item.setRestaurant(restaurant);
@@ -107,7 +109,9 @@ public class MenuServiceImpl implements IMenuService {
 		item.setTasteInfo(dto.getTasteInfo());
 		item.setNutritionalInfo(dto.getNutritionalInfo());
 		item.setCookingTime(dto.getCookingTime());
+		item.setIngredients(dto.getIngredients());
 		item.setAvailable(dto.isAvailable());
+		
 		return menuRepository.save(item);
 	}
 

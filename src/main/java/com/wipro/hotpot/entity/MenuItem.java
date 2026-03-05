@@ -1,9 +1,17 @@
-
-
 package com.wipro.hotpot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "menu_items")
@@ -30,6 +38,10 @@ public class MenuItem {
 
     private String tasteInfo;
     private String nutritionalInfo;
+    @Column(length = 500)
+    private String ingredients;
+
+    
     private Integer cookingTime;
     private boolean isAvailable = true;
 
@@ -66,6 +78,7 @@ public class MenuItem {
         this.dietaryType = dietaryType;
         this.tasteInfo = tasteInfo;
         this.nutritionalInfo = nutritionalInfo;
+        this.ingredients = ingredients;
         this.cookingTime = cookingTime;
         this.isAvailable = isAvailable;
         this.category = category;
@@ -87,7 +100,10 @@ public class MenuItem {
     public boolean isAvailable() { return isAvailable; }
     public Category getCategory() { return category; }
     public Restaurant getRestaurant() { return restaurant; }
+ // Add getter
+    public String getIngredients() { return ingredients; }
 
+  
     
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
@@ -103,6 +119,8 @@ public class MenuItem {
     public void setAvailable(boolean isAvailable) { this.isAvailable = isAvailable; }
     public void setCategory(Category category) { this.category = category; }
     public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
+    // Add setter
+    public void setIngredients(String ingredients) { this.ingredients = ingredients; }
 
     @Override
     public String toString() {
