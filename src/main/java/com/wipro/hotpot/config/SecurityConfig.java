@@ -32,6 +32,16 @@ public class SecurityConfig {
 
                
                 .requestMatchers(
+                		"/",
+                	    "/index.html",
+                	    "/login.html",
+                	    "/register.html",
+                	    "/restaurants.html",
+                	    "/menu.html",
+                	    "/cart.html",
+                	    "/checkout.html",
+                	    "/orders.html",
+                	    "/error",
                     "/api/auth/register",
                     "/api/auth/login",
                     "/api/auth/isEmailExists/**",
