@@ -151,7 +151,7 @@ window.onload = function () {
 
 
 async function loadCart() {
-
+    // ✅ Always reset everything first
     document.getElementById('loadingSection').classList.remove('d-none');
     document.getElementById('cartContent').classList.add('d-none');
     document.getElementById('emptyCart').classList.add('d-none');
@@ -163,24 +163,32 @@ async function loadCart() {
         });
 
         const data = await response.json();
+        console.log('Cart API response:', JSON.stringify(data));
+
         document.getElementById('loadingSection').classList.add('d-none');
 
-  
-        if (!data || !data.cartItems || data.cartItems.length === 0) {
+        // ✅ Check BOTH conditions — items list AND total price
+        const hasItems = data.cartItems
+                      && data.cartItems.length > 0
+                      && data.totalPrice > 0;
+
+        if (!hasItems) {
+            // ✅ Clear localStorage cart tracking too
+            localStorage.removeItem('cartRestaurantId');
+            localStorage.removeItem('cartRestaurantName');
             document.getElementById('emptyCart').classList.remove('d-none');
             return;
         }
 
-     
         document.getElementById('cartContent').classList.remove('d-none');
         displayCart(data);
 
     } catch (error) {
+        console.error('Cart error:', error);
         document.getElementById('loadingSection').classList.add('d-none');
         showAlert('danger', 'Cannot load cart!');
     }
 }
-
 
 function displayCart(cartData) {
     const list  = document.getElementById('cartItemsList');
@@ -314,7 +322,7 @@ async function clearCart() {
         });
 
         if (response.ok) {
-            // ✅ Add these two lines — clear restaurant tracking
+         
             localStorage.removeItem('cartRestaurantId');
             localStorage.removeItem('cartRestaurantName');
 
@@ -322,15 +330,11 @@ async function clearCart() {
             document.getElementById('cartItemsList').innerHTML = '';
             document.getElementById('emptyCart').classList.remove('d-none');
             showAlert('success', 'Cart cleared successfully!');
-        } else {
-            const err = await response.json();
-            showAlert('danger', err.message || 'Clear failed!');
         }
     } catch (error) {
-        showAlert('danger', 'Server error during clear!');
+        showAlert('danger', 'Server error!');
     }
 }
-
 // ===== Go to Checkout =====
 function goToCheckout() {
     const totalText = document.getElementById('totalPrice').textContent;

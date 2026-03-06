@@ -8,14 +8,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .navbar-brand { color:#ff6b35 !important; font-size:1.8rem; font-weight:700; }
-        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:10px 25px; }
+        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:10px 25px; font-weight:600; }
         .btn-hotpot:hover { background-color:#e55a25; color:white; }
         .checkout-card { border:none; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
         .form-control:focus, .form-select:focus { border-color:#ff6b35; box-shadow:0 0 0 0.2rem rgba(255,107,53,0.25); }
-        .payment-option { border:2px solid #dee2e6; border-radius:10px; padding:15px; cursor:pointer; transition:all 0.2s; }
-        .payment-option:hover, .payment-option.selected { border-color:#ff6b35; background:#fff3e0; }
+        .payment-option { border:2px solid #dee2e6; border-radius:12px; padding:15px; cursor:pointer; transition:all 0.2s; }
+        .payment-option:hover { border-color:#ff6b35; background:#fff8f5; }
+        .payment-option.selected { border-color:#ff6b35; background:#fff3e0; }
         .price-tag { color:#ff6b35; font-weight:700; }
+        .discount-tag { color:#28a745; font-size:0.85rem; }
         .step-badge { background:#ff6b35; color:white; border-radius:50%; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; margin-right:10px; }
+
+        /* ✅ FIX 3 — Address text align left */
+        textarea {
+            text-align: left !important;
+            resize: vertical;
+        }
+        textarea::placeholder { text-align: left; }
+        input::placeholder    { text-align: left; }
+
+        /* Payment processing overlay */
+        .payment-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; display:none; align-items:center; justify-content:center; }
+        .payment-box { background:white; border-radius:20px; padding:40px; text-align:center; max-width:400px; width:90%; }
+        .payment-progress { height:8px; border-radius:4px; background:#f0f0f0; overflow:hidden; margin:20px 0; }
+        .payment-bar { height:100%; background:linear-gradient(90deg,#ff6b35,#f7c59f); width:0%; transition:width 0.3s; border-radius:4px; }
+
         footer { background-color:#2d2d2d; color:#aaa; }
     </style>
 </head>
@@ -26,7 +43,9 @@
     <div class="container">
         <a class="navbar-brand" href="index.html">🍲 HotPot</a>
         <div class="navbar-nav ms-auto align-items-center">
-            <a class="nav-link" href="cart.html"><i class="bi bi-arrow-left"></i> Back to Cart</a>
+            <a class="nav-link" href="cart.html">
+                <i class="bi bi-arrow-left"></i> Back to Cart
+            </a>
             <span class="nav-link fw-bold text-warning" id="userName"></span>
         </div>
     </div>
@@ -35,7 +54,24 @@
 <!-- HEADER -->
 <div style="background:linear-gradient(135deg,#ff6b35,#f7c59f); padding:25px 0;">
     <div class="container text-white">
-        <h3 class="fw-bold mb-0"><i class="bi bi-bag-check"></i> Checkout</h3>
+        <h3 class="fw-bold mb-0">
+            <i class="bi bi-bag-check"></i> Checkout
+        </h3>
+    </div>
+</div>
+
+<!-- PAYMENT PROCESSING OVERLAY -->
+<div class="payment-overlay" id="paymentOverlay">
+    <div class="payment-box">
+        <div id="paymentProcessing">
+            <div style="font-size:3rem" id="paymentIcon">💳</div>
+            <h5 class="fw-bold mt-3" id="paymentTitle">Processing Payment...</h5>
+            <p class="text-muted" id="paymentMsg">Please wait, do not close this window</p>
+            <div class="payment-progress">
+                <div class="payment-bar" id="paymentBar"></div>
+            </div>
+            <small class="text-muted" id="paymentStep">Connecting to payment gateway...</small>
+        </div>
     </div>
 </div>
 
@@ -44,80 +80,159 @@
 
     <div class="row g-4">
 
-        <!-- Checkout Form -->
+        <!-- LEFT — Delivery + Payment -->
         <div class="col-lg-7">
 
-            <!-- Delivery Address -->
+            <!-- Step 1 — Delivery Address -->
             <div class="card checkout-card p-4 mb-4">
                 <h5 class="fw-bold mb-3">
                     <span class="step-badge">1</span> Delivery Address
                 </h5>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Full Address</label>
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-geo-alt"></i> Full Delivery Address
+                    </label>
+                    <!-- ✅ FIX 3 — removed whitespace inside textarea -->
                     <textarea class="form-control" id="deliveryAddress" rows="3"
-                              placeholder="Enter complete delivery address"></textarea>
+                        placeholder="Enter house no, street, area, city..."
+                        style="text-align:left;"></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <input type="text" class="form-control" id="deliveryCity"
+                               placeholder="City">
+                    </div>
+                    <div class="col-6">
+                        <input type="text" class="form-control" id="deliveryPincode"
+                               placeholder="Pincode" maxlength="6">
+                    </div>
                 </div>
             </div>
 
-            <!-- Payment Method -->
+            <!-- Step 2 — Payment Method -->
             <div class="card checkout-card p-4">
                 <h5 class="fw-bold mb-3">
                     <span class="step-badge">2</span> Payment Method
                 </h5>
                 <div class="row g-3">
-                    <div class="col-md-6">
+
+                    <!-- Cash on Delivery -->
+                    <div class="col-12">
                         <div class="payment-option selected" id="pay_COD"
                              onclick="selectPayment('CASH_ON_DELIVERY')">
                             <div class="d-flex align-items-center">
-                                <span style="font-size:1.5rem" class="me-2">💵</span>
-                                <div>
+                                <span style="font-size:2rem" class="me-3">💵</span>
+                                <div class="flex-grow-1">
                                     <div class="fw-bold">Cash on Delivery</div>
-                                    <small class="text-muted">Pay when delivered</small>
+                                    <small class="text-muted">Pay when your order arrives</small>
                                 </div>
+                                <i class="bi bi-check-circle-fill text-success fs-5"
+                                   id="check_COD"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="payment-option" id="pay_ONLINE"
-                             onclick="selectPayment('ONLINE')">
+
+                    <!-- UPI -->
+                    <div class="col-12">
+                        <div class="payment-option" id="pay_UPI"
+                             onclick="selectPayment('UPI')">
                             <div class="d-flex align-items-center">
-                                <span style="font-size:1.5rem" class="me-2">💳</span>
-                                <div>
-                                    <div class="fw-bold">Online Payment</div>
-                                    <small class="text-muted">UPI / Card / Net Banking</small>
+                                <span style="font-size:2rem" class="me-3">📱</span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">UPI Payment</div>
+                                    <small class="text-muted">GPay, PhonePe, Paytm, BHIM</small>
+                                </div>
+                                <i class="bi bi-circle text-muted fs-5" id="check_UPI"></i>
+                            </div>
+                            <div id="upiInput" class="d-none mt-3">
+                                <input type="text" class="form-control" id="upiId"
+                                       placeholder="Enter UPI ID (e.g. name@upi)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Payment -->
+                    <div class="col-12">
+                        <div class="payment-option" id="pay_CARD"
+                             onclick="selectPayment('CARD')">
+                            <div class="d-flex align-items-center">
+                                <span style="font-size:2rem" class="me-3">💳</span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Credit / Debit Card</div>
+                                    <small class="text-muted">Visa, Mastercard, Rupay</small>
+                                </div>
+                                <i class="bi bi-circle text-muted fs-5" id="check_CARD"></i>
+                            </div>
+                            <div id="cardInput" class="d-none mt-3">
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" id="cardNumber"
+                                           placeholder="Card Number (16 digits)"
+                                           maxlength="19" oninput="formatCard(this)">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="cardExpiry"
+                                               placeholder="MM/YY" maxlength="5"
+                                               oninput="formatExpiry(this)">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="cardCvv"
+                                               placeholder="CVV" maxlength="3">
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="text" class="form-control" id="cardName"
+                                           placeholder="Name on Card">
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                </div>
+
+                <!-- Security Note -->
+                <div class="mt-3 p-2 bg-light rounded d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-lock-fill text-success"></i>
+                    <small class="text-muted">
+                        Your payment information is <strong>encrypted and secure</strong>.
+                        We do not store card details.
+                    </small>
                 </div>
             </div>
         </div>
 
-        <!-- Order Summary -->
+        <!-- RIGHT — Order Summary -->
         <div class="col-lg-5">
-            <div class="card checkout-card p-4">
+            <div class="card checkout-card p-4" style="position:sticky; top:80px;">
                 <h5 class="fw-bold mb-3">
                     <span class="step-badge">3</span> Order Summary
                 </h5>
 
-                <!-- Loading -->
                 <div id="summaryLoading" class="text-center py-3">
                     <div class="spinner-border spinner-border-sm text-warning"></div>
+                    <p class="text-muted small mt-2">Loading...</p>
                 </div>
 
                 <div id="summaryContent" class="d-none">
                     <div id="summaryItems"></div>
                     <hr>
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Subtotal</span>
-                        <span id="summarySubtotal">₹0</span>
+                        <span class="text-muted">Subtotal (MRP)</span>
+                        <span id="summaryMRP">₹0</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex justify-content-between mb-1" id="discountRow">
+                        <span class="discount-tag">
+                            <i class="bi bi-tag-fill"></i> Discount Applied
+                        </span>
+                        <span class="discount-tag" id="summaryDiscount">-₹0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted">Delivery</span>
                         <span class="text-success fw-bold">FREE 🎉</span>
                     </div>
+                    <hr>
                     <div class="d-flex justify-content-between mb-4">
-                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-5">Total Payable</span>
                         <span class="fw-bold fs-5 price-tag" id="summaryTotal">₹0</span>
                     </div>
 
@@ -126,6 +241,11 @@
                               class="spinner-border spinner-border-sm d-none me-2"></span>
                         <i class="bi bi-bag-heart"></i> Place Order
                     </button>
+
+                    <p class="text-center text-muted small mt-2 mb-0">
+                        <i class="bi bi-shield-check text-success"></i>
+                        Safe & Secure Checkout
+                    </p>
                 </div>
             </div>
         </div>
@@ -137,16 +257,21 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:20px; border:none;">
             <div class="modal-body text-center p-5">
-                <div style="font-size:4rem">🎉</div>
-                <h4 class="fw-bold mt-3">Order Placed!</h4>
-                <p class="text-muted">
-                    Your order has been placed successfully!<br>
+                <div style="font-size:4rem" id="successIcon">🎉</div>
+                <h4 class="fw-bold mt-3" id="successTitle">Order Placed!</h4>
+                <p class="text-muted" id="successMessage">
+                    Your order has been placed successfully!
                     Check your email for confirmation.
                 </p>
-                <p class="fw-bold text-warning" id="modalOrderId"></p>
-                <button class="btn btn-hotpot w-100" onclick="goToOrders()">
-                    <i class="bi bi-bag-check"></i> Track My Order
-                </button>
+                <p class="fw-bold text-warning fs-5" id="modalOrderId"></p>
+                <div class="d-flex flex-column gap-2">
+                    <button class="btn btn-hotpot w-100" onclick="goToOrders()">
+                        <i class="bi bi-bag-check"></i> Track My Order
+                    </button>
+                    <a href="restaurants.html" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-shop"></i> Order More Food
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -160,173 +285,340 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const API          = 'http://localhost:8080';
-const token        = localStorage.getItem('token');
-const userId       = localStorage.getItem('userId');
-const restaurantId = localStorage.getItem('selectedRestaurantId');
-let   selectedPayment = 'CASH_ON_DELIVERY';
-let   cartTotal       = 0;
-let   cartItems       = []; // ✅ Store cart items
+    const API    = 'http://localhost:8080';
+    const token  = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
 
-window.onload = function () {
-    if (!token || !userId) {
-        window.location.href = 'login.html';
-        return;
+    // ✅ FIX 2 — get restaurantId from BOTH sources
+    const restaurantId = localStorage.getItem('selectedRestaurantId')
+                      || localStorage.getItem('cartRestaurantId');
+
+    let selectedPayment = 'CASH_ON_DELIVERY';
+    let cartTotal       = 0;
+    let cartItems       = [];
+    let originalMRP     = 0;
+
+    window.onload = function () {
+        if (!token || !userId) {
+            window.location.href = 'login.html';
+            return;
+        }
+        document.getElementById('userName').textContent =
+            '👤 ' + localStorage.getItem('userName');
+
+        const addr = localStorage.getItem('userAddress');
+        if (addr) document.getElementById('deliveryAddress').value = addr;
+
+        loadCartSummary();
     }
-    document.getElementById('userName').textContent =
-        '👤 ' + localStorage.getItem('userName');
-    loadCartSummary();
-}
 
-async function loadCartSummary() {
-    try {
-        const response = await fetch(`${API}/api/cart/${userId}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+    // ===== Load Cart Summary =====
+    async function loadCartSummary() {
+        try {
+            const response = await fetch(`${API}/api/cart/${userId}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await response.json();
+
+            document.getElementById('summaryLoading').classList.add('d-none');
+            document.getElementById('summaryContent').classList.remove('d-none');
+
+            if (!data || !data.cartItems || data.cartItems.length === 0) {
+                showAlert('warning', 'Cart is empty! Add items first.');
+                setTimeout(() => window.location.href = 'restaurants.html', 2000);
+                return;
+            }
+
+            cartTotal = data.totalPrice;
+            cartItems = data.cartItems;
+
+            const itemsDiv = document.getElementById('summaryItems');
+            itemsDiv.innerHTML = '';
+            let mrpTotal = 0;
+
+            data.cartItems.forEach(item => {
+                const name  = item.menuItemName
+                           || (item.menuItem && item.menuItem.name)
+                           || 'Item';
+                const qty   = item.quantity || 1;
+                const total = item.totalItemPrice || 0;
+
+                // ✅ Calculate original MRP before discount
+                const unitPrice     = item.price || (total / qty);
+                const originalPrice = item.menuItem
+                    ? (item.menuItem.price || unitPrice)
+                    : unitPrice;
+
+                mrpTotal += originalPrice * qty;
+
+                itemsDiv.innerHTML += `
+                    <div class="d-flex justify-content-between mb-2 align-items-start">
+                        <div>
+                            <span class="fw-semibold">${name}</span>
+                            <small class="text-muted d-block">× ${qty}</small>
+                        </div>
+                        <span class="fw-bold">₹${total.toFixed(2)}</span>
+                    </div>`;
+            });
+
+            originalMRP = mrpTotal;
+            const discount = mrpTotal - data.totalPrice;
+
+            document.getElementById('summaryMRP').textContent =
+                '₹' + mrpTotal.toFixed(2);
+
+            if (discount > 0.01) {
+                document.getElementById('discountRow').classList.remove('d-none');
+                document.getElementById('summaryDiscount').textContent =
+                    '-₹' + discount.toFixed(2);
+            } else {
+                document.getElementById('discountRow').classList.add('d-none');
+            }
+
+            document.getElementById('summaryTotal').textContent =
+                '₹' + data.totalPrice.toFixed(2);
+
+        } catch (error) {
+            console.error('Checkout load error:', error);
+            showAlert('danger', 'Cannot load cart!');
+        }
+    }
+
+    // ===== Payment Method Selection =====
+    function selectPayment(method) {
+        selectedPayment = method;
+
+        ['COD', 'UPI', 'CARD'].forEach(m => {
+            document.getElementById('pay_' + m).classList.remove('selected');
+            document.getElementById('check_' + m).className =
+                'bi bi-circle text-muted fs-5';
         });
 
-        const data = await response.json();
-        console.log('Checkout cart data:', data); // debug
+        const key = method === 'CASH_ON_DELIVERY' ? 'COD'
+                  : method === 'UPI'              ? 'UPI'
+                  : 'CARD';
 
-        document.getElementById('summaryLoading').classList.add('d-none');
-        document.getElementById('summaryContent').classList.remove('d-none');
+        document.getElementById('pay_' + key).classList.add('selected');
+        document.getElementById('check_' + key).className =
+            'bi bi-check-circle-fill text-success fs-5';
 
-        // ✅ Strict empty cart check
-        if (!data || !data.cartItems || data.cartItems.length === 0) {
-            showAlert('warning', 'Your cart is empty! Add items first.');
+        document.getElementById('upiInput').classList.add('d-none');
+        document.getElementById('cardInput').classList.add('d-none');
+
+        if (method === 'UPI')  document.getElementById('upiInput').classList.remove('d-none');
+        if (method === 'CARD') document.getElementById('cardInput').classList.remove('d-none');
+    }
+
+    // ===== Card Formatting =====
+    function formatCard(input) {
+        let val = input.value.replace(/\D/g, '').substring(0, 16);
+        input.value = val.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function formatExpiry(input) {
+        let val = input.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2);
+        input.value = val;
+    }
+
+    // ===== Validate Payment =====
+    function validatePayment() {
+        if (selectedPayment === 'UPI') {
+            const upi = document.getElementById('upiId').value.trim();
+            if (!upi || !upi.includes('@')) {
+                showAlert('warning', 'Please enter a valid UPI ID (e.g. name@upi)');
+                return false;
+            }
+        }
+        if (selectedPayment === 'CARD') {
+            const num  = document.getElementById('cardNumber').value.replace(/\s/g,'');
+            const exp  = document.getElementById('cardExpiry').value;
+            const cvv  = document.getElementById('cardCvv').value;
+            const name = document.getElementById('cardName').value.trim();
+            if (num.length !== 16) {
+                showAlert('warning', 'Enter valid 16-digit card number!');
+                return false;
+            }
+            if (!exp || exp.length < 5) {
+                showAlert('warning', 'Enter valid expiry date (MM/YY)!');
+                return false;
+            }
+            if (cvv.length !== 3) {
+                showAlert('warning', 'Enter valid 3-digit CVV!');
+                return false;
+            }
+            if (!name) {
+                showAlert('warning', 'Enter name on card!');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // ===== Place Order =====
+    async function placeOrder() {
+        const address = document.getElementById('deliveryAddress').value.trim();
+        const city    = document.getElementById('deliveryCity').value.trim();
+        const pincode = document.getElementById('deliveryPincode').value.trim();
+
+        if (!address) {
+            showAlert('warning', 'Please enter delivery address!');
+            return;
+        }
+        if (!city) {
+            showAlert('warning', 'Please enter city!');
+            return;
+        }
+        if (!pincode || pincode.length !== 6) {
+            showAlert('warning', 'Please enter valid 6-digit pincode!');
+            return;
+        }
+        if (!cartItems || cartItems.length === 0 || cartTotal <= 0) {
+            showAlert('warning', 'Cart is empty! Add items first.');
             setTimeout(() => window.location.href = 'restaurants.html', 2000);
             return;
         }
+        if (!validatePayment()) return;
 
-        // ✅ Store cart data for order
-        cartTotal = data.totalPrice;
-        cartItems = data.cartItems;
+        // ✅ FIX 2 — check restaurantId exists
+        const finalRestaurantId = localStorage.getItem('selectedRestaurantId')
+                                || localStorage.getItem('cartRestaurantId');
 
-        // ✅ Pre-fill delivery address from localStorage if saved
-        const savedAddress = localStorage.getItem('userAddress');
-        if (savedAddress) {
-            document.getElementById('deliveryAddress').value = savedAddress;
+        if (!finalRestaurantId) {
+            showAlert('warning',
+                'Restaurant not found! Please go back and select restaurant.');
+            return;
         }
 
-        const items = document.getElementById('summaryItems');
-        items.innerHTML = '';
+        const fullAddress = `${address}, ${city} - ${pincode}`;
 
-        data.cartItems.forEach(item => {
-            const itemName  = item.menuItemName || (item.menuItem && item.menuItem.name) || 'Item';
-            const itemTotal = item.totalItemPrice || 0;
-            const itemQty   = item.quantity || 1;
-
-            items.innerHTML += `
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">
-                        ${itemName} × ${itemQty}
-                    </span>
-                    <span class="fw-bold">₹${itemTotal.toFixed(2)}</span>
-                </div>`;
-        });
-
-        document.getElementById('summarySubtotal').textContent =
-            '₹' + data.totalPrice.toFixed(2);
-        document.getElementById('summaryTotal').textContent =
-            '₹' + data.totalPrice.toFixed(2);
-
-    } catch (error) {
-        console.error('Checkout load error:', error);
-        showAlert('danger', 'Cannot load cart!');
-    }
-}
-
-function selectPayment(method) {
-    selectedPayment = method;
-    document.querySelectorAll('.payment-option').forEach(el =>
-        el.classList.remove('selected'));
-    document.getElementById(
-        'pay_' + (method === 'CASH_ON_DELIVERY' ? 'COD' : 'ONLINE')
-    ).classList.add('selected');
-}
-
-async function placeOrder() {
-    const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
-    const spinner = document.getElementById('orderSpinner');
-
-    // ✅ Validations before placing order
-    if (!deliveryAddress) {
-        showAlert('warning', 'Please enter delivery address!');
-        return;
-    }
-
-    // ✅ Check cart still has items
-    if (!cartItems || cartItems.length === 0 || cartTotal <= 0) {
-        showAlert('warning', 'Cart is empty! Cannot place order.');
-        setTimeout(() => window.location.href = 'restaurants.html', 2000);
-        return;
-    }
-
-    // ✅ Get restaurantId from cart items if not in localStorage
-    let restId = restaurantId;
-    if (!restId && cartItems.length > 0) {
-        showAlert('warning', 'Restaurant not found! Go back and select restaurant.');
-        return;
-    }
-
-    console.log('Placing order:', {
-        userId, restaurantId: restId,
-        deliveryAddress, selectedPayment, cartTotal
-    }); // debug
-
-    spinner.classList.remove('d-none');
-
-    try {
-        const response = await fetch(`${API}/api/order/place/${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({
-                restaurantId:    parseInt(restId),
-                deliveryAddress: deliveryAddress,
-                paymentMethod:   selectedPayment,
-                totalAmount:     cartTotal
-            })
-        });
-
-        const data = await response.json();
-        console.log('Order response:', data); // debug
-
-        if (response.ok) {
-            // ✅ Clear cart data from memory
-            cartTotal = 0;
-            cartItems = [];
-
-            document.getElementById('modalOrderId').textContent =
-                'Order ID: #' + data.id;
-            const modal = new bootstrap.Modal(
-                document.getElementById('successModal'));
-            modal.show();
-        } else {
-            showAlert('danger', data.message || 'Order placement failed!');
+        if (selectedPayment !== 'CASH_ON_DELIVERY') {
+            await simulatePayment();
         }
 
-    } catch (error) {
-        console.error('Order error:', error);
-        showAlert('danger', 'Server error! Please try again.');
-    } finally {
+        await submitOrder(fullAddress, finalRestaurantId);
+    }
+
+    // ===== Payment Animation =====
+    async function simulatePayment() {
+        const overlay = document.getElementById('paymentOverlay');
+        const bar     = document.getElementById('paymentBar');
+        const step    = document.getElementById('paymentStep');
+        const icon    = document.getElementById('paymentIcon');
+        const title   = document.getElementById('paymentTitle');
+
+        overlay.style.display = 'flex';
+
+        const steps = [
+            { pct: 20,  msg: 'Connecting to payment gateway...', wait: 800 },
+            { pct: 45,  msg: 'Verifying payment details...',      wait: 900 },
+            { pct: 65,  msg: 'Processing transaction...',         wait: 900 },
+            { pct: 85,  msg: 'Authenticating payment...',         wait: 800 },
+            { pct: 100, msg: 'Payment successful! ✅',            wait: 600 },
+        ];
+
+        for (const s of steps) {
+            bar.style.width  = s.pct + '%';
+            step.textContent = s.msg;
+            await sleep(s.wait);
+        }
+
+        icon.textContent  = '✅';
+        title.textContent = 'Payment Successful!';
+        document.getElementById('paymentMsg').textContent =
+            'Placing your order now...';
+
+        await sleep(1000);
+        overlay.style.display = 'none';
+        bar.style.width = '0%';
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ===== Submit Order =====
+    // ✅ FIX 2 — accept finalRestaurantId as parameter
+    async function submitOrder(fullAddress, finalRestaurantId) {
+        const spinner = document.getElementById('orderSpinner');
         spinner.classList.remove('d-none');
-        spinner.classList.add('d-none');
+
+        console.log('Placing order with restaurantId:', finalRestaurantId);
+        console.log('Cart total:', cartTotal);
+        console.log('Cart items count:', cartItems.length);
+
+        try {
+            const response = await fetch(`${API}/api/order/place/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    // ✅ FIX 2 — use finalRestaurantId passed as parameter
+                    restaurantId:    parseInt(finalRestaurantId),
+                    deliveryAddress: fullAddress,
+                    paymentMethod:   selectedPayment,
+                    totalAmount:     cartTotal
+                })
+            });
+
+            const data = await response.json();
+            console.log('Order response:', data);
+
+            if (response.ok) {
+                // ✅ Clear everything after successful order
+                cartTotal = 0;
+                cartItems = [];
+                localStorage.removeItem('cartRestaurantId');
+                localStorage.removeItem('cartRestaurantName');
+                localStorage.removeItem('selectedRestaurantId');
+
+                if (selectedPayment === 'CASH_ON_DELIVERY') {
+                    document.getElementById('successIcon').textContent    = '🎉';
+                    document.getElementById('successTitle').textContent   = 'Order Placed!';
+                    document.getElementById('successMessage').textContent =
+                        'Your order is confirmed! Pay ₹' +
+                        data.totalAmount + ' when delivered.';
+                } else {
+                    document.getElementById('successIcon').textContent    = '✅';
+                    document.getElementById('successTitle').textContent   = 'Payment Successful!';
+                    document.getElementById('successMessage').textContent =
+                        'Payment of ₹' + data.totalAmount +
+                        ' received! Your order is confirmed.';
+                }
+
+                document.getElementById('modalOrderId').textContent =
+                    'Order ID: #' + data.id;
+
+                const modal = new bootstrap.Modal(
+                    document.getElementById('successModal'));
+                modal.show();
+
+            } else {
+                // ✅ Show exact backend error message
+                showAlert('danger', data.message || 'Order failed! Please try again.');
+            }
+
+        } catch (error) {
+            console.error('Order error:', error);
+            showAlert('danger', 'Server error! Please try again.');
+        } finally {
+            spinner.classList.add('d-none');
+        }
     }
-}
 
-function goToOrders() {
-    window.location.href = 'orders.html';
-}
+    function goToOrders() {
+        window.location.href = 'orders.html';
+    }
 
-function showAlert(type, msg) {
-    const el = document.getElementById('alertBox');
-    el.className = `alert alert-${type}`;
-    el.textContent = msg;
-    el.classList.remove('d-none');
-    setTimeout(() => el.classList.add('d-none'), 4000);
-}
+    function showAlert(type, msg) {
+        const el = document.getElementById('alertBox');
+        el.className = `alert alert-${type}`;
+        el.textContent = msg;
+        el.classList.remove('d-none');
+        setTimeout(() => el.classList.add('d-none'), 4000);
+    }
 </script>
 </body>
 </html>

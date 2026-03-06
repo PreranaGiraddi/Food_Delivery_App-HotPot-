@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.wipro.hotpot.dto.CartDTO;
 import com.wipro.hotpot.dto.CartItemDTO;
 import com.wipro.hotpot.entity.Cart;
@@ -22,153 +23,211 @@ import com.wipro.hotpot.repository.IUserRepository;
 @Service
 public class CartServiceImpl implements ICartService {
 
-	@Autowired
-	private ICartRepository cartRepository;
+    @Autowired
+    private ICartRepository cartRepository;
 
-	@Autowired
-	private ICartItemRepository cartItemRepository;
+    @Autowired
+    private ICartItemRepository cartItemRepository;
 
-	@Autowired
-	private IUserRepository userRepository;
+    @Autowired
+    private IMenuRepository menuItemRepository;
 
-	@Autowired
-	private IMenuRepository menuRepository;
+    @Autowired
+    private IUserRepository userRepository;
 
-	
-	@Override
-	public Cart getCartByUserId(Long userId) {
-		if (!cartRepository.isCartExists(userId)) {
-		    User user = userRepository.findById(userId)
-		    		.orElseThrow(() -> new ResourceNotFoundException("User not found!"));
-		    Cart newCart = new Cart();
-		    newCart.setUser(user);
-		    newCart.setTotalPrice(0.0);
-		    cartRepository.save(newCart);
-		}
-		return cartRepository.findByUserId(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
-		
-	}
+    // ===== Get or Create Cart =====
+    @Transactional
+    public Cart getCartByUserId(Long userId) {
+        return cartRepository.findByUserId(userId)
+            .orElseGet(() -> {
+                Cart newCart = new Cart();
+                newCart.setUser(userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found")));
+                newCart.setTotalPrice(0.0);
+                newCart.setCartItems(new ArrayList<>()); // ✅ Always init empty list
+                return cartRepository.save(newCart);
+            });
+    }
 
+    // ===== Add Item to Cart =====
+    @Override
+    @Transactional
+    public Cart addItemToCart(Long userId, Long menuItemId, Integer quantity) {
+        Cart cart = getCartByUserId(userId);
 
-	@Override
-	public Cart addItemToCart(Long userId, Long menuItemId, Integer quantity) {
+        MenuItem menuItem = menuItemRepository.findById(menuItemId)
+            .orElseThrow(() -> new ResourceNotFoundException("Menu item not found!"));
 
-		Cart cart = getCartByUserId(userId);
+        // ✅ Use discountPrice if available
+        Double priceToUse = (menuItem.getDiscountPrice() != null
+                && menuItem.getDiscountPrice() < menuItem.getPrice())
+                ? menuItem.getDiscountPrice()
+                : menuItem.getPrice();
 
-		MenuItem menuItem = menuRepository.findById(menuItemId)
-				.orElseThrow(() -> new ResourceNotFoundException("Menu item not found!"));
+        Optional<CartItem> existing =
+            cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId);
 
-		
-		Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId);
+        if (existing.isPresent()) {
+            CartItem cartItem = existing.get();
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cartItem.setTotalItemPrice(priceToUse * cartItem.getQuantity());
+            cartItemRepository.save(cartItem);
+        } else {
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setMenuItem(menuItem);
+            cartItem.setQuantity(quantity);
+            cartItem.setTotalItemPrice(priceToUse * quantity);
+            cartItemRepository.save(cartItem);
+        }
 
-		if (existingItem.isPresent()) {
-		
-			CartItem cartItem = existingItem.get();
-			cartItem.setQuantity(cartItem.getQuantity() + quantity);
-			cartItem.setTotalItemPrice(cartItem.getQuantity() * menuItem.getPrice());
-			cartItemRepository.save(cartItem);
-		} else {
-			
-			CartItem cartItem = new CartItem();
-			cartItem.setCart(cart);
-			cartItem.setMenuItem(menuItem);
-			cartItem.setQuantity(quantity);
-			cartItem.setTotalItemPrice(quantity * menuItem.getPrice());
-			cartItemRepository.save(cartItem);
-		}
+        // ✅ Always reload fresh cart before updating total
+        Cart freshCart = cartRepository.findById(cart.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
+        updateCartTotal(freshCart);
+        return cartRepository.save(freshCart);
+    }
 
-		updateCartTotal(cart);
-		return cartRepository.save(cart);
-	}
+    // ===== Remove Item =====
+    @Override
+    @Transactional
+    public Cart removeItemFromCart(Long userId, Long menuItemId) {
+        Cart cart = getCartByUserId(userId);
 
+        cartItemRepository.deleteByCartIdAndMenuItemId(cart.getId(), menuItemId);
+        cartItemRepository.flush(); // ✅ Force DB delete immediately
 
-	@Override
-	@Transactional
-	public Cart removeItemFromCart(Long userId, Long menuItemId) {
-	    Cart cart = cartRepository.findByUserId(userId)
-	        .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
+        Cart freshCart = cartRepository.findById(cart.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
 
-	    // ✅ Delete the item
-	    cartItemRepository.deleteByCartIdAndMenuItemId(cart.getId(), menuItemId);
-	    
-	    // ✅ Force flush and clear cache so updateCartTotal reads fresh data
-	    cartItemRepository.flush();
+        updateCartTotal(freshCart);
+        return cartRepository.save(freshCart);
+    }
 
-	    // ✅ Now recalculate total with fresh data
-	    updateCartTotal(cart);
-	    return cartRepository.save(cart);
-	}
-	
-	@Override
-	public Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity) {
-		Cart cart = getCartByUserId(userId);
+    // ===== Update Quantity =====
+    @Override
+    @Transactional
+    public Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity) {
+        Cart cart = getCartByUserId(userId);
 
-		CartItem cartItem = cartItemRepository.findByCartIdAndMenuItemId(cart.getId(), menuItemId)
-				.orElseThrow(() -> new ResourceNotFoundException("Item not in cart!"));
+        CartItem cartItem = cartItemRepository
+            .findByCartIdAndMenuItemId(cart.getId(), menuItemId)
+            .orElseThrow(() -> new ResourceNotFoundException("Item not in cart!"));
 
-		if (quantity <= 0) {
-			cartItemRepository.delete(cartItem);
-		} else {
-			cartItem.setQuantity(quantity);
-			cartItem.setTotalItemPrice(quantity * cartItem.getMenuItem().getPrice());
-			cartItemRepository.save(cartItem);
-		}
+        if (quantity <= 0) {
+            cartItemRepository.deleteByCartIdAndMenuItemId(cart.getId(), menuItemId);
+            cartItemRepository.flush(); // ✅ Force DB delete
+        } else {
+            MenuItem menuItem = cartItem.getMenuItem();
+            Double priceToUse = (menuItem.getDiscountPrice() != null
+                    && menuItem.getDiscountPrice() < menuItem.getPrice())
+                    ? menuItem.getDiscountPrice()
+                    : menuItem.getPrice();
 
-		updateCartTotal(cart);
-		return cartRepository.save(cart);
-	}
+            cartItem.setQuantity(quantity);
+            cartItem.setTotalItemPrice(priceToUse * quantity);
+            cartItemRepository.save(cartItem);
+        }
 
-	@Override
-	@Transactional
-	public String clearCart(Long userId) {
-	    Cart cart = cartRepository.findByUserId(userId)
-	        .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
+        Cart freshCart = cartRepository.findById(cart.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
 
-	    // ✅ Delete all items
-	    cartItemRepository.deleteByCartId(cart.getId());
-	    
-	    // ✅ Flush cache
-	    cartItemRepository.flush();
-	    
-	    cart.setTotalPrice(0.0);
-	    cartRepository.save(cart);
-	    return "Cart cleared successfully!";
-	}
+        updateCartTotal(freshCart);
+        return cartRepository.save(freshCart);
+    }
 
-	
-	@Override
-	public CartDTO getCartDetails(Long userId) {
-		Cart cart = getCartByUserId(userId);
-		List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+    // ===== Clear Cart =====
+    @Override
+    @Transactional
+    public String clearCart(Long userId) {
+        Cart cart = getCartByUserId(userId);
 
-		List<CartItemDTO> itemDTOs = new ArrayList<>();
-		for (CartItem item : items) {
-			CartItemDTO dto = new CartItemDTO();
-			dto.setMenuItemId(item.getMenuItem().getId());
-			dto.setMenuItemName(item.getMenuItem().getName());
-			dto.setQuantity(item.getQuantity());
-			dto.setPrice(item.getMenuItem().getPrice());
-			dto.setTotalItemPrice(item.getTotalItemPrice());
-			itemDTOs.add(dto);
-		}
+        System.out.println("Clearing cartId: " + cart.getId());
 
-		CartDTO cartDTO = new CartDTO();
-		cartDTO.setCartId(cart.getId());
-		cartDTO.setUserId(userId);
-		cartDTO.setCartItems(itemDTOs);
-		cartDTO.setTotalPrice(cart.getTotalPrice());
+        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+        System.out.println("Items to delete: " + items.size());
 
-		return cartDTO;
-	}
+        if (!items.isEmpty()) {
+            cartItemRepository.deleteAll(items);
+            cartItemRepository.flush(); // ✅ Force immediate DB delete
+        }
 
-	
-	private void updateCartTotal(Cart cart) {
-	    List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
-	    double total = items.stream()
-	        .mapToDouble(item -> item.getTotalItemPrice() != null ?
-	                     item.getTotalItemPrice() : 0.0)
-	        .sum();
-	    cart.setTotalPrice(total);
-	}
+        // ✅ Also clear the in-memory list on cart object
+        cart.getCartItems().clear();
+        cart.setTotalPrice(0.0);
+        cartRepository.saveAndFlush(cart);
+
+        // ✅ Verify
+        List<CartItem> remaining = cartItemRepository.findByCartId(cart.getId());
+        System.out.println("Items remaining after delete: " + remaining.size());
+
+        return "Cart cleared!";
+    }
+
+    // ===== Get Cart as DTO =====
+    @Override
+    @Transactional // ✅ Added transactional
+    public CartDTO getCartDetails(Long userId) {
+        Cart cart = getCartByUserId(userId);
+
+        // ✅ Always fetch FRESH items from DB — not from cache
+        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setCartId(cart.getId());
+        cartDTO.setUserId(userId);
+
+        if (items == null || items.isEmpty()) {
+            // ✅ Return empty cart properly
+            cartDTO.setTotalPrice(0.0);
+            cartDTO.setCartItems(new ArrayList<>());
+            return cartDTO;
+        }
+
+        // ✅ Recalculate total fresh from items — don't trust cart.totalPrice
+        double freshTotal = items.stream()
+            .mapToDouble(i -> i.getTotalItemPrice() != null ? i.getTotalItemPrice() : 0.0)
+            .sum();
+
+        cartDTO.setTotalPrice(freshTotal);
+
+        // ✅ Update cart total in DB if it was stale
+        if (Math.abs(freshTotal - cart.getTotalPrice()) > 0.01) {
+            cart.setTotalPrice(freshTotal);
+            cartRepository.save(cart);
+        }
+
+        List<CartItemDTO> itemDTOs = items.stream().map(item -> {
+            CartItemDTO dto = new CartItemDTO();
+            dto.setMenuItemId(item.getMenuItem().getId());
+            dto.setMenuItemName(item.getMenuItem().getName());
+            dto.setQuantity(item.getQuantity());
+
+            Double price = (item.getMenuItem().getDiscountPrice() != null
+                && item.getMenuItem().getDiscountPrice() < item.getMenuItem().getPrice())
+                ? item.getMenuItem().getDiscountPrice()
+                : item.getMenuItem().getPrice();
+
+            dto.setPrice(price);
+            dto.setTotalItemPrice(item.getTotalItemPrice());
+            return dto;
+        }).toList();
+
+        cartDTO.setCartItems(itemDTOs);
+        return cartDTO;
+    }
+
+    // ===== Helper =====
+    private void updateCartTotal(Cart cart) {
+        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+        double total = items.stream()
+            .mapToDouble(i -> i.getTotalItemPrice() != null ? i.getTotalItemPrice() : 0.0)
+            .sum();
+        cart.setTotalPrice(total);
+    }
+
+    @Override
+    public boolean isCartExists(Long userId) {
+        return cartRepository.isCartExists(userId);
+    }
 }

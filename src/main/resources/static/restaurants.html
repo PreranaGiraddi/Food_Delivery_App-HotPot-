@@ -206,12 +206,11 @@
     }
 
     // ===== Go to Menu Page =====
-    function goToMenu(restaurantId, restaurantName) {
-        localStorage.setItem('selectedRestaurantId', restaurantId);
-        localStorage.setItem('selectedRestaurantName', restaurantName);
-        window.location.href = 'menu.html';
-    }
-
+ function goToMenu(restaurantId, restaurantName) {
+    localStorage.setItem('selectedRestaurantId',   String(restaurantId));
+    localStorage.setItem('selectedRestaurantName', restaurantName);
+    window.location.href = 'menu.html';
+}
     function showAlert(type, msg) {
         const el = document.getElementById('alertBox');
         el.className = `alert alert-${type}`;

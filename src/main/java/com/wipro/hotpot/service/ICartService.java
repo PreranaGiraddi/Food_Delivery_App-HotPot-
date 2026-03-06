@@ -16,4 +16,6 @@ public interface ICartService {
 	String clearCart(Long userId);
 
 	CartDTO getCartDetails(Long userId);
+
+	boolean isCartExists(Long userId);  
 }

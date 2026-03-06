@@ -8,98 +8,97 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .navbar-brand { color:#ff6b35 !important; font-size:1.8rem; font-weight:700; }
-        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:8px 20px; }
+        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:8px 20px; font-weight:600; }
         .btn-hotpot:hover { background-color:#e55a25; color:white; }
 
-        /* Menu Card */
         .menu-card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
+            overflow: hidden;
         }
         .menu-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
-        /* Food emoji box */
-        .food-img-box {
-            height: 140px;
+        .card-clickable { cursor: pointer; }
+        .card-clickable:hover .item-name { color: #ff6b35; }
+
+        .food-emoji-box {
+            height: 130px;
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border-radius: 15px 15px 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 4rem;
-            position: relative;
+            transition: transform 0.3s;
         }
-        .food-img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px 15px 0 0;
-        }
+        .menu-card:hover .food-emoji-box { transform: scale(1.05); }
 
-        /* Badges */
         .badge-veg    { background-color: #28a745; }
         .badge-nonveg { background-color: #dc3545; }
 
-        /* Filter buttons */
-        .filter-btn { border-radius:25px; border:2px solid #ff6b35; color:#ff6b35; background:white; padding:6px 18px; margin:3px; cursor:pointer; }
-        .filter-btn.active, .filter-btn:hover { background:#ff6b35; color:white; }
+        .filter-btn {
+            border-radius: 25px;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            background: white;
+            padding: 6px 18px;
+            margin: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover { background: #ff6b35; color: white; }
 
-        /* Price */
-        .price-tag  { color:#ff6b35; font-size:1.1rem; font-weight:700; }
-        .old-price  { text-decoration:line-through; color:#aaa; font-size:0.85rem; }
-        .discount-badge { background:#ff6b35; color:white; font-size:0.7rem; padding:2px 8px; border-radius:10px; }
+        .price-tag { color:#ff6b35; font-size:1.1rem; font-weight:700; }
+        .old-price { text-decoration:line-through; color:#aaa; font-size:0.85rem; }
 
-        /* Detail Modal */
-        .modal-food-img {
-            height: 220px;
+        /* ===== MODAL ===== */
+        .modal-food-box {
+            height: 180px;
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 7rem;
-            margin-bottom: 20px;
-        }
-        .modal-food-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
+            font-size: 6rem;
         }
         .info-row {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f5f5f5;
         }
         .info-row:last-child { border-bottom: none; }
-        .info-icon { font-size: 1.3rem; margin-right: 12px; width: 30px; text-align: center; }
-        .info-label { color: #aaa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-weight: 600; }
+        .info-icon  { font-size: 1.2rem; margin-right: 12px; width: 28px; flex-shrink: 0; }
+        .info-label { color: #aaa; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-value { font-weight: 600; font-size: 0.95rem; }
+
+        /* ✅ Ingredient chips */
         .ingredient-chip {
-            background: #fff3e0;
-            color: #ff6b35;
-            border: 1px solid #ffcc80;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.85rem;
-            margin: 3px;
             display: inline-block;
+            background: #fff5f0;
+            color: #ff6b35;
+            border: 1px solid #ff6b35;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin: 2px;
         }
 
         .cart-float { position:fixed; bottom:20px; right:20px; z-index:999; }
         footer { background-color:#2d2d2d; color:#aaa; }
+        .tap-hint { font-size: 0.7rem; color: #bbb; text-align: center; padding: 4px 0 0 0; }
     </style>
 </head>
 <body class="bg-light">
 
-<!-- NAVBAR -->
+<!-- ===== NAVBAR ===== -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
         <a class="navbar-brand" href="index.html">🍲 HotPot</a>
@@ -139,94 +138,127 @@
     </div>
 </nav>
 
-<!-- RESTAURANT HEADER -->
+<!-- ===== RESTAURANT HEADER ===== -->
 <div style="background:linear-gradient(135deg,#ff6b35,#f7c59f); padding:30px 0;">
     <div class="container text-white">
         <h2 class="fw-bold" id="restaurantTitle">🍽️ Loading...</h2>
-        <p class="mb-0">Click on any item to view full details!</p>
+        <p class="mb-0 opacity-75">
+            <i class="bi bi-hand-index"></i>
+            Click on any item card to view ingredients & full details!
+        </p>
     </div>
 </div>
 
-<!-- FILTER BUTTONS -->
+<!-- ===== FILTER SECTION ===== -->
 <div class="container mt-4">
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-bold me-2">Filter:</span>
-        <button class="filter-btn active" onclick="filterMenu('ALL', this)">🍽️ All</button>
-        <button class="filter-btn" onclick="filterMenu('VEG', this)">🌿 Veg</button>
-        <button class="filter-btn" onclick="filterMenu('NONVEG', this)">🍗 Non-Veg</button>
+    <div class="card border-0 shadow-sm p-3" style="border-radius:15px;">
+        <div class="row g-3 align-items-center">
+
+            <div class="col-md-3">
+                <label class="fw-bold small text-muted mb-1">
+                    <i class="bi bi-funnel"></i> DIET TYPE
+                </label>
+                <div class="d-flex flex-wrap gap-1">
+                    <button class="filter-btn active" id="dietAll"
+                            onclick="setDiet('ALL', this)">All</button>
+                    <button class="filter-btn" id="dietVeg"
+                            onclick="setDiet('VEG', this)">🌿 Veg</button>
+                    <button class="filter-btn" id="dietNonveg"
+                            onclick="setDiet('NONVEG', this)">🍗 Non-Veg</button>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label class="fw-bold small text-muted mb-1">
+                    <i class="bi bi-grid"></i> CATEGORY
+                </label>
+                <select class="form-select form-select-sm" id="categoryFilter"
+                        onchange="applyFilters()" style="border-radius:25px;">
+                    <option value="ALL">All Categories</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="fw-bold small text-muted mb-1">
+                    <i class="bi bi-currency-rupee"></i> PRICE RANGE
+                </label>
+                <select class="form-select form-select-sm" id="priceFilter"
+                        onchange="applyFilters()" style="border-radius:25px;">
+                    <option value="ALL">All Prices</option>
+                    <option value="0-100">Under ₹100</option>
+                    <option value="100-200">₹100 - ₹200</option>
+                    <option value="200-300">₹200 - ₹300</option>
+                    <option value="300+">Above ₹300</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary btn-sm"
+                        style="border-radius:25px;" onclick="resetFilters()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
+                <div class="mt-1">
+                    <small class="text-muted" id="filterResultCount"></small>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="container py-4">
     <div id="alertBox" class="alert d-none"></div>
 
-    <!-- Loading -->
     <div id="loadingSection" class="text-center py-5">
         <div class="spinner-border text-warning" style="width:3rem;height:3rem;"></div>
         <p class="mt-3 text-muted">Loading menu...</p>
     </div>
 
-    <!-- No results -->
     <div id="noResults" class="text-center py-5 d-none">
         <div style="font-size:4rem">🍽️</div>
         <h5 class="text-muted mt-3">No items found!</h5>
+        <button class="btn btn-hotpot mt-2" onclick="resetFilters()">Show All Items</button>
     </div>
 
-    <!-- Menu Grid -->
     <div class="row g-4" id="menuGrid"></div>
 </div>
 
-<!-- ===================== MENU DETAIL MODAL ===================== -->
-<div class="modal fade" id="menuDetailModal" tabindex="-1">
+<!-- ===== ITEM DETAIL MODAL ===== -->
+<div class="modal fade" id="itemDetailModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius:20px; border:none;">
             <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close"
-                        data-bs-dismiss="modal"></button>
+                <h5 class="modal-title fw-bold" id="modalName">Item Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pb-4">
-                <div class="row">
+                <div class="row g-4">
 
-                    <!-- Left — Image + Price -->
+                    <!-- LEFT -->
                     <div class="col-md-5 text-center">
-                        <!-- Food Image or Emoji -->
-                        <div class="modal-food-img" id="modalFoodImg">
-                            <span id="modalFoodEmoji">🍽️</span>
+                        <div class="modal-food-box mb-3" id="modalFoodBox">🍽️</div>
+
+                        <div class="bg-light rounded-3 p-3">
+                            <div class="price-tag fs-3" id="modalFinalPrice">₹0</div>
+                            <div id="modalPriceExtra" class="mt-1"></div>
                         </div>
 
-                        <!-- Price Section -->
-                        <div class="bg-light rounded-3 p-3 mt-2">
-                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                <span class="price-tag fs-3" id="modalDiscountPrice"></span>
-                                <span class="old-price fs-6" id="modalOriginalPrice"></span>
-                            </div>
-                            <div id="modalSavings" class="text-success small fw-bold mt-1"></div>
-                        </div>
-
-                        <!-- Add to Cart Button -->
-                        <button class="btn btn-hotpot w-100 mt-3 py-2"
-                                id="modalAddBtn" onclick="addFromModal()">
+                        <button class="btn btn-hotpot w-100 mt-3 py-2" id="modalAddBtn">
                             <i class="bi bi-cart-plus"></i> Add to Cart
                         </button>
+                        <p class="text-muted small mt-2 mb-0">
+                            <i class="bi bi-shield-check text-success"></i>
+                            Fresh & hygienically prepared
+                        </p>
                     </div>
 
-                    <!-- Right — Details -->
-                    <div class="col-md-7 mt-3 mt-md-0">
+                    <!-- RIGHT -->
+                    <div class="col-md-7">
 
-                        <!-- Name + Badge -->
-                        <div class="d-flex align-items-start gap-2 mb-3">
-                            <h4 class="fw-bold mb-0" id="modalName"></h4>
-                            <span class="badge mt-1" id="modalDietBadge"></span>
-                        </div>
-
-                        <!-- Restaurant Name -->
-                        <div class="info-row">
-                            <span class="info-icon">🏪</span>
-                            <div>
-                                <div class="info-label">Restaurant</div>
-                                <div class="info-value" id="modalRestaurant"></div>
-                            </div>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge fs-6 px-3 py-2" id="modalDietBadge">Veg</span>
+                            <span class="badge bg-light text-dark border px-3 py-2" id="modalCategoryBadge">Category</span>
                         </div>
 
                         <!-- Description -->
@@ -234,7 +266,7 @@
                             <span class="info-icon">📝</span>
                             <div>
                                 <div class="info-label">Description</div>
-                                <div class="info-value" id="modalDescription"></div>
+                                <div class="info-value" id="modalDesc">Delicious item!</div>
                             </div>
                         </div>
 
@@ -243,7 +275,7 @@
                             <span class="info-icon">⏱️</span>
                             <div>
                                 <div class="info-label">Cooking Time</div>
-                                <div class="info-value" id="modalCookingTime"></div>
+                                <div class="info-value" id="modalCookTime">15 mins</div>
                             </div>
                         </div>
 
@@ -251,17 +283,17 @@
                         <div class="info-row">
                             <span class="info-icon">🌶️</span>
                             <div>
-                                <div class="info-label">Taste</div>
-                                <div class="info-value" id="modalTaste"></div>
+                                <div class="info-label">Taste Profile</div>
+                                <div class="info-value" id="modalTaste">Regular</div>
                             </div>
                         </div>
 
-                        <!-- Availability -->
-                        <div class="info-row">
-                            <span class="info-icon">🕐</span>
-                            <div>
-                                <div class="info-label">Available</div>
-                                <div class="info-value" id="modalAvailability"></div>
+                        <!-- ✅ INGREDIENTS ROW -->
+                        <div class="info-row" id="ingredientsRow">
+                            <span class="info-icon">🧂</span>
+                            <div style="flex:1;">
+                                <div class="info-label">Ingredients</div>
+                                <div id="modalIngredients" class="mt-1">N/A</div>
                             </div>
                         </div>
 
@@ -269,18 +301,20 @@
                         <div class="info-row" id="nutritionRow">
                             <span class="info-icon">💪</span>
                             <div>
-                                <div class="info-label">Nutrition</div>
-                                <div class="info-value" id="modalNutrition"></div>
+                                <div class="info-label">Nutritional Info</div>
+                                <div class="info-value" id="modalNutrition">N/A</div>
                             </div>
                         </div>
 
-                        <!-- Ingredients -->
-                        <div class="mt-3" id="ingredientsSection">
-                            <div class="info-label mb-2">
-                                🧄 INGREDIENTS
+                        <!-- Availability -->
+                        <div class="info-row">
+                            <span class="info-icon">🕐</span>
+                            <div>
+                                <div class="info-label">Availability</div>
+                                <div class="info-value" id="modalAvailTime">All Day</div>
                             </div>
-                            <div id="modalIngredients"></div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -288,7 +322,7 @@
     </div>
 </div>
 
-<!-- FLOATING CART BUTTON -->
+<!-- ===== FLOATING CART BUTTON ===== -->
 <div class="cart-float d-none" id="cartFloat">
     <a href="cart.html" class="btn btn-hotpot btn-lg shadow">
         <i class="bi bi-cart3"></i> View Cart
@@ -296,7 +330,7 @@
     </a>
 </div>
 
-<!-- FOOTER -->
+<!-- ===== FOOTER ===== -->
 <footer class="py-4 mt-5">
     <div class="container text-center">
         <p class="mb-0">🍲 <strong class="text-white">HotPot</strong> © 2024</p>
@@ -305,420 +339,419 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API = 'http://localhost:8080';
-    let allMenuItems  = [];
-    let cartItemCount = 0;
-    let selectedItem  = null; // ✅ Store clicked item for modal add to cart
 
-    // Food emojis by name keywords
-    const foodEmojis = {
-        'burger': '🍔', 'pizza': '🍕', 'biryani': '🍛',
-        'rice': '🍚', 'noodles': '🍜', 'pasta': '🍝',
-        'sandwich': '🥪', 'wrap': '🌯', 'salad': '🥗',
-        'soup': '🍲', 'curry': '🍛', 'chicken': '🍗',
-        'fish': '🐟', 'prawn': '🍤', 'egg': '🍳',
-        'cake': '🎂', 'ice cream': '🍦', 'dessert': '🍮',
-        'coffee': '☕', 'juice': '🧃', 'shake': '🥤',
-        'dosa': '🫓', 'idli': '🫓', 'roti': '🫓',
-        'default': '🍽️'
-    };
+const API = 'http://localhost:8080';
+let allMenuItems  = [];
+let cartItemCount = 0;
+let selectedDiet  = 'ALL';
 
-    function getFoodEmoji(name) {
-        if (!name) return '🍽️';
-        const lower = name.toLowerCase();
-        for (const [key, emoji] of Object.entries(foodEmojis)) {
-            if (lower.includes(key)) return emoji;
-        }
-        return '🍽️';
+window.onload = function () {
+    updateNavbar();
+    const restaurantId   = localStorage.getItem('selectedRestaurantId');
+    const restaurantName = localStorage.getItem('selectedRestaurantName');
+    if (!restaurantId) { window.location.href = 'restaurants.html'; return; }
+    document.getElementById('restaurantTitle').textContent = '🍽️ ' + restaurantName;
+    loadMenu(restaurantId);
+}
+
+function updateNavbar() {
+    const token = localStorage.getItem('token');
+    const name  = localStorage.getItem('userName');
+    if (token) {
+        document.getElementById('loginNav').classList.add('d-none');
+        document.getElementById('cartNav').classList.remove('d-none');
+        document.getElementById('ordersNav').classList.remove('d-none');
+        document.getElementById('userNav').classList.remove('d-none');
+        document.getElementById('logoutNav').classList.remove('d-none');
+        document.getElementById('userName').textContent = '👤 ' + name;
+        document.getElementById('cartFloat').classList.remove('d-none');
     }
+}
 
-    window.onload = function () {
-        updateNavbar();
-        const restaurantId   = localStorage.getItem('selectedRestaurantId');
-        const restaurantName = localStorage.getItem('selectedRestaurantName');
-
-        if (!restaurantId) {
-            window.location.href = 'restaurants.html';
-            return;
-        }
-
-        document.getElementById('restaurantTitle').textContent =
-            '🍽️ ' + restaurantName;
-        loadMenu(restaurantId);
+async function loadMenu(restaurantId) {
+    try {
+        const response = await fetch(`${API}/api/menu/available/${restaurantId}`);
+        const data     = await response.json();
+        allMenuItems   = data;
+        loadCategories(data);
+        displayMenu(data);
+    } catch (error) {
+        showAlert('danger', 'Cannot load menu! Check server.');
+    } finally {
+        document.getElementById('loadingSection').classList.add('d-none');
     }
+}
 
-    function updateNavbar() {
-        const token = localStorage.getItem('token');
-        const name  = localStorage.getItem('userName');
-        if (token) {
-            document.getElementById('loginNav').classList.add('d-none');
-            document.getElementById('cartNav').classList.remove('d-none');
-            document.getElementById('ordersNav').classList.remove('d-none');
-            document.getElementById('userNav').classList.remove('d-none');
-            document.getElementById('logoutNav').classList.remove('d-none');
-            document.getElementById('userName').textContent = '👤 ' + name;
-            document.getElementById('cartFloat').classList.remove('d-none');
+function loadCategories(items) {
+    const select = document.getElementById('categoryFilter');
+    const seen   = new Set();
+    items.forEach(item => {
+        const catName = item.category ? (item.category.name || item.category) : null;
+        if (catName && !seen.has(catName)) {
+            seen.add(catName);
+            const opt       = document.createElement('option');
+            opt.value       = catName;
+            opt.textContent = catName;
+            select.appendChild(opt);
         }
+    });
+}
+
+function setDiet(diet, btn) {
+    selectedDiet = diet;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+}
+
+function applyFilters() {
+    const categoryVal = document.getElementById('categoryFilter').value;
+    const priceVal    = document.getElementById('priceFilter').value;
+    let   filtered    = [...allMenuItems];
+
+    if (selectedDiet !== 'ALL')
+        filtered = filtered.filter(i => i.dietaryType === selectedDiet);
+
+    if (categoryVal !== 'ALL')
+        filtered = filtered.filter(i => {
+            const cat = i.category ? (i.category.name || i.category) : null;
+            return cat === categoryVal;
+        });
+
+    if (priceVal !== 'ALL')
+        filtered = filtered.filter(i => {
+            const p = (i.discountPrice && i.discountPrice < i.price) ? i.discountPrice : i.price;
+            if (priceVal === '0-100')   return p < 100;
+            if (priceVal === '100-200') return p >= 100 && p <= 200;
+            if (priceVal === '200-300') return p >= 200 && p <= 300;
+            if (priceVal === '300+')    return p > 300;
+            return true;
+        });
+
+    document.getElementById('filterResultCount').textContent = filtered.length + ' item(s) found';
+    displayMenu(filtered);
+}
+
+function resetFilters() {
+    selectedDiet = 'ALL';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('dietAll').classList.add('active');
+    document.getElementById('categoryFilter').value = 'ALL';
+    document.getElementById('priceFilter').value    = 'ALL';
+    document.getElementById('filterResultCount').textContent = '';
+    displayMenu(allMenuItems);
+}
+
+function displayMenu(items) {
+    const grid = document.getElementById('menuGrid');
+    grid.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        document.getElementById('noResults').classList.remove('d-none');
+        return;
     }
+    document.getElementById('noResults').classList.add('d-none');
 
-    async function loadMenu(restaurantId) {
-        try {
-            const response = await fetch(
-                `${API}/api/menu/available/${restaurantId}`);
-            allMenuItems = await response.json();
-            displayMenu(allMenuItems);
-        } catch (error) {
-            showAlert('danger', 'Cannot load menu!');
-        } finally {
-            document.getElementById('loadingSection').classList.add('d-none');
-        }
-    }
+    items.forEach(item => {
+        const isVeg       = item.dietaryType === 'VEG';
+        const hasDiscount = item.discountPrice && item.discountPrice < item.price;
+        const finalPrice  = hasDiscount ? item.discountPrice : item.price;
+        const discPct     = hasDiscount
+            ? Math.round((item.price - item.discountPrice) / item.price * 100) : 0;
+        const catName     = item.category ? (item.category.name || item.category) : 'General';
+        const emoji       = isVeg ? '🥗' : '🍗';
 
-    function filterMenu(type, btn) {
-        document.querySelectorAll('.filter-btn')
-                .forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filtered = type === 'ALL' ? allMenuItems
-            : allMenuItems.filter(i => i.dietaryType === type);
-        displayMenu(filtered);
-    }
+        // ✅ Show ingredient preview on card if available
+        const ingPreview  = item.ingredients
+            ? item.ingredients.split(',').slice(0, 3)
+                .map(i => `<span class="ingredient-chip">${i.trim()}</span>`).join('')
+              + (item.ingredients.split(',').length > 3 ? ' <span class="text-muted small">+more</span>' : '')
+            : '';
 
-    function displayMenu(items) {
-        const grid = document.getElementById('menuGrid');
-        grid.innerHTML = '';
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        col.innerHTML = `
+        <div class="card menu-card h-100">
 
-        if (!items || items.length === 0) {
-            document.getElementById('noResults').classList.remove('d-none');
-            return;
-        }
-        document.getElementById('noResults').classList.add('d-none');
-
-        items.forEach(item => {
-            const isVeg    = item.dietaryType === 'VEG';
-            const hasDisc  = item.discountPrice && item.discountPrice < item.price;
-            const dispPrice= hasDisc ? item.discountPrice : item.price;
-            const emoji    = getFoodEmoji(item.name);
-            const savings  = hasDisc
-                ? Math.round(((item.price - item.discountPrice) / item.price) * 100)
-                : 0;
-
-            const col = document.createElement('div');
-            col.className = 'col-md-4 col-sm-6';
-            col.innerHTML = `
-                <div class="card menu-card h-100"
-                     onclick="openMenuDetail(${item.id})">
-                    <!-- Food Image Area -->
-                    <div class="food-img-box">
-                        ${item.imageUrl
-                            ? `<img src="${item.imageUrl}"
-                                    onerror="this.style.display='none';
-                                    this.nextSibling.style.display='flex'">`
-                            : ''}
-                        <span style="${item.imageUrl ? 'display:none' : ''}">
-                            ${emoji}
-                        </span>
-                        ${savings > 0
-                            ? `<span class="discount-badge position-absolute"
-                                    style="top:10px;right:10px;">
-                                    ${savings}% OFF
-                               </span>`
-                            : ''}
-                        <span class="badge position-absolute"
-                              style="top:10px;left:10px;"
-                              class="${isVeg ? 'badge-veg' : 'badge-nonveg'}"
-                              style="background:${isVeg ? '#28a745' : '#dc3545'}">
+            <div class="card-clickable" onclick="openDetailModal(${item.id})">
+                <div class="food-emoji-box">${emoji}</div>
+                <div class="card-body pb-2">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="item-name fw-bold mb-0 me-2" style="transition:color 0.2s;">
+                            ${item.name}
+                        </h6>
+                        <span class="badge ${isVeg ? 'badge-veg' : 'badge-nonveg'} flex-shrink-0">
                             ${isVeg ? '🌿 Veg' : '🍗 Non-Veg'}
                         </span>
                     </div>
 
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold mb-1">${item.name}</h6>
-                        <p class="text-muted small mb-2" style="
-                            overflow:hidden;
-                            display:-webkit-box;
-                            -webkit-line-clamp:2;
-                            -webkit-box-orient:vertical;">
-                            ${item.description || 'Tap to view details'}
-                        </p>
-                        <div class="d-flex align-items-center gap-3 text-muted small mb-2">
-                            <span><i class="bi bi-clock"></i> ${item.cookingTime || 15} min</span>
-                            <span><i class="bi bi-fire"></i> ${item.tasteInfo || 'Regular'}</span>
-                        </div>
+                    <span class="badge bg-light text-dark border mb-2" style="font-size:0.72rem;">
+                        <i class="bi bi-grid"></i> ${catName}
+                    </span>
 
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <div>
-                                <span class="price-tag">₹${dispPrice}</span>
-                                ${hasDisc
-                                    ? `<span class="old-price ms-1">₹${item.price}</span>`
-                                    : ''}
-                            </div>
-                            <div class="d-flex gap-2">
-                                <!-- Details button -->
-                                <button class="btn btn-outline-secondary btn-sm"
-                                        style="border-radius:20px;"
-                                        onclick="event.stopPropagation();
-                                                 openMenuDetail(${item.id})">
-                                    <i class="bi bi-info-circle"></i>
-                                </button>
-                                <!-- Add to cart button -->
-                                <button class="btn btn-hotpot btn-sm"
-                                        id="addBtn_${item.id}"
-                                        onclick="event.stopPropagation();
-                                                 addToCart(${item.id},
-                                                 '${item.name}',
-                                                 ${dispPrice})">
-                                    <i class="bi bi-cart-plus"></i> Add
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="text-muted small mb-1"
+                       style="overflow:hidden;display:-webkit-box;
+                              -webkit-line-clamp:2;-webkit-box-orient:vertical;
+                              min-height:2.5rem;">
+                        ${item.description || 'Tap to see full details!'}
+                    </p>
 
-                    <!-- Click hint -->
-                    <div class="card-footer bg-white border-0 text-center pb-2">
-                        <small class="text-muted">
-                            <i class="bi bi-eye"></i> Tap card for full details
-                        </small>
+                    <p class="text-muted small mb-1">
+                        <i class="bi bi-clock"></i> ${item.cookingTime || 15} mins
+                        &nbsp;|&nbsp;
+                        <i class="bi bi-fire"></i> ${item.tasteInfo || 'Regular'}
+                    </p>
+
+                    ${ingPreview ? `<div class="mb-1">${ingPreview}</div>` : ''}
+
+                    <p class="tap-hint">
+                        <i class="bi bi-hand-index"></i> Tap for full details & ingredients
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-0 px-3 pb-3 pt-0">
+                <hr class="mt-0 mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="price-tag">₹${finalPrice}</span>
+                        ${hasDiscount ? `
+                            <span class="old-price ms-1">₹${item.price}</span>
+                            <span class="badge bg-success ms-1" style="font-size:0.68rem;">
+                                ${discPct}% OFF
+                            </span>` : ''}
                     </div>
-                </div>`;
-            grid.appendChild(col);
+                    <button class="btn btn-hotpot btn-sm"
+                            id="addBtn_${item.id}"
+                            onclick="event.stopPropagation();
+                                     addToCart(${item.id},
+                                     '${escapeQuotes(item.name)}',
+                                     ${finalPrice})">
+                        <i class="bi bi-cart-plus"></i> Add
+                    </button>
+                </div>
+            </div>
+
+        </div>`;
+        grid.appendChild(col);
+    });
+}
+
+function escapeQuotes(str) {
+    return str ? str.replace(/'/g, "\\'") : str;
+}
+
+// ===========================
+// OPEN DETAIL MODAL
+// ===========================
+function openDetailModal(itemId) {
+    const item = allMenuItems.find(i => i.id === itemId);
+    if (!item) { showAlert('danger', 'Item not found!'); return; }
+
+    const isVeg       = item.dietaryType === 'VEG';
+    const hasDiscount = item.discountPrice && item.discountPrice < item.price;
+    const finalPrice  = hasDiscount ? item.discountPrice : item.price;
+    const catName     = item.category ? (item.category.name || item.category) : 'General';
+    const emoji       = isVeg ? '🥗' : '🍗';
+
+    document.getElementById('modalName').textContent       = item.name;
+    document.getElementById('modalFoodBox').textContent    = emoji;
+    document.getElementById('modalFinalPrice').textContent = '₹' + finalPrice;
+    document.getElementById('modalDesc').textContent       =
+        item.description || 'A delicious item prepared fresh for you!';
+    document.getElementById('modalCookTime').textContent   = (item.cookingTime || 15) + ' mins';
+    document.getElementById('modalTaste').textContent      = item.tasteInfo || 'Regular';
+    document.getElementById('modalAvailTime').textContent  =
+        item.availabilityTime
+            ? item.availabilityTime.charAt(0).toUpperCase() + item.availabilityTime.slice(1)
+            : 'All Day';
+
+    // Diet badge
+    const dietBadge = document.getElementById('modalDietBadge');
+    dietBadge.textContent = isVeg ? '🌿 Vegetarian' : '🍗 Non-Vegetarian';
+    dietBadge.className   = 'badge fs-6 px-3 py-2 ' + (isVeg ? 'badge-veg' : 'badge-nonveg');
+
+    // Category badge
+    document.getElementById('modalCategoryBadge').textContent = '📂 ' + catName;
+
+    // Price info
+    const priceExtra = document.getElementById('modalPriceExtra');
+    if (hasDiscount) {
+        const discPct = Math.round((item.price - item.discountPrice) / item.price * 100);
+        priceExtra.innerHTML =
+            `<span class="old-price">₹${item.price}</span>
+             <span class="badge bg-success ms-2">${discPct}% OFF</span>
+             <div class="text-success small mt-1 fw-bold">
+                 You save ₹${(item.price - item.discountPrice).toFixed(2)}!
+             </div>`;
+    } else {
+        priceExtra.innerHTML = '<span class="text-muted small">No discount</span>';
+    }
+
+    // ✅ INGREDIENTS — show as orange chips, hide row if empty
+    const ingredientsRow = document.getElementById('ingredientsRow');
+    const ingredientsDiv = document.getElementById('modalIngredients');
+
+    if (item.ingredients && item.ingredients.trim() !== '') {
+        ingredientsRow.style.display = 'flex';
+        ingredientsDiv.innerHTML = item.ingredients.split(',')
+            .map(ing => `<span class="ingredient-chip">${ing.trim()}</span>`)
+            .join('');
+    } else {
+        ingredientsRow.style.display = 'none';
+    }
+
+    // ✅ NUTRITIONAL INFO — hide row if empty
+    const nutritionRow = document.getElementById('nutritionRow');
+    const nutritionEl  = document.getElementById('modalNutrition');
+
+    if (item.nutritionalInfo && item.nutritionalInfo.trim() !== '') {
+        nutritionRow.style.display = 'flex';
+        nutritionEl.textContent    = item.nutritionalInfo;
+    } else {
+        nutritionRow.style.display = 'none';
+    }
+
+    // Add to Cart button
+    document.getElementById('modalAddBtn').onclick = function () {
+        bootstrap.Modal.getInstance(document.getElementById('itemDetailModal')).hide();
+        addToCart(item.id, item.name, finalPrice);
+    };
+
+    new bootstrap.Modal(document.getElementById('itemDetailModal')).show();
+}
+
+// ===========================
+// ADD TO CART
+// ===========================
+async function addToCart(menuItemId, itemName, price) {
+    const token  = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+        showAlert('warning', 'Please login to add items to cart!');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+    }
+
+    const currentRestaurantId   = localStorage.getItem('selectedRestaurantId');
+    const currentRestaurantName = localStorage.getItem('selectedRestaurantName');
+    const cartRestaurantId      = localStorage.getItem('cartRestaurantId');
+    const cartRestaurantName    = localStorage.getItem('cartRestaurantName');
+
+    if (cartRestaurantId && cartRestaurantId !== currentRestaurantId) {
+        const cartIsEmpty = await checkIfCartEmpty(userId, token);
+        if (cartIsEmpty) {
+            localStorage.removeItem('cartRestaurantId');
+            localStorage.removeItem('cartRestaurantName');
+            await doAddToCart(userId, token, menuItemId, itemName,
+                currentRestaurantId, currentRestaurantName);
+            return;
+        }
+
+        const confirmClear = confirm(
+            `⚠️ Your cart has items from "${cartRestaurantName}"!\n\n` +
+            `Do you want to clear cart and order from "${currentRestaurantName}" instead?\n\n` +
+            `OK → Clear cart and add this item\n` +
+            `Cancel → Keep existing cart`
+        );
+
+        if (confirmClear) {
+            await clearCartAndAdd(userId, token, menuItemId, itemName,
+                currentRestaurantId, currentRestaurantName);
+        } else {
+            showAlert('warning', `Cart has items from "${cartRestaurantName}". Clear cart first!`);
+        }
+        return;
+    }
+
+    await doAddToCart(userId, token, menuItemId, itemName,
+        currentRestaurantId, currentRestaurantName);
+}
+
+async function checkIfCartEmpty(userId, token) {
+    try {
+        const res  = await fetch(`${API}/api/cart/${userId}`,
+            { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!res.ok) return true;
+        const data = await res.json();
+        const empty = !data.cartItems || data.cartItems.length === 0 || data.totalPrice === 0;
+        if (empty) {
+            localStorage.removeItem('cartRestaurantId');
+            localStorage.removeItem('cartRestaurantName');
+        }
+        return empty;
+    } catch (e) { return true; }
+}
+
+async function clearCartAndAdd(userId, token, menuItemId, itemName, restaurantId, restaurantName) {
+    try {
+        const res = await fetch(`${API}/api/cart/clear/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
         });
-    }
-
-    // ✅ Open Menu Detail Modal
-    function openMenuDetail(itemId) {
-        const item = allMenuItems.find(i => i.id === itemId);
-        if (!item) return;
-
-        selectedItem = item; // store for add to cart from modal
-
-        const isVeg   = item.dietaryType === 'VEG';
-        const hasDisc = item.discountPrice && item.discountPrice < item.price;
-        const emoji   = getFoodEmoji(item.name);
-
-        // Image
-        const imgBox = document.getElementById('modalFoodImg');
-        if (item.imageUrl) {
-            imgBox.innerHTML = `
-                <img src="${item.imageUrl}"
-                     style="width:100%;height:100%;
-                            object-fit:cover;border-radius:15px;"
-                     onerror="this.outerHTML='<span style=font-size:7rem>${emoji}</span>'">`;
+        if (res.ok) {
+            localStorage.removeItem('cartRestaurantId');
+            localStorage.removeItem('cartRestaurantName');
+            await doAddToCart(userId, token, menuItemId, itemName, restaurantId, restaurantName);
         } else {
-            imgBox.innerHTML =
-                `<span style="font-size:7rem">${emoji}</span>`;
-        }
-
-        // Name
-        document.getElementById('modalName').textContent = item.name;
-
-        // Diet badge
-        const dietBadge = document.getElementById('modalDietBadge');
-        dietBadge.textContent  = isVeg ? '🌿 Veg' : '🍗 Non-Veg';
-        dietBadge.style.background = isVeg ? '#28a745' : '#dc3545';
-
-        // Restaurant
-        document.getElementById('modalRestaurant').textContent =
-            item.restaurant ? item.restaurant.name : localStorage.getItem('selectedRestaurantName');
-
-        // Description
-        document.getElementById('modalDescription').textContent =
-            item.description || 'No description available';
-
-        // Cooking time
-        document.getElementById('modalCookingTime').textContent =
-            (item.cookingTime || 15) + ' minutes';
-
-        // Taste
-        document.getElementById('modalTaste').textContent =
-            item.tasteInfo || 'Regular';
-
-        // Availability
-        document.getElementById('modalAvailability').textContent =
-            item.availabilityTime || 'All day';
-
-        // Nutrition
-        const nutritionRow = document.getElementById('nutritionRow');
-        if (item.nutritionalInfo) {
-            document.getElementById('modalNutrition').textContent =
-                item.nutritionalInfo;
-            nutritionRow.style.display = 'flex';
-        } else {
-            nutritionRow.style.display = 'none';
-        }
-
-        // Price
-        document.getElementById('modalDiscountPrice').textContent =
-            '₹' + (hasDisc ? item.discountPrice : item.price);
-
-        if (hasDisc) {
-            document.getElementById('modalOriginalPrice').textContent =
-                '₹' + item.price;
-            const saved = (item.price - item.discountPrice).toFixed(2);
-            document.getElementById('modalSavings').textContent =
-                `You save ₹${saved}! 🎉`;
-        } else {
-            document.getElementById('modalOriginalPrice').textContent = '';
-            document.getElementById('modalSavings').textContent = '';
-        }
-
-        // ✅ Ingredients — show as chips
-        const ingredientsDiv = document.getElementById('modalIngredients');
-        const ingredientsSection = document.getElementById('ingredientsSection');
-        if (item.ingredients) {
-            const chips = item.ingredients.split(',').map(i =>
-                `<span class="ingredient-chip">${i.trim()}</span>`
-            ).join('');
-            ingredientsDiv.innerHTML = chips;
-            ingredientsSection.style.display = 'block';
-        } else {
-            ingredientsSection.style.display = 'none';
-        }
-
-        // Show modal
-        const modal = new bootstrap.Modal(
-            document.getElementById('menuDetailModal'));
-        modal.show();
-    }
-
-    // ✅ Add to cart from modal
-    function addFromModal() {
-        if (!selectedItem) return;
-        const price = selectedItem.discountPrice &&
-                      selectedItem.discountPrice < selectedItem.price
-                    ? selectedItem.discountPrice
-                    : selectedItem.price;
-
-        // Close modal first
-        bootstrap.Modal.getInstance(
-            document.getElementById('menuDetailModal')).hide();
-
-        // Add to cart
-        addToCart(selectedItem.id, selectedItem.name, price);
-    }
-
-    // ===== Add to Cart =====
-    async function addToCart(menuItemId, itemName, price) {
-        const token  = localStorage.getItem('token');
-        const userId = localStorage.getItem('userId');
-
-        if (!token || !userId) {
-            showAlert('warning', 'Please login to add items to cart!');
-            setTimeout(() => window.location.href = 'login.html', 1500);
-            return;
-        }
-
-        const currentRestaurantId   = localStorage.getItem('selectedRestaurantId');
-        const currentRestaurantName = localStorage.getItem('selectedRestaurantName');
-        const cartRestaurantId      = localStorage.getItem('cartRestaurantId');
-        const cartRestaurantName    = localStorage.getItem('cartRestaurantName');
-
-        if (cartRestaurantId && cartRestaurantId !== currentRestaurantId) {
-            const confirmClear = confirm(
-                `⚠️ Your cart has items from "${cartRestaurantName}"!\n\n` +
-                `Do you want to clear cart and order from` +
-                ` "${currentRestaurantName}" instead?\n\n` +
-                `Click OK to clear and add.\nClick Cancel to keep current cart.`
-            );
-            if (confirmClear) {
-                await clearCartAndAdd(userId, token, menuItemId,
-                                      itemName, currentRestaurantId,
-                                      currentRestaurantName);
-            } else {
-                showAlert('warning',
-                    `Cart has items from "${cartRestaurantName}". Clear cart first!`);
-            }
-            return;
-        }
-
-        await doAddToCart(userId, token, menuItemId, itemName,
-                          currentRestaurantId, currentRestaurantName);
-    }
-
-    async function clearCartAndAdd(userId, token, menuItemId, itemName,
-                                    restaurantId, restaurantName) {
-        try {
-            const r = await fetch(`${API}/api/cart/clear/${userId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (r.ok) {
-                localStorage.removeItem('cartRestaurantId');
-                localStorage.removeItem('cartRestaurantName');
-                await doAddToCart(userId, token, menuItemId,
-                                  itemName, restaurantId, restaurantName);
-            }
-        } catch (e) {
             showAlert('danger', 'Failed to clear cart!');
         }
-    }
+    } catch (e) { showAlert('danger', 'Server error!'); }
+}
 
-    async function doAddToCart(userId, token, menuItemId, itemName,
-                                restaurantId, restaurantName) {
-        const btn = document.getElementById(`addBtn_${menuItemId}`);
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML =
-                '<span class="spinner-border spinner-border-sm"></span>';
-        }
+async function doAddToCart(userId, token, menuItemId, itemName, restaurantId, restaurantName) {
+    const btn = document.getElementById(`addBtn_${menuItemId}`);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; }
 
-        try {
-            const response = await fetch(
-                `${API}/api/cart/add?userId=${userId}` +
-                `&menuItemId=${menuItemId}&quantity=1`,
-                {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + token }
-                }
-            );
+    try {
+        const res = await fetch(
+            `${API}/api/cart/add?userId=${userId}&menuItemId=${menuItemId}&quantity=1`,
+            { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }
+        );
 
-            if (response.ok) {
-                localStorage.setItem('cartRestaurantId',   restaurantId);
-                localStorage.setItem('cartRestaurantName', restaurantName);
-                cartItemCount++;
-                document.getElementById('cartCount').textContent =
-                    cartItemCount;
-                document.getElementById('cartFloatCount').textContent =
-                    cartItemCount;
-                showAlert('success', `✅ ${itemName} added to cart!`);
+        if (res.ok) {
+            localStorage.setItem('cartRestaurantId',   restaurantId);
+            localStorage.setItem('cartRestaurantName', restaurantName);
 
-                if (btn) {
-                    btn.innerHTML = '<i class="bi bi-check"></i> Added';
-                    btn.style.background = '#28a745';
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
-                        btn.style.background = '#ff6b35';
-                    }, 2000);
-                }
-            } else {
-                const err = await response.json();
-                showAlert('danger', err.message || 'Failed to add!');
-                if (btn) {
+            cartItemCount++;
+            document.getElementById('cartCount').textContent      = cartItemCount;
+            document.getElementById('cartFloatCount').textContent = cartItemCount;
+            showAlert('success', `✅ ${itemName} added to cart!`);
+
+            if (btn) {
+                btn.innerHTML = '<i class="bi bi-check"></i> Added';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
-                }
+                    btn.style.background = '#ff6b35';
+                }, 2000);
             }
-        } catch (error) {
-            showAlert('danger', 'Server error!');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
-            }
+        } else {
+            const err = await res.json();
+            showAlert('danger', err.message || 'Failed to add item!');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add'; }
         }
+    } catch (e) {
+        showAlert('danger', 'Server error!');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add'; }
     }
+}
 
-    function showAlert(type, msg) {
-        const el = document.getElementById('alertBox');
-        el.className = `alert alert-${type}`;
-        el.textContent = msg;
-        el.classList.remove('d-none');
-        setTimeout(() => el.classList.add('d-none'), 3000);
-    }
+function showAlert(type, msg) {
+    const el = document.getElementById('alertBox');
+    el.className = `alert alert-${type}`;
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 3000);
+}
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
+function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+}
+
 </script>
 </body>
 </html>
