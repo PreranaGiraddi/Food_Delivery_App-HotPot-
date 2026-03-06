@@ -19,6 +19,14 @@ public class LoginResponse {
 		this.role = role;
 		this.message = message;
 	}
+	
+	public Long getId() {
+	    return id;
+	}
+
+	public void setId(Long id) {
+	    this.id = id;
+	}
 
 	public Long getId() {
 	    return id;
