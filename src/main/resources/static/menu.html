@@ -6,334 +6,579 @@
     <title>HotPot - Menu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        .navbar-brand { color:#ff6b35 !important; font-size:1.8rem; font-weight:700; }
-        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:8px 20px; font-weight:600; }
-        .btn-hotpot:hover { background-color:#e55a25; color:white; }
-
-        .menu-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            overflow: hidden;
-        }
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        :root {
+            --fire: #ff6b35;
+            --fire-dark: #e04e1a;
+            --fire-light: #ff8f62;
+            --cream: #fff8f2;
+            --dark: #1a1008;
         }
 
-        .card-clickable { cursor: pointer; }
-        .card-clickable:hover .item-name { color: #ff6b35; }
+        * { box-sizing: border-box; }
 
-        .food-emoji-box {
-            height: 130px;
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            transition: transform 0.3s;
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f5f0eb;
         }
-        .menu-card:hover .food-emoji-box { transform: scale(1.05); }
 
-        .badge-veg    { background-color: #28a745; }
-        .badge-nonveg { background-color: #dc3545; }
+        /* ── NAVBAR ── */
+        .navbar {
+            background: rgba(26,16,8,0.92) !important;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,107,53,0.15);
+            padding: 0.85rem 0;
+        }
+        .navbar-brand {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 1.8rem !important;
+            font-weight: 900 !important;
+            color: var(--fire) !important;
+        }
+        .navbar-brand span { color: #fff; }
+        .nav-link { color: rgba(255,255,255,0.75) !important; font-weight: 500; font-size: 0.92rem; transition: color 0.2s; }
+        .nav-link:hover { color: var(--fire) !important; }
+        .navbar-toggler { border-color: rgba(255,107,53,0.4); }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,107,53,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        #userName { color: #ffc107 !important; }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            background:
+                linear-gradient(135deg, rgba(26,16,8,0.88) 0%, rgba(61,32,16,0.72) 100%),
+                url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80') center/cover no-repeat;
+            padding: 52px 0 44px;
+        }
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+        .page-header p { color: rgba(255,255,255,0.55); font-size: 0.9rem; font-weight: 300; }
+
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(26,16,8,0.07);
+            padding: 1.25rem 1.5rem;
+            margin-top: -28px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .filter-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #9e8070;
+            margin-bottom: 0.4rem;
+        }
 
         .filter-btn {
-            border-radius: 25px;
-            border: 2px solid #ff6b35;
-            color: #ff6b35;
+            border-radius: 50px;
+            border: 1.5px solid var(--fire);
+            color: var(--fire);
             background: white;
-            padding: 6px 18px;
-            margin: 3px;
+            padding: 5px 16px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
         }
-        .filter-btn.active, .filter-btn:hover { background: #ff6b35; color: white; }
+        .filter-btn.active, .filter-btn:hover { background: var(--fire); color: white; }
 
-        .price-tag { color:#ff6b35; font-size:1.1rem; font-weight:700; }
-        .old-price { text-decoration:line-through; color:#aaa; font-size:0.85rem; }
+        .filter-select {
+            border-radius: 50px !important;
+            border: 1.5px solid #e8ddd5 !important;
+            font-size: 0.85rem;
+            color: var(--dark);
+            font-family: 'DM Sans', sans-serif;
+            padding: 6px 16px !important;
+        }
+        .filter-select:focus { border-color: var(--fire) !important; box-shadow: 0 0 0 3px rgba(255,107,53,0.1) !important; }
 
-        /* ===== MODAL ===== */
+        .btn-reset {
+            border-radius: 50px;
+            border: 1.5px solid #e8ddd5;
+            color: #9e8070;
+            background: white;
+            padding: 5px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-reset:hover { border-color: var(--fire); color: var(--fire); }
+
+        /* ── MENU CARD ── */
+        .menu-card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(26,16,8,0.07);
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            overflow: hidden;
+            background: #fff;
+        }
+        .menu-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 16px 40px rgba(255,107,53,0.15);
+        }
+
+        .food-img-box {
+            height: 175px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .food-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .menu-card:hover .food-img-box img { transform: scale(1.08); }
+        .food-img-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: linear-gradient(transparent, rgba(26,16,8,0.55));
+            pointer-events: none;
+        }
+
+        .diet-pill {
+            position: absolute;
+            top: 10px; right: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 50px;
+        }
+        .diet-veg    { background: rgba(40,167,69,0.9);  color: white; }
+        .diet-nonveg { background: rgba(220,53,69,0.9);  color: white; }
+
+        .card-body { padding: 1rem 1.1rem 0.5rem; cursor: pointer; }
+
+        .item-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--dark);
+            transition: color 0.2s;
+            margin-bottom: 0.3rem;
+        }
+        .menu-card:hover .item-name { color: var(--fire); }
+
+        .cat-chip {
+            display: inline-block;
+            background: #fff5f0;
+            color: var(--fire);
+            border: 1px solid rgba(255,107,53,0.25);
+            border-radius: 50px;
+            padding: 2px 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-desc {
+            font-size: 0.83rem;
+            color: #9e8070;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            min-height: 2.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .item-meta { font-size: 0.78rem; color: #b09080; margin-bottom: 0.4rem; }
+
+        .ingredient-chip {
+            display: inline-block;
+            background: #fff5f0;
+            color: var(--fire);
+            border: 1px solid rgba(255,107,53,0.25);
+            border-radius: 20px;
+            padding: 2px 9px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            margin: 2px 2px 2px 0;
+        }
+
+        .tap-hint { font-size: 0.68rem; color: #c8b4a8; text-align: center; padding: 4px 0 0; }
+
+        .card-footer-inner {
+            padding: 0.5rem 1.1rem 1rem;
+            background: transparent;
+            border-top: 1px solid #f5ede8;
+        }
+
+        .price-tag { color: var(--fire); font-size: 1.1rem; font-weight: 700; }
+        .old-price { text-decoration: line-through; color: #ccc; font-size: 0.82rem; }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 7px 18px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(255,107,53,0.3);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-add:hover { color: white; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(255,107,53,0.4); }
+
+        /* ── LOADING / EMPTY ── */
+        .spinner-border { color: var(--fire) !important; }
+        #noResults { color: #9e8070; }
+
+        .btn-show-all {
+            background: var(--fire); color: white; border: none;
+            border-radius: 50px; padding: 10px 28px; font-weight: 600;
+            transition: background 0.2s; font-family: 'DM Sans', sans-serif;
+        }
+        .btn-show-all:hover { background: var(--fire-dark); color: white; }
+
+        /* ── MODAL ── */
+        .modal-content { border-radius: 22px !important; border: none !important; overflow: hidden; }
+        .modal-header { background: var(--dark); border-bottom: none; padding: 1.1rem 1.5rem; }
+        .modal-title { font-family: 'Playfair Display', serif; color: #fff; font-size: 1.3rem; }
+        .btn-close { filter: invert(1); }
+
         .modal-food-box {
-            height: 180px;
+            height: 200px;
+            border-radius: 16px;
+            overflow: hidden;
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 6rem;
         }
+
+        .price-box {
+            background: #fff5f0;
+            border: 1px solid rgba(255,107,53,0.15);
+            border-radius: 14px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .btn-modal-add {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white; border: none; border-radius: 50px;
+            padding: 12px 0; font-size: 1rem; font-weight: 600;
+            width: 100%; transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-modal-add:hover { color: white; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,0.45); }
+
         .info-row {
             display: flex;
             align-items: flex-start;
             padding: 10px 0;
-            border-bottom: 1px solid #f5f5f5;
+            border-bottom: 1px solid #f5ede8;
         }
         .info-row:last-child { border-bottom: none; }
-        .info-icon  { font-size: 1.2rem; margin-right: 12px; width: 28px; flex-shrink: 0; }
-        .info-label { color: #aaa; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-value { font-weight: 600; font-size: 0.95rem; }
+        .info-icon { font-size: 1.15rem; margin-right: 12px; width: 28px; flex-shrink: 0; }
+        .info-label { color: #b09080; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-value { font-weight: 600; font-size: 0.92rem; color: var(--dark); }
 
-        /* ✅ Ingredient chips */
-        .ingredient-chip {
-            display: inline-block;
-            background: #fff5f0;
-            color: #ff6b35;
-            border: 1px solid #ff6b35;
-            border-radius: 20px;
-            padding: 3px 10px;
-            font-size: 0.78rem;
-            font-weight: 500;
-            margin: 2px;
+        /* ── FLOATING CART ── */
+        .cart-float { position: fixed; bottom: 22px; right: 22px; z-index: 999; }
+        .btn-cart-float {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white; border: none; border-radius: 50px;
+            padding: 13px 26px; font-size: 1rem; font-weight: 700;
+            box-shadow: 0 8px 28px rgba(255,107,53,0.45);
+            transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+            text-decoration: none; font-family: 'DM Sans', sans-serif;
+        }
+        .btn-cart-float:hover { color: white; transform: translateY(-2px); box-shadow: 0 12px 36px rgba(255,107,53,0.55); }
+
+        /* ── FOOTER ── */
+        footer { background: #1a1008; color: rgba(255,255,255,0.35); border-top: 1px solid rgba(255,107,53,0.1); }
+        footer strong { color: var(--fire); }
+
+        #alertBox { border-radius: 12px; font-weight: 500; }
+    
+        /* ── BOWL LOGO ANIMATIONS ── */
+        /* Steam rise */
+        .bowl-svg .steam-group .s1,
+        .bowl-svg .steam-group .s2,
+        .bowl-svg .steam-group .s3 {
+            animation: steamRise 2.2s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        .bowl-svg .steam-group .s1 { animation-delay: 0s; }
+        .bowl-svg .steam-group .s2 { animation-delay: 0.4s; }
+        .bowl-svg .steam-group .s3 { animation-delay: 0.8s; }
+
+        @keyframes steamRise {
+            0%   { opacity: 0;   transform: translateY(2px) scaleX(1);   }
+            20%  { opacity: 0.9; transform: translateY(-1px) scaleX(1.1); }
+            60%  { opacity: 0.5; transform: translateY(-5px) scaleX(0.85); }
+            100% { opacity: 0;   transform: translateY(-9px) scaleX(1);  }
         }
 
-        .cart-float { position:fixed; bottom:20px; right:20px; z-index:999; }
-        footer { background-color:#2d2d2d; color:#aaa; }
-        .tap-hint { font-size: 0.7rem; color: #bbb; text-align: center; padding: 4px 0 0 0; }
-    </style>
-</head>
-<body class="bg-light">
+        /* Lid float animation — always running subtly */
+        .bowl-svg .lid-group {
+            animation: lidFloat 3s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidFloat {
+            0%,100% { transform: translateY(0px);  }
+            50%      { transform: translateY(-1.5px); }
+        }
 
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        /* Lid lifts up on brand hover */
+        .navbar-brand:hover .bowl-svg .lid-group,
+        .brand:hover .bowl-svg .lid-group {
+            animation: lidOpen 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidOpen {
+            0%   { transform: translateY(0px)  rotate(0deg);  }
+            60%  { transform: translateY(-7px) rotate(-8deg); }
+            100% { transform: translateY(-6px) rotate(-6deg); }
+        }
+
+        /* Scale up bowl slightly on hover */
+        .navbar-brand:hover .bowl-svg,
+        .brand:hover .bowl-svg {
+            transform: scale(1.08);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .bowl-svg { transition: transform 0.3s ease; }
+        </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="index.html">🍲 HotPot</a>
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <a class="navbar-brand" href="index.html"><span class="hotpot-logo" style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;">
+<svg class="bowl-svg" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- STEAM (3 wiggly lines, animated) -->
+  <g class="steam-group">
+    <path class="s1" d="M14 13 C13 11 15 9 14 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <path class="s2" d="M21 12 C20 10 22 8 21 6" stroke="#ff6b35" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+    <path class="s3" d="M28 13 C27 11 29 9 28 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- LID GROUP (lifts on hover) -->
+  <g class="lid-group">
+    <!-- Lid body -->
+    <path d="M9 19 Q9 15 21 15 Q33 15 33 19 Z" fill="#e04e1a"/>
+    <!-- Lid top arc highlight -->
+    <path d="M11 18 Q11 16 21 16 Q31 16 31 18" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <!-- Lid knob -->
+    <rect x="18" y="12.5" width="6" height="3" rx="1.5" fill="#c23a0e"/>
+    <rect x="19.5" y="11" width="3" height="2" rx="1" fill="#a52d08"/>
+  </g>
+
+  <!-- BOWL BODY -->
+  <!-- Bowl rim -->
+  <ellipse cx="21" cy="20" rx="12" ry="2.2" fill="#ff6b35"/>
+  <!-- Bowl outer -->
+  <path d="M9 20 Q9 33 21 33 Q33 33 33 20 Z" fill="#ff6b35"/>
+  <!-- Bowl inner shadow -->
+  <path d="M11 20 Q11 31 21 31 Q31 31 31 20 Z" fill="#e04e1a"/>
+
+  <!-- FOOD inside bowl (visible above rim) -->
+  <!-- Noodle / food swirl 1 -->
+  <path d="M13 20 Q15 18 17 20 Q19 22 21 20 Q23 18 25 20 Q27 22 29 20" stroke="#ffd54f" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <!-- Noodle swirl 2 -->
+  <path d="M14 22 Q16 20.5 18 22 Q20 23.5 22 22 Q24 20.5 26 22 Q27 23 28 22" stroke="#ffb74d" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- Little garnish dots -->
+  <circle cx="16" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+  <circle cx="21" cy="19.5" r="1" fill="#69f0ae" opacity="0.85"/>
+  <circle cx="26" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+
+  <!-- Bowl shine -->
+  <ellipse cx="15" cy="26" rx="2" ry="3.5" fill="rgba(255,255,255,0.1)" transform="rotate(-20 15 26)"/>
+</svg>
+</span> Hot<span>Pot</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="restaurants.html">
-                        <i class="bi bi-arrow-left"></i> Restaurants
-                    </a>
-                </li>
+            <ul class="navbar-nav ms-auto align-items-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="restaurants.html"><i class="bi bi-arrow-left me-1"></i>Restaurants</a></li>
                 <li class="nav-item d-none" id="cartNav">
                     <a class="nav-link" href="cart.html">
-                        <i class="bi bi-cart3"></i> Cart
+                        <i class="bi bi-cart3 me-1"></i>Cart
                         <span class="badge bg-danger rounded-pill" id="cartCount">0</span>
                     </a>
                 </li>
-                <li class="nav-item d-none" id="ordersNav">
-                    <a class="nav-link" href="orders.html">
-                        <i class="bi bi-bag-check"></i> My Orders
-                    </a>
-                </li>
-                <li class="nav-item d-none" id="userNav">
-                    <span class="nav-link fw-bold text-warning" id="userName"></span>
-                </li>
-                <li class="nav-item" id="loginNav">
-                    <a class="nav-link" href="login.html">Login</a>
-                </li>
-                <li class="nav-item d-none" id="logoutNav">
-                    <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button>
-                </li>
+                <li class="nav-item d-none" id="ordersNav"><a class="nav-link" href="orders.html"><i class="bi bi-bag-check me-1"></i>My Orders</a></li>
+                <li class="nav-item d-none" id="userNav"><span class="nav-link fw-bold" id="userName"></span></li>
+                <li class="nav-item" id="loginNav"><a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                <li class="nav-item d-none" id="logoutNav"><button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- ===== RESTAURANT HEADER ===== -->
-<div style="background:linear-gradient(135deg,#ff6b35,#f7c59f); padding:30px 0;">
-    <div class="container text-white">
-        <h2 class="fw-bold" id="restaurantTitle">🍽️ Loading...</h2>
-        <p class="mb-0 opacity-75">
-            <i class="bi bi-hand-index"></i>
-            Click on any item card to view ingredients & full details!
-        </p>
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="container">
+        <h2 id="restaurantTitle">🍽️ Loading...</h2>
+        <p><i class="bi bi-hand-index me-1"></i>Click any item to view full details & ingredients</p>
     </div>
 </div>
 
-<!-- ===== FILTER SECTION ===== -->
-<div class="container mt-4">
-    <div class="card border-0 shadow-sm p-3" style="border-radius:15px;">
-        <div class="row g-3 align-items-center">
+<!-- FILTER BAR -->
+<div class="container">
+    <div class="filter-bar">
+        <div class="row g-3 align-items-end">
 
             <div class="col-md-3">
-                <label class="fw-bold small text-muted mb-1">
-                    <i class="bi bi-funnel"></i> DIET TYPE
-                </label>
+                <div class="filter-label"><i class="bi bi-funnel me-1"></i>Diet Type</div>
                 <div class="d-flex flex-wrap gap-1">
-                    <button class="filter-btn active" id="dietAll"
-                            onclick="setDiet('ALL', this)">All</button>
-                    <button class="filter-btn" id="dietVeg"
-                            onclick="setDiet('VEG', this)">🌿 Veg</button>
-                    <button class="filter-btn" id="dietNonveg"
-                            onclick="setDiet('NONVEG', this)">🍗 Non-Veg</button>
+                    <button class="filter-btn active" id="dietAll"    onclick="setDiet('ALL', this)">All</button>
+                    <button class="filter-btn"         id="dietVeg"    onclick="setDiet('VEG', this)">🌿 Veg</button>
+                    <button class="filter-btn"         id="dietNonveg" onclick="setDiet('NONVEG', this)">🍗 Non-Veg</button>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <label class="fw-bold small text-muted mb-1">
-                    <i class="bi bi-grid"></i> CATEGORY
-                </label>
-                <select class="form-select form-select-sm" id="categoryFilter"
-                        onchange="applyFilters()" style="border-radius:25px;">
+                <div class="filter-label"><i class="bi bi-grid me-1"></i>Category</div>
+                <select class="form-select filter-select" id="categoryFilter" onchange="applyFilters()">
                     <option value="ALL">All Categories</option>
                 </select>
             </div>
 
             <div class="col-md-3">
-                <label class="fw-bold small text-muted mb-1">
-                    <i class="bi bi-currency-rupee"></i> PRICE RANGE
-                </label>
-                <select class="form-select form-select-sm" id="priceFilter"
-                        onchange="applyFilters()" style="border-radius:25px;">
+                <div class="filter-label"><i class="bi bi-currency-rupee me-1"></i>Price Range</div>
+                <select class="form-select filter-select" id="priceFilter" onchange="applyFilters()">
                     <option value="ALL">All Prices</option>
                     <option value="0-100">Under ₹100</option>
-                    <option value="100-200">₹100 - ₹200</option>
-                    <option value="200-300">₹200 - ₹300</option>
+                    <option value="100-200">₹100 – ₹200</option>
+                    <option value="200-300">₹200 – ₹300</option>
                     <option value="300+">Above ₹300</option>
                 </select>
             </div>
 
-            <div class="col-md-3 text-end">
-                <button class="btn btn-outline-secondary btn-sm"
-                        style="border-radius:25px;" onclick="resetFilters()">
-                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+            <div class="col-md-3 d-flex align-items-end justify-content-between">
+                <button class="btn-reset" onclick="resetFilters()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                 </button>
-                <div class="mt-1">
-                    <small class="text-muted" id="filterResultCount"></small>
-                </div>
+                <small class="text-muted" id="filterResultCount"></small>
             </div>
 
         </div>
     </div>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- MAIN CONTENT -->
 <div class="container py-4">
     <div id="alertBox" class="alert d-none"></div>
 
     <div id="loadingSection" class="text-center py-5">
-        <div class="spinner-border text-warning" style="width:3rem;height:3rem;"></div>
+        <div class="spinner-border" style="width:3rem;height:3rem;"></div>
         <p class="mt-3 text-muted">Loading menu...</p>
     </div>
 
     <div id="noResults" class="text-center py-5 d-none">
         <div style="font-size:4rem">🍽️</div>
-        <h5 class="text-muted mt-3">No items found!</h5>
-        <button class="btn btn-hotpot mt-2" onclick="resetFilters()">Show All Items</button>
+        <h5 class="mt-3">No items found!</h5>
+        <button class="btn-show-all mt-3" onclick="resetFilters()">Show All Items</button>
     </div>
 
     <div class="row g-4" id="menuGrid"></div>
 </div>
 
-<!-- ===== ITEM DETAIL MODAL ===== -->
+<!-- ITEM DETAIL MODAL -->
 <div class="modal fade" id="itemDetailModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius:20px; border:none;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="modalName">Item Details</h5>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalName">Item Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body px-4 pb-4">
+            <div class="modal-body p-4">
                 <div class="row g-4">
 
                     <!-- LEFT -->
                     <div class="col-md-5 text-center">
-                        <div class="modal-food-box mb-3" id="modalFoodBox">🍽️</div>
-
-                        <div class="bg-light rounded-3 p-3">
+                        <div class="modal-food-box mb-3" id="modalFoodBox"><img id="modalFoodImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:16px;"></div>
+                        <div class="price-box mb-3">
                             <div class="price-tag fs-3" id="modalFinalPrice">₹0</div>
                             <div id="modalPriceExtra" class="mt-1"></div>
                         </div>
-
-                        <button class="btn btn-hotpot w-100 mt-3 py-2" id="modalAddBtn">
-                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        <button class="btn-modal-add" id="modalAddBtn">
+                            <i class="bi bi-cart-plus me-1"></i> Add to Cart
                         </button>
                         <p class="text-muted small mt-2 mb-0">
-                            <i class="bi bi-shield-check text-success"></i>
-                            Fresh & hygienically prepared
+                            <i class="bi bi-shield-check text-success me-1"></i>Fresh & hygienically prepared
                         </p>
                     </div>
 
                     <!-- RIGHT -->
                     <div class="col-md-7">
-
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             <span class="badge fs-6 px-3 py-2" id="modalDietBadge">Veg</span>
                             <span class="badge bg-light text-dark border px-3 py-2" id="modalCategoryBadge">Category</span>
                         </div>
 
-                        <!-- Description -->
                         <div class="info-row">
                             <span class="info-icon">📝</span>
-                            <div>
-                                <div class="info-label">Description</div>
-                                <div class="info-value" id="modalDesc">Delicious item!</div>
-                            </div>
+                            <div><div class="info-label">Description</div><div class="info-value" id="modalDesc"></div></div>
                         </div>
-
-                        <!-- Cooking Time -->
                         <div class="info-row">
                             <span class="info-icon">⏱️</span>
-                            <div>
-                                <div class="info-label">Cooking Time</div>
-                                <div class="info-value" id="modalCookTime">15 mins</div>
-                            </div>
+                            <div><div class="info-label">Cooking Time</div><div class="info-value" id="modalCookTime"></div></div>
                         </div>
-
-                        <!-- Taste -->
                         <div class="info-row">
                             <span class="info-icon">🌶️</span>
-                            <div>
-                                <div class="info-label">Taste Profile</div>
-                                <div class="info-value" id="modalTaste">Regular</div>
-                            </div>
+                            <div><div class="info-label">Taste Profile</div><div class="info-value" id="modalTaste"></div></div>
                         </div>
-
-                        <!-- ✅ INGREDIENTS ROW -->
                         <div class="info-row" id="ingredientsRow">
                             <span class="info-icon">🧂</span>
-                            <div style="flex:1;">
-                                <div class="info-label">Ingredients</div>
-                                <div id="modalIngredients" class="mt-1">N/A</div>
-                            </div>
+                            <div style="flex:1"><div class="info-label">Ingredients</div><div id="modalIngredients" class="mt-1"></div></div>
                         </div>
-
-                        <!-- Nutritional Info -->
                         <div class="info-row" id="nutritionRow">
                             <span class="info-icon">💪</span>
-                            <div>
-                                <div class="info-label">Nutritional Info</div>
-                                <div class="info-value" id="modalNutrition">N/A</div>
-                            </div>
+                            <div><div class="info-label">Nutritional Info</div><div class="info-value" id="modalNutrition"></div></div>
                         </div>
-
-                        <!-- Availability -->
                         <div class="info-row">
                             <span class="info-icon">🕐</span>
-                            <div>
-                                <div class="info-label">Availability</div>
-                                <div class="info-value" id="modalAvailTime">All Day</div>
-                            </div>
+                            <div><div class="info-label">Availability</div><div class="info-value" id="modalAvailTime"></div></div>
                         </div>
-
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ===== FLOATING CART BUTTON ===== -->
+<!-- FLOATING CART -->
 <div class="cart-float d-none" id="cartFloat">
-    <a href="cart.html" class="btn btn-hotpot btn-lg shadow">
+    <a href="cart.html" class="btn-cart-float">
         <i class="bi bi-cart3"></i> View Cart
         <span class="badge bg-white text-danger ms-1" id="cartFloatCount">0</span>
     </a>
 </div>
 
-<!-- ===== FOOTER ===== -->
+<!-- FOOTER -->
 <footer class="py-4 mt-5">
     <div class="container text-center">
-        <p class="mb-0">🍲 <strong class="text-white">HotPot</strong> © 2024</p>
+        <p class="mb-0">🍲 <strong>HotPot</strong> © 2024</p>
     </div>
 </footer>
 
@@ -389,9 +634,8 @@ function loadCategories(items) {
         const catName = item.category ? (item.category.name || item.category) : null;
         if (catName && !seen.has(catName)) {
             seen.add(catName);
-            const opt       = document.createElement('option');
-            opt.value       = catName;
-            opt.textContent = catName;
+            const opt = document.createElement('option');
+            opt.value = catName; opt.textContent = catName;
             select.appendChild(opt);
         }
     });
@@ -442,6 +686,41 @@ function resetFilters() {
     displayMenu(allMenuItems);
 }
 
+function getMenuItemImage(name, category, isVeg) {
+    const n = name.toLowerCase();
+    const c = (category || '').toLowerCase();
+    if (n.includes('butter chicken') || n.includes('makhani')) return 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80';
+    if (n.includes('biryani') || n.includes('biriyani')) return 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80';
+    if (n.includes('dosa')) return 'https://images.unsplash.com/photo-1630383249896-424e482df921?w=600&q=80';
+    if (n.includes('idli') || n.includes('vada') || n.includes('sambar')) return 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&q=80';
+    if (n.includes('naan') || n.includes('roti') || n.includes('paratha')) return 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80';
+    if (n.includes('paneer')) return 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=600&q=80';
+    if (n.includes('dal') || n.includes('daal')) return 'https://images.unsplash.com/photo-1548943487-a2e4e43b4853?w=600&q=80';
+    if (n.includes('soup') || n.includes('broth') || n.includes('hotpot')) return 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80';
+    if (n.includes('salad')) return 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80';
+    if (n.includes('wings')) return 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80';
+    if (n.includes('kabab') || n.includes('kebab') || n.includes('tikka') || n.includes('seekh') || n.includes('tandoor') || n.includes('grilled'))
+        return 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80';
+    if (n.includes('chicken')) return 'https://images.unsplash.com/photo-1598103442097-8b74394b95c2?w=600&q=80';
+    if (n.includes('fish') || n.includes('prawn') || n.includes('seafood')) return 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=600&q=80';
+    if (n.includes('cake') || n.includes('brownie')) return 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80';
+    if (n.includes('ice cream') || n.includes('sundae')) return 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=600&q=80';
+    if (n.includes('chocolate') || n.includes('choco')) return 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&q=80';
+    if (n.includes('juice') || n.includes('shake') || n.includes('lassi') || n.includes('coffee') || n.includes('tea')) return 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80';
+    if (n.includes('rice') || n.includes('pulao') || n.includes('fried rice')) return 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&q=80';
+    if (n.includes('samosa') || n.includes('pakora')) return 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80';
+    if (n.includes('pizza')) return 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80';
+    if (n.includes('burger')) return 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80';
+    if (n.includes('noodle') || n.includes('pasta')) return 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80';
+    if (c.includes('starter') || c.includes('appetizer') || c.includes('snack')) return isVeg ? 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80' : 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80';
+    if (c.includes('main') || c.includes('course')) return isVeg ? 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=600&q=80' : 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80';
+    if (c.includes('dessert') || c.includes('sweet')) return 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&q=80';
+    if (c.includes('drink') || c.includes('beverage')) return 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80';
+    if (c.includes('soup')) return 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80';
+    if (c.includes('rice')) return 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&q=80';
+    return isVeg ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80' : 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80';
+}
+
 function displayMenu(items) {
     const grid = document.getElementById('menuGrid');
     grid.innerHTML = '';
@@ -456,82 +735,52 @@ function displayMenu(items) {
         const isVeg       = item.dietaryType === 'VEG';
         const hasDiscount = item.discountPrice && item.discountPrice < item.price;
         const finalPrice  = hasDiscount ? item.discountPrice : item.price;
-        const discPct     = hasDiscount
-            ? Math.round((item.price - item.discountPrice) / item.price * 100) : 0;
+        const discPct     = hasDiscount ? Math.round((item.price - item.discountPrice) / item.price * 100) : 0;
         const catName     = item.category ? (item.category.name || item.category) : 'General';
-        const emoji       = isVeg ? '🥗' : '🍗';
+        const imgUrl      = getMenuItemImage(item.name || '', catName, isVeg);
 
-        // ✅ Show ingredient preview on card if available
         const ingPreview  = item.ingredients
             ? item.ingredients.split(',').slice(0, 3)
                 .map(i => `<span class="ingredient-chip">${i.trim()}</span>`).join('')
-              + (item.ingredients.split(',').length > 3 ? ' <span class="text-muted small">+more</span>' : '')
+              + (item.ingredients.split(',').length > 3 ? '<span class="text-muted" style="font-size:0.72rem"> +more</span>' : '')
             : '';
 
         const col = document.createElement('div');
         col.className = 'col-md-4 col-sm-6';
         col.innerHTML = `
         <div class="card menu-card h-100">
-
-            <div class="card-clickable" onclick="openDetailModal(${item.id})">
-                <div class="food-emoji-box">${emoji}</div>
-                <div class="card-body pb-2">
-                    <div class="d-flex justify-content-between align-items-start mb-1">
-                        <h6 class="item-name fw-bold mb-0 me-2" style="transition:color 0.2s;">
-                            ${item.name}
-                        </h6>
-                        <span class="badge ${isVeg ? 'badge-veg' : 'badge-nonveg'} flex-shrink-0">
-                            ${isVeg ? '🌿 Veg' : '🍗 Non-Veg'}
-                        </span>
-                    </div>
-
-                    <span class="badge bg-light text-dark border mb-2" style="font-size:0.72rem;">
-                        <i class="bi bi-grid"></i> ${catName}
-                    </span>
-
-                    <p class="text-muted small mb-1"
-                       style="overflow:hidden;display:-webkit-box;
-                              -webkit-line-clamp:2;-webkit-box-orient:vertical;
-                              min-height:2.5rem;">
-                        ${item.description || 'Tap to see full details!'}
-                    </p>
-
-                    <p class="text-muted small mb-1">
-                        <i class="bi bi-clock"></i> ${item.cookingTime || 15} mins
-                        &nbsp;|&nbsp;
-                        <i class="bi bi-fire"></i> ${item.tasteInfo || 'Regular'}
-                    </p>
-
-                    ${ingPreview ? `<div class="mb-1">${ingPreview}</div>` : ''}
-
-                    <p class="tap-hint">
-                        <i class="bi bi-hand-index"></i> Tap for full details & ingredients
-                    </p>
-                </div>
+            <div class="food-img-box" onclick="openDetailModal(${item.id})">
+                <img src="${imgUrl}" alt="${item.name}" loading="lazy">
+                <span class="diet-pill ${isVeg ? 'diet-veg' : 'diet-nonveg'}">
+                    ${isVeg ? '🌿 Veg' : '🍗 Non-Veg'}
+                </span>
             </div>
-
-            <div class="card-footer bg-white border-0 px-3 pb-3 pt-0">
-                <hr class="mt-0 mb-2">
+            <div class="card-body" onclick="openDetailModal(${item.id})">
+                <h6 class="item-name">${item.name}</h6>
+                <span class="cat-chip"><i class="bi bi-grid me-1"></i>${catName}</span>
+                <p class="item-desc">${item.description || 'Tap to see full details!'}</p>
+                <p class="item-meta">
+                    <i class="bi bi-clock me-1"></i>${item.cookingTime || 15} mins
+                    &nbsp;·&nbsp;
+                    <i class="bi bi-fire me-1"></i>${item.tasteInfo || 'Regular'}
+                </p>
+                ${ingPreview ? `<div class="mb-1">${ingPreview}</div>` : ''}
+                <p class="tap-hint"><i class="bi bi-hand-index me-1"></i>Tap for full details</p>
+            </div>
+            <div class="card-footer-inner">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="price-tag">₹${finalPrice}</span>
                         ${hasDiscount ? `
                             <span class="old-price ms-1">₹${item.price}</span>
-                            <span class="badge bg-success ms-1" style="font-size:0.68rem;">
-                                ${discPct}% OFF
-                            </span>` : ''}
+                            <span class="badge bg-success ms-1" style="font-size:0.65rem;">${discPct}% OFF</span>` : ''}
                     </div>
-                    <button class="btn btn-hotpot btn-sm"
-                            id="addBtn_${item.id}"
-                            onclick="event.stopPropagation();
-                                     addToCart(${item.id},
-                                     '${escapeQuotes(item.name)}',
-                                     ${finalPrice})">
-                        <i class="bi bi-cart-plus"></i> Add
+                    <button class="btn-add" id="addBtn_${item.id}"
+                            onclick="event.stopPropagation(); addToCart(${item.id}, '${escapeQuotes(item.name)}', ${finalPrice})">
+                        <i class="bi bi-cart-plus me-1"></i>Add
                     </button>
                 </div>
             </div>
-
         </div>`;
         grid.appendChild(col);
     });
@@ -541,9 +790,6 @@ function escapeQuotes(str) {
     return str ? str.replace(/'/g, "\\'") : str;
 }
 
-// ===========================
-// OPEN DETAIL MODAL
-// ===========================
 function openDetailModal(itemId) {
     const item = allMenuItems.find(i => i.id === itemId);
     if (!item) { showAlert('danger', 'Item not found!'); return; }
@@ -555,10 +801,10 @@ function openDetailModal(itemId) {
     const emoji       = isVeg ? '🥗' : '🍗';
 
     document.getElementById('modalName').textContent       = item.name;
-    document.getElementById('modalFoodBox').textContent    = emoji;
+    document.getElementById('modalFoodImg').src = getMenuItemImage(item.name || '', catName, isVeg);
+    document.getElementById('modalFoodImg').alt = item.name;
     document.getElementById('modalFinalPrice').textContent = '₹' + finalPrice;
-    document.getElementById('modalDesc').textContent       =
-        item.description || 'A delicious item prepared fresh for you!';
+    document.getElementById('modalDesc').textContent       = item.description || 'A delicious item prepared fresh for you!';
     document.getElementById('modalCookTime').textContent   = (item.cookingTime || 15) + ' mins';
     document.getElementById('modalTaste').textContent      = item.tasteInfo || 'Regular';
     document.getElementById('modalAvailTime').textContent  =
@@ -566,45 +812,34 @@ function openDetailModal(itemId) {
             ? item.availabilityTime.charAt(0).toUpperCase() + item.availabilityTime.slice(1)
             : 'All Day';
 
-    // Diet badge
     const dietBadge = document.getElementById('modalDietBadge');
     dietBadge.textContent = isVeg ? '🌿 Vegetarian' : '🍗 Non-Vegetarian';
-    dietBadge.className   = 'badge fs-6 px-3 py-2 ' + (isVeg ? 'badge-veg' : 'badge-nonveg');
-
-    // Category badge
+    dietBadge.className   = 'badge fs-6 px-3 py-2 ' + (isVeg ? 'bg-success' : 'bg-danger');
     document.getElementById('modalCategoryBadge').textContent = '📂 ' + catName;
 
-    // Price info
     const priceExtra = document.getElementById('modalPriceExtra');
     if (hasDiscount) {
         const discPct = Math.round((item.price - item.discountPrice) / item.price * 100);
         priceExtra.innerHTML =
             `<span class="old-price">₹${item.price}</span>
              <span class="badge bg-success ms-2">${discPct}% OFF</span>
-             <div class="text-success small mt-1 fw-bold">
-                 You save ₹${(item.price - item.discountPrice).toFixed(2)}!
-             </div>`;
+             <div class="text-success small mt-1 fw-bold">You save ₹${(item.price - item.discountPrice).toFixed(2)}!</div>`;
     } else {
         priceExtra.innerHTML = '<span class="text-muted small">No discount</span>';
     }
 
-    // ✅ INGREDIENTS — show as orange chips, hide row if empty
     const ingredientsRow = document.getElementById('ingredientsRow');
     const ingredientsDiv = document.getElementById('modalIngredients');
-
     if (item.ingredients && item.ingredients.trim() !== '') {
         ingredientsRow.style.display = 'flex';
         ingredientsDiv.innerHTML = item.ingredients.split(',')
-            .map(ing => `<span class="ingredient-chip">${ing.trim()}</span>`)
-            .join('');
+            .map(ing => `<span class="ingredient-chip">${ing.trim()}</span>`).join('');
     } else {
         ingredientsRow.style.display = 'none';
     }
 
-    // ✅ NUTRITIONAL INFO — hide row if empty
     const nutritionRow = document.getElementById('nutritionRow');
     const nutritionEl  = document.getElementById('modalNutrition');
-
     if (item.nutritionalInfo && item.nutritionalInfo.trim() !== '') {
         nutritionRow.style.display = 'flex';
         nutritionEl.textContent    = item.nutritionalInfo;
@@ -612,7 +847,6 @@ function openDetailModal(itemId) {
         nutritionRow.style.display = 'none';
     }
 
-    // Add to Cart button
     document.getElementById('modalAddBtn').onclick = function () {
         bootstrap.Modal.getInstance(document.getElementById('itemDetailModal')).hide();
         addToCart(item.id, item.name, finalPrice);
@@ -621,9 +855,6 @@ function openDetailModal(itemId) {
     new bootstrap.Modal(document.getElementById('itemDetailModal')).show();
 }
 
-// ===========================
-// ADD TO CART
-// ===========================
 async function addToCart(menuItemId, itemName, price) {
     const token  = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
@@ -644,42 +875,31 @@ async function addToCart(menuItemId, itemName, price) {
         if (cartIsEmpty) {
             localStorage.removeItem('cartRestaurantId');
             localStorage.removeItem('cartRestaurantName');
-            await doAddToCart(userId, token, menuItemId, itemName,
-                currentRestaurantId, currentRestaurantName);
+            await doAddToCart(userId, token, menuItemId, itemName, currentRestaurantId, currentRestaurantName);
             return;
         }
-
         const confirmClear = confirm(
             `⚠️ Your cart has items from "${cartRestaurantName}"!\n\n` +
             `Do you want to clear cart and order from "${currentRestaurantName}" instead?\n\n` +
-            `OK → Clear cart and add this item\n` +
-            `Cancel → Keep existing cart`
+            `OK → Clear cart and add this item\nCancel → Keep existing cart`
         );
-
         if (confirmClear) {
-            await clearCartAndAdd(userId, token, menuItemId, itemName,
-                currentRestaurantId, currentRestaurantName);
+            await clearCartAndAdd(userId, token, menuItemId, itemName, currentRestaurantId, currentRestaurantName);
         } else {
             showAlert('warning', `Cart has items from "${cartRestaurantName}". Clear cart first!`);
         }
         return;
     }
-
-    await doAddToCart(userId, token, menuItemId, itemName,
-        currentRestaurantId, currentRestaurantName);
+    await doAddToCart(userId, token, menuItemId, itemName, currentRestaurantId, currentRestaurantName);
 }
 
 async function checkIfCartEmpty(userId, token) {
     try {
-        const res  = await fetch(`${API}/api/cart/${userId}`,
-            { headers: { 'Authorization': 'Bearer ' + token } });
+        const res  = await fetch(`${API}/api/cart/${userId}`, { headers: { 'Authorization': 'Bearer ' + token } });
         if (!res.ok) return true;
         const data = await res.json();
         const empty = !data.cartItems || data.cartItems.length === 0 || data.totalPrice === 0;
-        if (empty) {
-            localStorage.removeItem('cartRestaurantId');
-            localStorage.removeItem('cartRestaurantName');
-        }
+        if (empty) { localStorage.removeItem('cartRestaurantId'); localStorage.removeItem('cartRestaurantName'); }
         return empty;
     } catch (e) { return true; }
 }
@@ -687,16 +907,12 @@ async function checkIfCartEmpty(userId, token) {
 async function clearCartAndAdd(userId, token, menuItemId, itemName, restaurantId, restaurantName) {
     try {
         const res = await fetch(`${API}/api/cart/clear/${userId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token }
+            method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
         });
         if (res.ok) {
-            localStorage.removeItem('cartRestaurantId');
-            localStorage.removeItem('cartRestaurantName');
+            localStorage.removeItem('cartRestaurantId'); localStorage.removeItem('cartRestaurantName');
             await doAddToCart(userId, token, menuItemId, itemName, restaurantId, restaurantName);
-        } else {
-            showAlert('danger', 'Failed to clear cart!');
-        }
+        } else { showAlert('danger', 'Failed to clear cart!'); }
     } catch (e) { showAlert('danger', 'Server error!'); }
 }
 
@@ -709,33 +925,30 @@ async function doAddToCart(userId, token, menuItemId, itemName, restaurantId, re
             `${API}/api/cart/add?userId=${userId}&menuItemId=${menuItemId}&quantity=1`,
             { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }
         );
-
         if (res.ok) {
             localStorage.setItem('cartRestaurantId',   restaurantId);
             localStorage.setItem('cartRestaurantName', restaurantName);
-
             cartItemCount++;
             document.getElementById('cartCount').textContent      = cartItemCount;
             document.getElementById('cartFloatCount').textContent = cartItemCount;
             showAlert('success', `✅ ${itemName} added to cart!`);
-
             if (btn) {
-                btn.innerHTML = '<i class="bi bi-check"></i> Added';
-                btn.style.background = '#28a745';
+                btn.innerHTML = '<i class="bi bi-check me-1"></i>Added';
+                btn.style.background = 'linear-gradient(135deg,#28a745,#1e7e34)';
                 setTimeout(() => {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add';
-                    btn.style.background = '#ff6b35';
+                    btn.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Add';
+                    btn.style.background = '';
                 }, 2000);
             }
         } else {
             const err = await res.json();
             showAlert('danger', err.message || 'Failed to add item!');
-            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add'; }
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Add'; }
         }
     } catch (e) {
         showAlert('danger', 'Server error!');
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Add'; }
     }
 }
 
@@ -747,10 +960,7 @@ function showAlert(type, msg) {
     setTimeout(() => el.classList.add('d-none'), 3000);
 }
 
-function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-}
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
 </script>
 </body>
