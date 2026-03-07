@@ -1,46 +1,23 @@
 package com.wipro.hotpot.dto;
 
-import jakarta.validation.constraints.*;
-
 public class CategoryDTO {
 
-	private Long id;
+    private String name;
+    private Long restaurantId;
 
-	@NotBlank(message = "Category name is required")
-	private String name;
+    // ── Constructors ──
+    public CategoryDTO() {}
 
-	private Long restaurantId;
+    public CategoryDTO(String name, Long restaurantId) {
+        this.name = name;
+        this.restaurantId = restaurantId;
+    }
 
-	public CategoryDTO() {
-	}
+    // ── Getters ──
+    public String getName()          { return name; }
+    public Long getRestaurantId()    { return restaurantId; }
 
-	public CategoryDTO(Long id, String name, Long restaurantId) {
-		this.id = id;
-		this.name = name;
-		this.restaurantId = restaurantId;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Long getRestaurantId() {
-		return restaurantId;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setRestaurantId(Long restaurantId) {
-		this.restaurantId = restaurantId;
-	}
+    // ── Setters ──
+    public void setName(String name)             { this.name = name; }
+    public void setRestaurantId(Long restaurantId){ this.restaurantId = restaurantId; }
 }

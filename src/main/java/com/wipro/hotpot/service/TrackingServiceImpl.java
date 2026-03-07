@@ -1,100 +1,142 @@
 package com.wipro.hotpot.service;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wipro.hotpot.dto.OrderStatusDTO;
 import com.wipro.hotpot.dto.TrackingDTO;
 import com.wipro.hotpot.entity.Order;
 import com.wipro.hotpot.entity.OrderTracking;
-import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.IOrderRepository;
 import com.wipro.hotpot.repository.ITrackingRepository;
 
 @Service
 public class TrackingServiceImpl implements ITrackingService {
 
-	@Autowired
-	private ITrackingRepository trackingRepository;
+    @Autowired
+    private ITrackingRepository trackingRepository;
 
-	@Autowired
-	private IOrderRepository orderRepository;
+    @Autowired
+    private IOrderRepository orderRepository;
 
-	@Autowired
-	private EmailService emailService;
+    // ─── Status message map ─────────────────────────────────────────────────────
+    private String getDefaultMessage(String status) {
+        return switch (status.toUpperCase()) {
+            case "PLACED"           -> "Your order has been placed successfully!";
+            case "CONFIRMED"        -> "Restaurant has confirmed your order!";
+            case "PROCESSING"       -> "Your food is being prepared!";
+            case "DISPATCHED"       -> "Your order has been dispatched!";
+            case "OUT_FOR_DELIVERY" -> "Your order is out for delivery!";
+            case "DELIVERED"        -> "Your order has been delivered. Enjoy your meal!";
+            case "CANCELLED"        -> "Your order has been cancelled.";
+            default                 -> "Order status updated to " + status;
+        };
+    }
 
-	
-	@Override
-	public OrderTracking createTracking(Long orderId) {
-		Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
+    // ─── Get tracking by order ID ───────────────────────────────────────────────
+    @Override
+    public TrackingDTO getTrackingByOrderId(Long orderId) {
+        Optional<OrderTracking> opt = trackingRepository.findByOrderId(orderId);
 
-		OrderTracking tracking = new OrderTracking();
-		tracking.setOrder(order);
-		tracking.setStatus(OrderTracking.TrackingStatus.PLACED);
-		tracking.setMessage("Your order has been placed successfully!");
+        if (opt.isEmpty()) {
+            // No tracking record yet — return PLACED as fallback
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-		return trackingRepository.save(tracking);
-	}
+            // Auto-create tracking if missing (for old orders)
+            OrderTracking tracking = new OrderTracking();
+            tracking.setOrder(order);
+            tracking.setStatus(OrderTracking.TrackingStatus.PLACED);
+            tracking.setMessage("Your order has been placed successfully!");
+            trackingRepository.save(tracking);
+            return toDTO(tracking);
+        }
 
-	
-	@Override
-	public OrderTracking updateOrderStatus(OrderStatusDTO dto) {
+        return toDTO(opt.get());
+    }
 
-		OrderTracking tracking = trackingRepository.findByOrderId(dto.getOrderId())
-				.orElseThrow(() -> new ResourceNotFoundException("Tracking not found!"));
+    // ─── Update tracking (called when restaurant updates order status) ──────────
+    @Override
+    public TrackingDTO updateTracking(Long orderId, String status, String message) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-	
-		tracking.setStatus(OrderTracking.TrackingStatus.valueOf(dto.getStatus()));
-		tracking.setMessage(dto.getMessage());
+        // Parse status string to enum
+        OrderTracking.TrackingStatus trackingStatus;
+        try {
+            trackingStatus = OrderTracking.TrackingStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            // Map Order status to Tracking status if names differ
+            trackingStatus = mapOrderStatusToTrackingStatus(status);
+        }
 
-	
-		Order order = tracking.getOrder();
-		order.setStatus(Order.OrderStatus.valueOf(dto.getStatus()));
-		orderRepository.save(order);
+        // Use default message if none provided
+        String finalMessage = (message != null && !message.isBlank())
+                ? message
+                : getDefaultMessage(status);
 
-		OrderTracking updated = trackingRepository.save(tracking);
+        // Find existing tracking or create new
+        Optional<OrderTracking> opt = trackingRepository.findByOrderId(orderId);
+        OrderTracking tracking;
 
-		
-		emailService.sendOrderStatusEmail(order.getUser().getEmail(), order.getUser().getName(), order.getId(),
-				dto.getStatus());
+        if (opt.isPresent()) {
+            tracking = opt.get();
+        } else {
+            tracking = new OrderTracking();
+            tracking.setOrder(order);
+        }
 
-		return updated;
-	}
+        tracking.setStatus(trackingStatus);
+        tracking.setMessage(finalMessage);
+        trackingRepository.save(tracking);
 
+        return toDTO(tracking);
+    }
 
-	@Override
-	public OrderTracking getTrackingByOrderId(Long orderId) {
-		return trackingRepository.findByOrderId(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Tracking not found for order: " + orderId));
+    // ─── Create initial tracking ─────────────────────────────────────────────────
+    @Override
+    public TrackingDTO createTracking(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-	}
+        // Check if already exists
+        Optional<OrderTracking> existing = trackingRepository.findByOrderId(orderId);
+        if (existing.isPresent()) {
+            return toDTO(existing.get());
+        }
 
-	
-	@Override
-	public List<OrderTracking> getTrackingsByUserId(Long userId) {
-		return trackingRepository.findAllByUserId(userId);
-	}
+        OrderTracking tracking = new OrderTracking();
+        tracking.setOrder(order);
+        tracking.setStatus(OrderTracking.TrackingStatus.PLACED);
+        tracking.setMessage("Your order has been placed successfully!");
+        trackingRepository.save(tracking);
 
+        return toDTO(tracking);
+    }
 
-	@Override
-	public List<OrderTracking> getTrackingsByRestaurantId(Long restaurantId) {
-		return trackingRepository.findAllByRestaurantId(restaurantId);
-	}
+    // ─── Map Order.OrderStatus → OrderTracking.TrackingStatus ───────────────────
+    private OrderTracking.TrackingStatus mapOrderStatusToTrackingStatus(String orderStatus) {
+        return switch (orderStatus.toUpperCase()) {
+            case "PLACED"           -> OrderTracking.TrackingStatus.PLACED;
+            case "CONFIRMED"        -> OrderTracking.TrackingStatus.CONFIRMED;
+            case "PROCESSING"       -> OrderTracking.TrackingStatus.PROCESSING;
+            case "DISPATCHED"       -> OrderTracking.TrackingStatus.DISPATCHED;
+            case "OUT_FOR_DELIVERY" -> OrderTracking.TrackingStatus.OUT_FOR_DELIVERY;
+            case "DELIVERED"        -> OrderTracking.TrackingStatus.DELIVERED;
+            case "CANCELLED"        -> OrderTracking.TrackingStatus.CANCELLED;
+            default -> throw new RuntimeException("Unknown status: " + orderStatus);
+        };
+    }
 
-	
-	@Override
-	public TrackingDTO getTrackingDetails(Long orderId) {
-		OrderTracking tracking = getTrackingByOrderId(orderId);
-
-		TrackingDTO dto = new TrackingDTO();
-		dto.setTrackingId(tracking.getId());
-		dto.setOrderId(orderId);
-		dto.setStatus(tracking.getStatus().name());
-		dto.setMessage(tracking.getMessage());
-		dto.setUpdatedAt(tracking.getUpdatedAt());
-
-		return dto;
-	}
+    // ─── Entity → DTO ───────────────────────────────────────────────────────────
+    private TrackingDTO toDTO(OrderTracking t) {
+        TrackingDTO dto = new TrackingDTO();
+        dto.setTrackingId(t.getId());
+        dto.setOrderId(t.getOrder().getId());
+        dto.setStatus(t.getStatus() != null ? t.getStatus().name() : "PLACED");
+        dto.setMessage(t.getMessage());
+        dto.setUpdatedAt(t.getUpdatedAt());
+        return dto;
+    }
 }

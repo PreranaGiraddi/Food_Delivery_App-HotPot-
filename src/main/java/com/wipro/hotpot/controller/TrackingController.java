@@ -1,63 +1,66 @@
 package com.wipro.hotpot.controller;
 
-import com.wipro.hotpot.dto.OrderStatusDTO;
-import com.wipro.hotpot.dto.TrackingDTO;
-import com.wipro.hotpot.entity.OrderTracking;
-import com.wipro.hotpot.service.ITrackingService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.wipro.hotpot.dto.TrackingDTO;
+import com.wipro.hotpot.service.ITrackingService;
 
 @RestController
 @RequestMapping("/api/tracking")
+@CrossOrigin(origins = "*")
 public class TrackingController {
 
-	@Autowired
-	private ITrackingService trackingService;
+    @Autowired
+    private ITrackingService trackingService;
 
-	
-	@PostMapping("/create/{orderId}")
-	public ResponseEntity<OrderTracking> createTracking(@PathVariable Long orderId) {
-		OrderTracking tracking = trackingService.createTracking(orderId);
-		return new ResponseEntity<>(tracking, HttpStatus.CREATED);
-	}
+    // ─── GET tracking by order ID ─────────────────────────────────────────────
+    // Called by user dashboard: GET /api/tracking/order/42
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<?> getTrackingByOrder(@PathVariable Long orderId) {
+        try {
+            TrackingDTO tracking = trackingService.getTrackingByOrderId(orderId);
+            return ResponseEntity.ok(tracking);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Tracking not found: " + e.getMessage());
+        }
+    }
 
+    // ─── UPDATE tracking status ───────────────────────────────────────────────
+    // Called by restaurant dashboard when updating order status
+    // PUT /api/tracking/update/42?status=CONFIRMED
+    // PUT /api/tracking/update/42?status=CONFIRMED&message=Custom message
+    @PutMapping("/update/{orderId}")
+    public ResponseEntity<?> updateTracking(
+            @PathVariable Long orderId,
+            @RequestParam String status,
+            @RequestParam(required = false) String message) {
+        try {
+            TrackingDTO updated = trackingService.updateTracking(orderId, status, message);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to update tracking: " + e.getMessage());
+        }
+    }
 
-	@PutMapping("/update")
-	public ResponseEntity<OrderTracking> updateOrderStatus(@Valid @RequestBody OrderStatusDTO dto) {
-		OrderTracking tracking = trackingService.updateOrderStatus(dto);
-		return new ResponseEntity<>(tracking, HttpStatus.OK);
-	}
-
-	
-	@GetMapping("/order/{orderId}")
-	public ResponseEntity<OrderTracking> getTrackingByOrderId(@PathVariable Long orderId) {
-		OrderTracking tracking = trackingService.getTrackingByOrderId(orderId);
-		return new ResponseEntity<>(tracking, HttpStatus.OK);
-	}
-
-	
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<OrderTracking>> getTrackingsByUserId(@PathVariable Long userId) {
-		List<OrderTracking> trackings = trackingService.getTrackingsByUserId(userId);
-		return new ResponseEntity<>(trackings, HttpStatus.OK);
-	}
-
-	
-	@GetMapping("/restaurant/{restaurantId}")
-	public ResponseEntity<List<OrderTracking>> getTrackingsByRestaurantId(@PathVariable Long restaurantId) {
-		List<OrderTracking> trackings = trackingService.getTrackingsByRestaurantId(restaurantId);
-		return new ResponseEntity<>(trackings, HttpStatus.OK);
-	}
-
-	
-	@GetMapping("/details/{orderId}")
-	public ResponseEntity<TrackingDTO> getTrackingDetails(@PathVariable Long orderId) {
-		TrackingDTO dto = trackingService.getTrackingDetails(orderId);
-		return new ResponseEntity<>(dto, HttpStatus.OK);
-	}
+    // ─── CREATE initial tracking ──────────────────────────────────────────────
+    // Called after placing order if auto-creation fails
+    // POST /api/tracking/create/42
+    @PostMapping("/create/{orderId}")
+    public ResponseEntity<?> createTracking(@PathVariable Long orderId) {
+        try {
+            TrackingDTO tracking = trackingService.createTracking(orderId);
+            return ResponseEntity.ok(tracking);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to create tracking: " + e.getMessage());
+        }
+    }
 }

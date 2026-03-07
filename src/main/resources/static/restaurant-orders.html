@@ -262,18 +262,32 @@ async function updateStatus(orderId) {
     if (newStatus === 'CANCELLED' && !confirm('Are you sure you want to CANCEL this order?')) return;
 
     try {
+        // ✅ Step 1: Update order status
         const res = await fetch(`${API}/api/order/status/${orderId}?status=${newStatus}`, {
             method:'PUT',
             headers:{ 'Authorization':'Bearer '+token }
         });
-        if (res.ok) {
-            showAlert('success', `✅ Order #${orderId} → ${newStatus}`);
-            loadOrders();
-        } else {
-            const err = await res.json();
-            showAlert('danger', err.message||'Update failed!');
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showAlert('danger', err.message || 'Order status update failed!');
+            return;
         }
-    } catch(e) { showAlert('danger','Server error!'); }
+
+        // ✅ Step 2: Sync tracking table so user dashboard shows updated status
+        try {
+            await fetch(`${API}/api/tracking/update/${orderId}?status=${newStatus}`, {
+                method:'PUT',
+                headers:{ 'Authorization':'Bearer '+token }
+            });
+        } catch(trackErr) {
+            console.warn('Tracking update failed (non-critical):', trackErr);
+        }
+
+        showAlert('success', `✅ Order #${orderId} updated to ${newStatus}`);
+        loadOrders();
+
+    } catch(e) { showAlert('danger','Server error: ' + e.message); }
 }
 
 function fmt(d) { if (!d) return '—'; return new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }

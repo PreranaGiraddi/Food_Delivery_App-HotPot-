@@ -76,7 +76,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
 
     @Override
     public List<Restaurant> searchRestaurants(String keyword) {
-        return restaurantRepository.searchRestaurants(keyword);
+        return restaurantRepository.searchByKeyword(keyword);
     }
 
     // ✅ Fix — toggle uses existing isActive value

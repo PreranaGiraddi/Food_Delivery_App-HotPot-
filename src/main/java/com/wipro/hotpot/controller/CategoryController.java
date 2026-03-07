@@ -1,17 +1,25 @@
 package com.wipro.hotpot.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wipro.hotpot.dto.CategoryDTO;
 import com.wipro.hotpot.entity.Category;
 import com.wipro.hotpot.entity.Restaurant;
 import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.ICategoryRepository;
 import com.wipro.hotpot.repository.IRestaurantRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/category")

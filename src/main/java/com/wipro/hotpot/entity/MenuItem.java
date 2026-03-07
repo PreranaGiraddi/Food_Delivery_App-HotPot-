@@ -1,6 +1,7 @@
 package com.wipro.hotpot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,9 +46,9 @@ public class MenuItem {
     private String ingredients;
 
     private Integer cookingTime;
-
-    private boolean isAvailable = true;
-
+    @com.fasterxml.jackson.annotation.JsonProperty("isAvailable")
+    private Boolean isAvailable;
+    
     // ✅ NEW — separate nutritional fields for dashboard
     private Integer calories;
     private Double fats;
@@ -105,7 +106,8 @@ public class MenuItem {
     public String getNutritionalInfo()     { return nutritionalInfo; }
     public String getIngredients()         { return ingredients; }
     public Integer getCookingTime()        { return cookingTime; }
-    public boolean isAvailable()           { return isAvailable; }
+    @JsonProperty("isAvailable")
+    public Boolean getIsAvailable() { return isAvailable; }
     public Category getCategory()          { return category; }
     public Restaurant getRestaurant()      { return restaurant; }
 

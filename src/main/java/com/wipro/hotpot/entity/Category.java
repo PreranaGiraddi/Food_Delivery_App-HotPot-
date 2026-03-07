@@ -1,4 +1,3 @@
-
 package com.wipro.hotpot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,23 +19,23 @@ public class Category {
     @JsonIgnoreProperties({"owner", "menuItems", "categories"})
     private Restaurant restaurant;
 
-    
+    // ── Constructors ──
     public Category() {}
 
-   
-    public Category(Long id, String name, Restaurant restaurant) {
-        this.id = id;
+    public Category(String name, Restaurant restaurant) {
         this.name = name;
         this.restaurant = restaurant;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public Restaurant getRestaurant() { return restaurant; }
+    // ── Getters ──
+    public Long getId()              { return id; }
+    public String getName()          { return name; }
+    public Restaurant getRestaurant(){ return restaurant; }
 
-    public void setId(Long id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
+    // ── Setters ──
+    public void setId(Long id)                      { this.id = id; }
+    public void setName(String name)                { this.name = name; }
+    public void setRestaurant(Restaurant restaurant){ this.restaurant = restaurant; }
 
     @Override
     public String toString() {
