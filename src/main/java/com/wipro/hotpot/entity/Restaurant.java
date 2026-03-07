@@ -1,5 +1,3 @@
-
-
 package com.wipro.hotpot.entity;
 
 import java.time.LocalDateTime;
@@ -48,10 +46,9 @@ public class Restaurant {
         this.createdAt = LocalDateTime.now();
     }
 
-   
+    // ── Constructors ──
     public Restaurant() {}
 
- 
     public Restaurant(Long id, String name, String location, String contactNumber,
                       String description, String imageUrl, boolean isActive,
                       User owner, LocalDateTime createdAt) {
@@ -66,27 +63,32 @@ public class Restaurant {
         this.createdAt = createdAt;
     }
 
- 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getLocation() { return location; }
-    public String getContactNumber() { return contactNumber; }
-    public String getDescription() { return description; }
-    public String getImageUrl() { return imageUrl; }
-    public boolean isActive() { return isActive; }
-    public User getOwner() { return owner; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    // ── Getters ──
+    public Long getId()                   { return id; }
+    public String getName()               { return name; }
+    public String getLocation()           { return location; }
+    public String getContactNumber()      { return contactNumber; }
+    public String getDescription()        { return description; }
+    public String getImageUrl()           { return imageUrl; }
+    public boolean isActive()             { return isActive; }
+    public User getOwner()                { return owner; }
+    public LocalDateTime getCreatedAt()   { return createdAt; }
 
- 
-    public void setId(Long id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setLocation(String location) { this.location = location; }
-    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
-    public void setDescription(String description) { this.description = description; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public void setActive(boolean isActive) { this.isActive = isActive; }
-    public void setOwner(User owner) { this.owner = owner; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    // ✅ Helper — returns owner's userId directly (used in repository queries)
+    public Long getOwnerId() {
+        return owner != null ? owner.getId() : null;
+    }
+
+    // ── Setters ──
+    public void setId(Long id)                            { this.id = id; }
+    public void setName(String name)                      { this.name = name; }
+    public void setLocation(String location)              { this.location = location; }
+    public void setContactNumber(String contactNumber)    { this.contactNumber = contactNumber; }
+    public void setDescription(String description)        { this.description = description; }
+    public void setImageUrl(String imageUrl)              { this.imageUrl = imageUrl; }
+    public void setActive(boolean isActive)               { this.isActive = isActive; }
+    public void setOwner(User owner)                      { this.owner = owner; }
+    public void setCreatedAt(LocalDateTime createdAt)     { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
