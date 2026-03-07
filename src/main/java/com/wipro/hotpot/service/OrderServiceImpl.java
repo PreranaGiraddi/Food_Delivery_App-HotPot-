@@ -22,7 +22,7 @@ import com.wipro.hotpot.repository.IOrderRepository;
 import com.wipro.hotpot.repository.IRestaurantRepository;
 import com.wipro.hotpot.repository.ITrackingRepository;
 import com.wipro.hotpot.repository.IUserRepository;
-
+import com.wipro.hotpot.entity.OrderTracking;
 @Service
 public class OrderServiceImpl implements IOrderService {
 
@@ -221,5 +221,46 @@ public class OrderServiceImpl implements IOrderService {
 
         order.setStatus(Order.OrderStatus.CANCELLED);
         return orderRepository.save(order);
+    }
+    @Override
+    public Order updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
+
+        // ✅ Validate status value
+        try {
+            Order.OrderStatus newStatus = Order.OrderStatus.valueOf(status.toUpperCase());
+            order.setStatus(newStatus);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status: " + status +
+                ". Valid values: CONFIRMED, PROCESSING, DISPATCHED, DELIVERED, CANCELLED");
+        }
+
+        Order saved = orderRepository.save(order);
+
+        // ✅ Also update tracking record if exists
+        try {
+            trackingRepository.findByOrderId(orderId).ifPresent(tracking -> {
+                tracking.setStatus(OrderTracking.TrackingStatus.valueOf(status.toUpperCase()));
+                tracking.setMessage(getTrackingMessage(status));
+                trackingRepository.save(tracking);
+            });
+        } catch (Exception e) {
+            System.out.println("Tracking update skipped: " + e.getMessage());
+        }
+
+        return saved;
+    }
+
+    // ✅ Helper — tracking message for each status
+    private String getTrackingMessage(String status) {
+        switch (status.toUpperCase()) {
+            case "CONFIRMED":  return "Your order has been confirmed by the restaurant!";
+            case "PROCESSING": return "Your order is being prepared in the kitchen!";
+            case "DISPATCHED": return "Your order is on the way! Delivery partner assigned.";
+            case "DELIVERED":  return "Order delivered successfully! Enjoy your meal 🎉";
+            case "CANCELLED":  return "Your order has been cancelled.";
+            default:           return "Order status updated.";
+        }
     }
 }

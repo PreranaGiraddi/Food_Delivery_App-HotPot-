@@ -1,25 +1,28 @@
 package com.wipro.hotpot.service;
 
 import java.util.List;
-
 import com.wipro.hotpot.dto.RestaurantDTO;
 import com.wipro.hotpot.entity.Restaurant;
 
 public interface IRestaurantService {
 
-	Restaurant addRestaurant(RestaurantDTO dto, Long userId);
+    // ✅ addRestaurant takes userId + dto
+    Restaurant addRestaurant(Long userId, RestaurantDTO dto);
 
-	Restaurant getRestaurantById(Long id);
+    Restaurant updateRestaurant(Long id, RestaurantDTO dto);
 
-	Restaurant getRestaurantByOwnerId(Long ownerId);
+    void deleteRestaurant(Long id);
 
-	List<Restaurant> getAllRestaurants();
+    Restaurant getRestaurantById(Long id);
 
-	List<Restaurant> getAllActiveRestaurants();
+    List<Restaurant> getAllRestaurants();
 
-	Restaurant updateRestaurant(Long id, RestaurantDTO dto);
+    List<Restaurant> getActiveRestaurants();
 
-	void deleteRestaurant(Long id);
+    List<Restaurant> searchRestaurants(String keyword);
 
-	List<Restaurant> searchRestaurants(String keyword);
+    Restaurant toggleRestaurantStatus(Long id);
+
+    // ✅ ONE method only — getRestaurantByOwnerId
+    Restaurant getRestaurantByOwnerId(Long userId);
 }

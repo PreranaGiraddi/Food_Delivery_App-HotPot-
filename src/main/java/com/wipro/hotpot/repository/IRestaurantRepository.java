@@ -1,34 +1,27 @@
 package com.wipro.hotpot.repository;
 
-
 import java.util.List;
-
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 
 import com.wipro.hotpot.entity.Restaurant;
-import com.wipro.hotpot.entity.User;
 
-@Repository
 public interface IRestaurantRepository extends JpaRepository<Restaurant, Long> {
 
-	List<Restaurant> findByIsActive(boolean isActive);
+    // ✅ Find active restaurants
+    List<Restaurant> findByIsActiveTrue();
 
-	Optional<Restaurant> findByOwner(User owner);
+    // ✅ Search by name or location
+    @Query("SELECT r FROM Restaurant r WHERE " +
+           "LOWER(r.name) LIKE LOWER(CONCAT('%',:keyword,'%')) OR " +
+           "LOWER(r.location) LIKE LOWER(CONCAT('%',:keyword,'%'))")
+    List<Restaurant> searchRestaurants(@Param("keyword") String keyword);
 
-	Optional<Restaurant> findByName(String name);
-
-	@Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Restaurant r WHERE r.name = :name")
-	boolean isRestaurantNameExists(String name);
-
-	List<Restaurant> findByLocation(String location);
-
-	@Query("SELECT r FROM Restaurant r WHERE r.name LIKE %:keyword%")
-	List<Restaurant> searchByName(String keyword);
-
-	@Query("SELECT r FROM Restaurant r WHERE r.owner.id = :ownerId")
-	Optional<Restaurant> findByOwnerId(Long ownerId);
+    // ✅ Find by owner userId — key for dashboard!
+    @Query("SELECT r FROM Restaurant r WHERE r.owner.id = :userId")
+    Optional<Restaurant> findByOwnerId(@Param("userId") Long userId);
 }
+

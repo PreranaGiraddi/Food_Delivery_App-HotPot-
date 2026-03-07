@@ -18,4 +18,5 @@ public interface IOrderService {
 	List<Order> getOrderHistory(Long userId);
 
 	Order cancelOrder(Long orderId);
+	Order updateOrderStatus(Long orderId, String status);
 }

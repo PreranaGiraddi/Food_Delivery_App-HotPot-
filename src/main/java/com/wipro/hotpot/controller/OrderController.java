@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wipro.hotpot.dto.OrderDTO;
 import com.wipro.hotpot.entity.Order;
 import com.wipro.hotpot.service.IOrderService;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 
 @RestController
@@ -67,6 +68,12 @@ public class OrderController {
     @PutMapping("/cancel/{orderId}")
     public ResponseEntity<Order> cancelOrder(@PathVariable Long orderId) {
         Order order = orderService.cancelOrder(orderId);
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+    @PutMapping("/status/{orderId}")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId,
+                                                   @RequestParam String status) {
+        Order order = orderService.updateOrderStatus(orderId, status);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 }

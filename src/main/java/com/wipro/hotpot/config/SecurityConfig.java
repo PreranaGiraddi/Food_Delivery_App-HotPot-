@@ -3,9 +3,9 @@ package com.wipro.hotpot.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,93 +16,71 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
 
+    // ✅ All Swagger + public URLs
+    private static final String[] PUBLIC_URLS = {
+        // Swagger
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/v3/api-docs",
+        "/swagger-resources/**",
+        "/webjars/**",
+        "/configuration/**",
+        "/configuration/ui",
+        "/configuration/security",
+        // Auth
+        "/api/auth/**",
+        // Static HTML pages
+        "/",
+        "/*.html",
+        "/index.html",
+        "/login.html",
+        "/register.html",
+        "/css/**",
+        "/js/**",
+        "/images/**",
+        "/favicon.ico",
+        // Error
+        "/error"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
             .csrf(csrf -> csrf.disable())
 
+            // ✅ Disable frame options for Swagger UI
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+
             .authorizeHttpRequests(auth -> auth
 
-               
-                .requestMatchers(
-                		"/",
-                	    "/index.html",
-                	    "/login.html",
-                	    "/register.html",
-                	    "/restaurants.html",
-                	    "/menu.html",
-                	    "/cart.html",
-                	    "/checkout.html",
-                	    "/orders.html",
-                	    "/error",
-                    "/api/auth/register",
-                    "/api/auth/login",
-                    "/api/auth/isEmailExists/**",
-                    "/api/menu/search",
-                    "/api/menu/restaurant/**",
-                    "/api/menu/available/**",
-                    "/api/menu/category/**",
-                    "/api/menu/filter",
-                    "/api/restaurant/all",
+                // ✅ Swagger and public — MUST be FIRST
+                .requestMatchers(PUBLIC_URLS).permitAll()
+
+                // ✅ Public GET endpoints (no login needed)
+                .requestMatchers(HttpMethod.GET,
                     "/api/restaurant/active",
                     "/api/restaurant/search",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/api-docs/**"
+                    "/api/restaurant/all",
+                    "/api/menu/available/**",
+                    "/api/menu/restaurant/**",
+                    "/api/category/**"
                 ).permitAll()
 
-               
-                .requestMatchers(
-                    "/api/auth/users",
-                    "/api/restaurant/add",
-                    "/api/restaurant/delete/**"
-                ).hasRole("ADMIN")
-
-             
-                .requestMatchers(
-                    "/api/menu/add",
-                    "/api/menu/update/**",
-                    "/api/menu/delete/**",
-                    "/api/menu/outofstock/**",
-                    "/api/restaurant/update/**"
-                ).hasRole("RESTAURANT")
-
-               
-                .requestMatchers(
-                    "/api/cart/**",
-                    "/api/order/place/**",
-                    "/api/order/history/**",
-                    "/api/order/cancel/**",
-                    "/api/order/user/**"
-                ).hasRole("USER")
-
-                
-                .requestMatchers(
-                    "/api/order/**",
-                    "/api/tracking/**",
-                    "/api/auth/user/**",
-                    "/api/restaurant/**",
-                    "/api/menu/**"
-                ).authenticated()
-
-               
+                // ✅ Everything else needs authentication
                 .anyRequest().authenticated()
             )
 
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+            .sessionManagement(sess ->
+                sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .addFilterBefore(jwtFilter,
-                    UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
