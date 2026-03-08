@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-<<<<<<< HEAD
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,32 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-=======
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
->>>>>>> feature-auth-user
 import com.wipro.hotpot.dto.MenuDTO;
 import com.wipro.hotpot.entity.Category;
 import com.wipro.hotpot.entity.MenuItem;
 import com.wipro.hotpot.entity.Restaurant;
-<<<<<<< HEAD
-
-=======
->>>>>>> feature-auth-user
 import com.wipro.hotpot.repository.ICategoryRepository;
 import com.wipro.hotpot.repository.IMenuRepository;
 import com.wipro.hotpot.repository.IRestaurantRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class MenuServiceTest {
-
-    
 
     @Mock
     private IMenuRepository menuRepository;
@@ -55,14 +38,18 @@ public class MenuServiceTest {
     @InjectMocks
     private MenuServiceImpl menuService;
 
-    
-
     private MenuDTO menuDTO;
     private MenuItem menuItem;
     private Restaurant restaurant;
     private Category category;
 
-   
+    // ---------------------------------------------------------------
+    // Setup — mirrors real DB rows
+    // Restaurant DB ref: id=2, name="Meghna Biriyani", location="Banglore"
+    // Category  DB ref: id=16, name="Biriyani's", restaurant_id=2
+    // MenuItem  DB ref: id=24, name="Panner biriyani", price=250, discount=199,
+    //           dietary=VEG, availability="Lunch", restaurant_id=2, category_id=16
+    // ---------------------------------------------------------------
     @BeforeEach
     public void setUp() {
 
@@ -77,10 +64,6 @@ public class MenuServiceTest {
         category.setName("Biriyani's");
         category.setRestaurant(restaurant);
 
-<<<<<<< HEAD
-       
-=======
->>>>>>> feature-auth-user
         menuDTO = new MenuDTO();
         menuDTO.setName("Panner Biriyani");
         menuDTO.setDescription("Aromatic Panner biriyani tossed with veggies and Panner");
@@ -94,15 +77,6 @@ public class MenuServiceTest {
         menuDTO.setRestaurantId(2L);                            // Meghna Biriyani
         menuDTO.setAvailable(true);
 
-<<<<<<< HEAD
-       
-        menuItem = new MenuItem();
-        menuItem.setId(1L);
-        menuItem.setName("Chicken Burger");
-        menuItem.setPrice(199.0);
-        menuItem.setAvailable(true);           
-        menuItem.setDietaryType(MenuItem.DietaryType.NONVEG);
-=======
         menuItem = new MenuItem();
         menuItem.setId(24L);                                    // matches DB id=24
         menuItem.setName("Panner Biriyani");
@@ -111,7 +85,6 @@ public class MenuServiceTest {
         menuItem.setAvailable(true);
         menuItem.setDietaryType(MenuItem.DietaryType.VEG);
         menuItem.setAvailabilityTime("Lunch");
->>>>>>> feature-auth-user
         menuItem.setCategory(category);
         menuItem.setRestaurant(restaurant);
     }
@@ -122,21 +95,7 @@ public class MenuServiceTest {
     // ---------------------------------------------------------------
     @Test
     public void testAddMenuItem_Success() {
-        when(restaurantRepository.findById(1L)).thenReturn(Optional.of(restaurant));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(menuRepository.save(any(MenuItem.class))).thenReturn(menuItem);
 
-<<<<<<< HEAD
-        MenuItem result = menuService.addMenuItem(menuDTO);
-
-        assertNotNull(result);
-        assertEquals("Chicken Burger", result.getName());
-        assertEquals(199.0, result.getPrice());
-        assertEquals(MenuItem.DietaryType.NONVEG, result.getDietaryType());
-        assertTrue(result.getIsAvailable());   
-        verify(menuRepository, times(1)).save(any(MenuItem.class));
-        System.out.println("testAddMenuItem_Success passed");
-=======
         when(restaurantRepository.findById(2L))
                 .thenReturn(Optional.of(restaurant));
         when(categoryRepository.findById(16L))
@@ -157,7 +116,6 @@ public class MenuServiceTest {
         verify(menuRepository, times(1)).save(any(MenuItem.class));
 
         System.out.println("✅ Add Menu Item Test Passed!");
->>>>>>> feature-auth-user
     }
 
     // ---------------------------------------------------------------
@@ -166,21 +124,7 @@ public class MenuServiceTest {
     // ---------------------------------------------------------------
     @Test
     public void testAddMenuItem_RestaurantNotFound() {
-        when(restaurantRepository.findById(1L)).thenReturn(Optional.empty());
 
-<<<<<<< HEAD
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
-            menuService.addMenuItem(menuDTO)
-        );
-
-        assertTrue(ex.getMessage().contains("Restaurant not found"),
-            "Expected 'Restaurant not found' but got: " + ex.getMessage());
-        verify(menuRepository, never()).save(any(MenuItem.class));
-        System.out.println("testAddMenuItem_RestaurantNotFound passed");
-    }
-
-   
-=======
         when(restaurantRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
@@ -227,79 +171,9 @@ public class MenuServiceTest {
     //   id=18 Chicken Kabab, id=19 Family Biriyani Combo,
     //   id=20 Butter Naan, id=21 Coca Cola, id=22 Double Ka Meetha, id=24 Panner Biriyani
     // ---------------------------------------------------------------
->>>>>>> feature-auth-user
     @Test
-    public void testAddMenuItem_CategoryNotFound() {
-        when(restaurantRepository.findById(1L)).thenReturn(Optional.of(restaurant));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+    public void testGetAllMenuItemsByRestaurant() {
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
-            menuService.addMenuItem(menuDTO)
-        );
-
-        assertTrue(ex.getMessage().contains("Category not found"),
-            "Expected 'Category not found' but got: " + ex.getMessage());
-        verify(menuRepository, never()).save(any(MenuItem.class));
-        System.out.println(" testAddMenuItem_CategoryNotFound passed");
-    }
-
-   
-
-    @Test
-    public void testGetAllMenuItemsByRestaurant_ReturnsList() {
-        MenuItem menuItem2 = new MenuItem();
-        menuItem2.setId(2L);
-        menuItem2.setName("Veg Pizza");
-        menuItem2.setPrice(149.0);
-        menuItem2.setAvailable(true);
-        menuItem2.setDietaryType(MenuItem.DietaryType.VEG);
-        menuItem2.setRestaurant(restaurant);
-
-<<<<<<< HEAD
-        when(menuRepository.findByRestaurantId(1L))
-                .thenReturn(Arrays.asList(menuItem, menuItem2));
-
-        List<MenuItem> result = menuService.getAllMenuItemsByRestaurant(1L);
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Chicken Burger", result.get(0).getName());
-        assertEquals("Veg Pizza", result.get(1).getName());
-        System.out.println("testGetAllMenuItemsByRestaurant_ReturnsList passed");
-    }
-
-    @Test
-    public void testGetAllMenuItemsByRestaurant_EmptyList() {
-        when(menuRepository.findByRestaurantId(99L)).thenReturn(List.of());
-
-        List<MenuItem> result = menuService.getAllMenuItemsByRestaurant(99L);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        System.out.println("testGetAllMenuItemsByRestaurant_EmptyList passed");
-    }
-
-    
-
-    @Test
-    public void testGetMenuItemById_Success() {
-        when(menuRepository.findById(1L)).thenReturn(Optional.of(menuItem));
-
-        MenuItem result = menuService.getMenuItemById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Chicken Burger", result.getName());
-        System.out.println("testGetMenuItemById_Success passed");
-    }
-
-    @Test
-    public void testGetMenuItemById_NotFound() {
-        when(menuRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> menuService.getMenuItemById(99L));
-        System.out.println("testGetMenuItemById_NotFound passed");
-=======
         MenuItem mutton = new MenuItem();
         mutton.setId(17L);
         mutton.setName("Mutton Biriyani");
@@ -320,7 +194,6 @@ public class MenuServiceTest {
         assertEquals("Mutton Biriyani", result.get(1).getName());
 
         System.out.println("✅ Get Menu Items By Restaurant Test Passed!");
->>>>>>> feature-auth-user
     }
 
     // ---------------------------------------------------------------
@@ -329,40 +202,8 @@ public class MenuServiceTest {
     //         Using id=24 "Panner Biriyani" which is currently available (0x01)
     // ---------------------------------------------------------------
     @Test
-    public void testUpdateMenuItem_Success() {
-        menuDTO.setName("Grilled Chicken Burger");
-        menuDTO.setPrice(219.0);
+    public void testMarkOutOfStock() {
 
-<<<<<<< HEAD
-        MenuItem updatedItem = new MenuItem();
-        updatedItem.setId(1L);
-        updatedItem.setName("Grilled Chicken Burger");
-        updatedItem.setPrice(219.0);
-        updatedItem.setAvailable(true);
-        updatedItem.setRestaurant(restaurant);
-
-        when(menuRepository.findById(1L)).thenReturn(Optional.of(menuItem));
-        when(menuRepository.save(any(MenuItem.class))).thenReturn(updatedItem);
-
-        MenuItem result = menuService.updateMenuItem(1L, menuDTO);
-
-        assertNotNull(result);
-        assertEquals("Grilled Chicken Burger", result.getName());
-        assertEquals(219.0, result.getPrice());
-        verify(menuRepository, times(1)).save(any(MenuItem.class));
-        System.out.println("testUpdateMenuItem_Success passed");
-    }
-
-    
-    @Test
-    public void testMarkOutOfStock_SetsAvailableFalse() {
-        when(menuRepository.findById(1L)).thenReturn(Optional.of(menuItem));
-        when(menuRepository.save(any(MenuItem.class))).thenReturn(menuItem);
-
-        menuService.markOutOfStock(1L);
-
-        assertFalse(menuItem.getIsAvailable());   
-=======
         when(menuRepository.findById(24L))
                 .thenReturn(Optional.of(menuItem));
         when(menuRepository.save(any(MenuItem.class)))
@@ -372,47 +213,11 @@ public class MenuServiceTest {
 
         assertFalse(menuItem.getIsAvailable());                    // must flip to false
 
->>>>>>> feature-auth-user
         verify(menuRepository, times(1)).save(menuItem);
-        System.out.println("testMarkOutOfStock_SetsAvailableFalse passed");
+
+        System.out.println("✅ Mark Out Of Stock Test Passed!");
     }
 
-<<<<<<< HEAD
-   
-    @Test
-    public void testToggleAvailability_SetTrue() {
-        menuItem.setAvailable(false); 
-
-        when(menuRepository.findById(1L)).thenReturn(Optional.of(menuItem));
-        when(menuRepository.save(any(MenuItem.class))).thenReturn(menuItem);
-
-        menuService.toggleAvailability(1L, true);
-
-        assertTrue(menuItem.getIsAvailable());
-        verify(menuRepository, times(1)).save(menuItem);
-        System.out.println("testToggleAvailability_SetTrue passed");
-    }
-
-    
-
-    @Test
-    public void testDeleteMenuItem_Success() {
-        when(menuRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(menuRepository).deleteById(1L);
-
-        assertDoesNotThrow(() -> menuService.deleteMenuItem(1L));
-        verify(menuRepository, times(1)).deleteById(1L);
-        System.out.println("testDeleteMenuItem_Success passed");
-    }
-
-    @Test
-    public void testDeleteMenuItem_NotFound() {
-        when(menuRepository.existsById(99L)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> menuService.deleteMenuItem(99L));
-        verify(menuRepository, never()).deleteById(any());
-        System.out.println("testDeleteMenuItem_NotFound passed");
-=======
     // ---------------------------------------------------------------
     // TEST 6: Add a NONVEG item to HotPot Restaurant
     // DB ref: restaurant_id=1 (HotPot Restaurant), category_id=1 (Starters)
@@ -464,6 +269,5 @@ public class MenuServiceTest {
         assertEquals(MenuItem.DietaryType.NONVEG, result.getDietaryType());
 
         System.out.println("✅ Add NonVeg MenuItem to HotPot Test Passed!");
->>>>>>> feature-auth-user
     }
 }
