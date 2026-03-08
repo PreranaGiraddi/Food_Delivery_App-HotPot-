@@ -21,9 +21,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
     @Autowired
     private IUserRepository userRepository;
 
-    // ─── ADD RESTAURANT ─────────────────────────────────────────
-    // Called by: POST /api/restaurant/add?userId=1
-    // Body: { name, location, contactNumber, description, imageUrl }
+    
     @Override
     public RestaurantDTO addRestaurant(RestaurantDTO dto, Long userId) {
         User owner = userRepository.findById(userId)
@@ -41,7 +39,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
         return toDTO(restaurantRepository.save(r));
     }
 
-    // ─── UPDATE RESTAURANT ──────────────────────────────────────
+  
     @Override
     public RestaurantDTO updateRestaurant(Long id, RestaurantDTO dto) {
         Restaurant r = restaurantRepository.findById(id)
@@ -56,7 +54,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
         return toDTO(restaurantRepository.save(r));
     }
 
-    // ─── GET BY ID ──────────────────────────────────────────────
+   
     @Override
     public RestaurantDTO getRestaurantById(Long id) {
         Restaurant r = restaurantRepository.findById(id)
@@ -64,7 +62,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
         return toDTO(r);
     }
 
-    // ─── GET BY OWNER ───────────────────────────────────────────
+    
     @Override
     public RestaurantDTO getRestaurantByOwnerId(Long userId) {
         Restaurant r = restaurantRepository.findByOwnerId(userId)
@@ -73,21 +71,21 @@ public class RestaurantServiceImpl implements IRestaurantService {
         return toDTO(r);
     }
 
-    // ─── GET ALL ────────────────────────────────────────────────
+    
     @Override
     public List<RestaurantDTO> getAllRestaurants() {
         return restaurantRepository.findAll()
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ─── GET ACTIVE ─────────────────────────────────────────────
+   
     @Override
     public List<RestaurantDTO> getActiveRestaurants() {
         return restaurantRepository.findByIsActiveTrue()
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ─── TOGGLE ACTIVE ──────────────────────────────────────────
+  
     @Override
     public RestaurantDTO toggleActive(Long id, boolean active) {
         Restaurant r = restaurantRepository.findById(id)
@@ -96,7 +94,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
         return toDTO(restaurantRepository.save(r));
     }
 
-    // ─── DELETE ─────────────────────────────────────────────────
+   
     @Override
     public void deleteRestaurant(Long id) {
         if (!restaurantRepository.existsById(id))
@@ -104,7 +102,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
         restaurantRepository.deleteById(id);
     }
 
-    // ─── ENTITY → DTO ───────────────────────────────────────────
+    
     private RestaurantDTO toDTO(Restaurant r) {
         RestaurantDTO dto = new RestaurantDTO();
         dto.setId(r.getId());

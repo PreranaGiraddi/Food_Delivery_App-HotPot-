@@ -23,7 +23,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
             User saved = authService.registerUser(request);
-            // Return same shape as LoginResponse so frontend gets id + role back
+            
             LoginResponse resp = new LoginResponse();
             resp.setId(saved.getId());
             resp.setName(saved.getName());

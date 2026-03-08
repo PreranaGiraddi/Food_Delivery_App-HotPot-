@@ -19,7 +19,7 @@ public interface IRestaurantRepository extends JpaRepository<Restaurant, Long> {
            "LOWER(r.location) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<Restaurant> searchByKeyword(@Param("keyword") String keyword);
 
-    // ✅ Find restaurant by owner userId
+    
     @Query("SELECT r FROM Restaurant r WHERE r.owner.id = :userId")
     Optional<Restaurant> findByOwnerId(@Param("userId") Long userId);
 

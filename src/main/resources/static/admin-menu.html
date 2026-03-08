@@ -102,13 +102,13 @@
     </div>
     <div class="alert-toast" id="alertToast"></div>
     <div class="content-area">
-        <!-- SECTION TABS -->
+       
         <div class="section-tabs">
             <div class="section-tab active" onclick="showSection('menu',this)">🍱 Menu Items</div>
             <div class="section-tab" onclick="showSection('categories',this)">🏷️ Categories</div>
         </div>
 
-        <!-- MENU SECTION -->
+       
         <div id="menuSection">
             <div class="content-card">
                 <div class="card-head">
@@ -121,7 +121,7 @@
             </div>
         </div>
 
-        <!-- CATEGORIES SECTION -->
+        
         <div id="catSection" style="display:none">
             <div class="content-card">
                 <div class="card-head"><div class="card-title">All Categories</div></div>
@@ -133,7 +133,7 @@
     </div>
 </div>
 
-<!-- ADD MENU ITEM MODAL -->
+
 <div class="modal fade" id="addMenuModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -175,7 +175,7 @@
     </div>
 </div>
 
-<!-- EDIT MENU MODAL -->
+
 <div class="modal fade" id="editMenuModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -210,7 +210,7 @@
     </div>
 </div>
 
-<!-- ADD CATEGORY MODAL -->
+
 <div class="modal fade" id="addCatModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -225,7 +225,7 @@
     </div>
 </div>
 
-<!-- DELETE MODAL -->
+
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -258,7 +258,7 @@ async function init(){
     allRestaurants=rRes.ok?await rRes.json():[];
     allMenuItems=mRes.ok?await mRes.json():[];
     allCategories=cRes.ok?await cRes.json():[];
-    // Populate restaurant filter
+    
     const sel=document.getElementById('restFilter');
     allRestaurants.forEach(r=>sel.innerHTML+=`<option value="${r.id}">${r.name}</option>`);
     renderMenuTable();
@@ -328,7 +328,7 @@ function renderCategories(){
 function openAddMenuModal(){
     document.getElementById('menuModalAlert').style.display='none';
     ['mName','mDesc','mPrice','mDiscPrice','mCookTime','mCalories','mFats','mProteins','mCarbs'].forEach(id=>document.getElementById(id).value='');
-    // Populate restaurant dropdown
+    
     const sel=document.getElementById('mRestaurant');
     sel.innerHTML='<option value="">-- Select Restaurant --</option>';
     allRestaurants.forEach(r=>sel.innerHTML+=`<option value="${r.id}">${r.name}</option>`);

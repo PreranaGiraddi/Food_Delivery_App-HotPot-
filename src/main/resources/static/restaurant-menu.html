@@ -305,8 +305,8 @@ async function loadMenu() {
     try {
         const res = await fetch(`${API}/api/menu/restaurant/${restId}?_=${Date.now()}`, { headers: { 'Authorization': 'Bearer ' + token } });
         const raw = res.ok ? await res.json() : [];
-        // Java's boolean getter drops "is" prefix → backend sends "available", not "isAvailable"
-        console.log('Raw menu item sample:', raw[0]); // debug: see "available" vs "isAvailable"
+       
+        console.log('Raw menu item sample:', raw[0]); 
         allItems = (Array.isArray(raw) ? raw : []).map(item => ({
             ...item,
             isAvailable: item.isAvailable !== undefined ? Boolean(item.isAvailable)
@@ -487,16 +487,15 @@ async function toggleStock(id, available) {
         const item = allItems.find(i => i.id === id);
         if (!item) return;
 
-        // Send both field names — Java backend might use either
+        
         const updated = { ...item, isAvailable: available, available: available };
         console.log('Toggling item', id, 'to isAvailable=', available);
 
-        // Try dedicated availability endpoint first (most reliable)
+        
         let res = await fetch(`${API}/api/menu/availability/${id}?isAvailable=${available}`, {
             method: 'PUT', headers: { 'Authorization': 'Bearer ' + token }
         });
 
-        // If that fails, try full update
         if (!res.ok) {
             res = await fetch(`${API}/api/menu/update/${id}`, {
                 method: 'PUT',
@@ -507,7 +506,7 @@ async function toggleStock(id, available) {
 
         if (res.ok) {
             showAlert('success', available ? '🟢 Marked as Available!' : '🔴 Marked as Out of Stock!');
-            await loadMenu(); // reload fresh from server
+            await loadMenu(); 
         } else {
             showAlert('danger', 'Update failed! Check backend endpoint.');
         }

@@ -39,7 +39,7 @@ public class MenuItem {
 
     private String tasteInfo;
 
-    // ✅ KEPT — for backward compatibility (general text)
+   
     private String nutritionalInfo;
 
     @Column(length = 500)
@@ -49,7 +49,7 @@ public class MenuItem {
     @com.fasterxml.jackson.annotation.JsonProperty("isAvailable")
     private Boolean isAvailable;
     
-    // ✅ NEW — separate nutritional fields for dashboard
+  
     private Integer calories;
     private Double fats;
     private Double proteins;
@@ -69,7 +69,7 @@ public class MenuItem {
         VEG, NONVEG, VEGAN
     }
 
-    // ── Constructors ──
+    
     public MenuItem() {}
 
     public MenuItem(Long id, String name, String description, Double price,
@@ -93,7 +93,7 @@ public class MenuItem {
         this.restaurant = restaurant;
     }
 
-    // ── Getters ──
+   
     public Long getId()                    { return id; }
     public String getName()                { return name; }
     public String getDescription()         { return description; }
@@ -111,13 +111,13 @@ public class MenuItem {
     public Category getCategory()          { return category; }
     public Restaurant getRestaurant()      { return restaurant; }
 
-    // ✅ NEW getters
+   
     public Integer getCalories()           { return calories; }
     public Double getFats()                { return fats; }
     public Double getProteins()            { return proteins; }
     public Double getCarbs()               { return carbs; }
 
-    // ── Setters ──
+   
     public void setId(Long id)                              { this.id = id; }
     public void setName(String name)                        { this.name = name; }
     public void setDescription(String description)          { this.description = description; }
@@ -134,7 +134,7 @@ public class MenuItem {
     public void setCategory(Category category)              { this.category = category; }
     public void setRestaurant(Restaurant restaurant)        { this.restaurant = restaurant; }
 
-    // ✅ NEW setters
+    
     public void setCalories(Integer calories)               { this.calories = calories; }
     public void setFats(Double fats)                        { this.fats = fats; }
     public void setProteins(Double proteins)                { this.proteins = proteins; }

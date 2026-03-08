@@ -20,7 +20,6 @@ public class TrackingServiceImpl implements ITrackingService {
     @Autowired
     private IOrderRepository orderRepository;
 
-    // ─── Status message map ─────────────────────────────────────────────────────
     private String getDefaultMessage(String status) {
         return switch (status.toUpperCase()) {
             case "PLACED"           -> "Your order has been placed successfully!";
@@ -34,17 +33,17 @@ public class TrackingServiceImpl implements ITrackingService {
         };
     }
 
-    // ─── Get tracking by order ID ───────────────────────────────────────────────
+    
     @Override
     public TrackingDTO getTrackingByOrderId(Long orderId) {
         Optional<OrderTracking> opt = trackingRepository.findByOrderId(orderId);
 
         if (opt.isEmpty()) {
-            // No tracking record yet — return PLACED as fallback
+            
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-            // Auto-create tracking if missing (for old orders)
+           
             OrderTracking tracking = new OrderTracking();
             tracking.setOrder(order);
             tracking.setStatus(OrderTracking.TrackingStatus.PLACED);
@@ -56,27 +55,27 @@ public class TrackingServiceImpl implements ITrackingService {
         return toDTO(opt.get());
     }
 
-    // ─── Update tracking (called when restaurant updates order status) ──────────
+    
     @Override
     public TrackingDTO updateTracking(Long orderId, String status, String message) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-        // Parse status string to enum
+       
         OrderTracking.TrackingStatus trackingStatus;
         try {
             trackingStatus = OrderTracking.TrackingStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
-            // Map Order status to Tracking status if names differ
+           
             trackingStatus = mapOrderStatusToTrackingStatus(status);
         }
 
-        // Use default message if none provided
+        
         String finalMessage = (message != null && !message.isBlank())
                 ? message
                 : getDefaultMessage(status);
 
-        // Find existing tracking or create new
+        
         Optional<OrderTracking> opt = trackingRepository.findByOrderId(orderId);
         OrderTracking tracking;
 
@@ -94,13 +93,13 @@ public class TrackingServiceImpl implements ITrackingService {
         return toDTO(tracking);
     }
 
-    // ─── Create initial tracking ─────────────────────────────────────────────────
+   
     @Override
     public TrackingDTO createTracking(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-        // Check if already exists
+     
         Optional<OrderTracking> existing = trackingRepository.findByOrderId(orderId);
         if (existing.isPresent()) {
             return toDTO(existing.get());
@@ -115,7 +114,7 @@ public class TrackingServiceImpl implements ITrackingService {
         return toDTO(tracking);
     }
 
-    // ─── Map Order.OrderStatus → OrderTracking.TrackingStatus ───────────────────
+  
     private OrderTracking.TrackingStatus mapOrderStatusToTrackingStatus(String orderStatus) {
         return switch (orderStatus.toUpperCase()) {
             case "PLACED"           -> OrderTracking.TrackingStatus.PLACED;
@@ -129,7 +128,7 @@ public class TrackingServiceImpl implements ITrackingService {
         };
     }
 
-    // ─── Entity → DTO ───────────────────────────────────────────────────────────
+    
     private TrackingDTO toDTO(OrderTracking t) {
         TrackingDTO dto = new TrackingDTO();
         dto.setTrackingId(t.getId());

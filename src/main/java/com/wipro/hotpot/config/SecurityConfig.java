@@ -21,9 +21,8 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    // ✅ All Swagger + public URLs
     private static final String[] PUBLIC_URLS = {
-        // Swagger
+        
         "/swagger-ui/**",
         "/swagger-ui.html",
         "/v3/api-docs/**",
@@ -33,9 +32,9 @@ public class SecurityConfig {
         "/configuration/**",
         "/configuration/ui",
         "/configuration/security",
-        // Auth
+        
         "/api/auth/**",
-        // Static HTML pages
+        
         "/",
         "/*.html",
         "/index.html",
@@ -45,7 +44,7 @@ public class SecurityConfig {
         "/js/**",
         "/images/**",
         "/favicon.ico",
-        // Error
+        
         "/error"
     };
 
@@ -54,15 +53,15 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
 
-            // ✅ Disable frame options for Swagger UI
+            
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ Swagger and public — MUST be FIRST
+                
                 .requestMatchers(PUBLIC_URLS).permitAll()
 
-                // ✅ Public GET endpoints (no login needed)
+                
                 .requestMatchers(HttpMethod.GET,
                     "/api/restaurant/active",
                     "/api/restaurant/search",
@@ -72,7 +71,7 @@ public class SecurityConfig {
                     "/api/category/**"
                 ).permitAll()
 
-                // ✅ Everything else needs authentication
+                
                 .anyRequest().authenticated()
             )
 

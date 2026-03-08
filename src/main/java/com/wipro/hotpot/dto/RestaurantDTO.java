@@ -12,7 +12,7 @@ public class RestaurantDTO {
     private Long ownerId;
     private String ownerName;
 
-    // ── Getters ──
+    
     public Long getId()                { return id; }
     public String getName()            { return name; }
     public String getLocation()        { return location; }
@@ -23,7 +23,7 @@ public class RestaurantDTO {
     public Long getOwnerId()           { return ownerId; }
     public String getOwnerName()       { return ownerName; }
 
-    // ── Setters ──
+    
     public void setId(Long id)                          { this.id = id; }
     public void setName(String name)                    { this.name = name; }
     public void setLocation(String location)            { this.location = location; }

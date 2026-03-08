@@ -22,8 +22,7 @@ public class TrackingController {
     @Autowired
     private ITrackingService trackingService;
 
-    // ─── GET tracking by order ID ─────────────────────────────────────────────
-    // Called by user dashboard: GET /api/tracking/order/42
+    
     @GetMapping("/order/{orderId}")
     public ResponseEntity<?> getTrackingByOrder(@PathVariable Long orderId) {
         try {
@@ -34,10 +33,7 @@ public class TrackingController {
         }
     }
 
-    // ─── UPDATE tracking status ───────────────────────────────────────────────
-    // Called by restaurant dashboard when updating order status
-    // PUT /api/tracking/update/42?status=CONFIRMED
-    // PUT /api/tracking/update/42?status=CONFIRMED&message=Custom message
+    
     @PutMapping("/update/{orderId}")
     public ResponseEntity<?> updateTracking(
             @PathVariable Long orderId,
@@ -51,9 +47,7 @@ public class TrackingController {
         }
     }
 
-    // ─── CREATE initial tracking ──────────────────────────────────────────────
-    // Called after placing order if auto-creation fails
-    // POST /api/tracking/create/42
+   
     @PostMapping("/create/{orderId}")
     public ResponseEntity<?> createTracking(@PathVariable Long orderId) {
         try {

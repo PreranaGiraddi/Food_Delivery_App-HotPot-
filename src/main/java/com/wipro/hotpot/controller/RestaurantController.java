@@ -26,8 +26,7 @@ public class RestaurantController {
     @Autowired
     private IRestaurantService restaurantService;
 
-    // POST /api/restaurant/add?userId=1
-    // Body: { "name", "location", "contactNumber", "description", "imageUrl" }
+    
     @PostMapping("/add")
     public ResponseEntity<?> addRestaurant(@RequestBody RestaurantDTO dto,
                                             @RequestParam Long userId) {
@@ -38,7 +37,7 @@ public class RestaurantController {
         }
     }
 
-    // PUT /api/restaurant/update/{id}
+   
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRestaurant(@PathVariable Long id,
                                                @RequestBody RestaurantDTO dto) {
@@ -49,7 +48,7 @@ public class RestaurantController {
         }
     }
 
-    // GET /api/restaurant/{id}
+    
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
@@ -59,7 +58,7 @@ public class RestaurantController {
         }
     }
 
-    // GET /api/restaurant/owner/{userId}  ← dashboard pages use this
+    
     @GetMapping("/owner/{userId}")
     public ResponseEntity<?> getByOwner(@PathVariable Long userId) {
         try {
@@ -69,19 +68,19 @@ public class RestaurantController {
         }
     }
 
-    // GET /api/restaurant/all
+    
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(restaurantService.getAllRestaurants());
     }
 
-    // GET /api/restaurant/active
+   
     @GetMapping("/active")
     public ResponseEntity<?> getActive() {
         return ResponseEntity.ok(restaurantService.getActiveRestaurants());
     }
 
-    // PUT /api/restaurant/toggle/{id}?active=true/false
+    
     @PutMapping("/toggle/{id}")
     public ResponseEntity<?> toggleStatus(@PathVariable Long id,
                                            @RequestParam boolean active) {
@@ -92,7 +91,7 @@ public class RestaurantController {
         }
     }
 
-    // DELETE /api/restaurant/delete/{id}
+    
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {

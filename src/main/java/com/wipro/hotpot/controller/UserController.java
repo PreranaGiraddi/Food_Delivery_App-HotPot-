@@ -18,13 +18,12 @@ public class UserController {
     @Autowired
     private IAuthService authService;
 
-    // GET /api/user/all
+    
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(authService.getAllUsers());
     }
 
-    // GET /api/user/{id}
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
@@ -34,7 +33,7 @@ public class UserController {
         }
     }
 
-    // GET /api/user/role/RESTAURANT
+   
     @GetMapping("/role/{role}")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
         try {
@@ -49,7 +48,7 @@ public class UserController {
         }
     }
 
-    // PUT /api/user/update/{id}
+   
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id,
                                         @RequestBody RegisterRequest request) {
@@ -60,7 +59,7 @@ public class UserController {
         }
     }
 
-    // DELETE /api/user/delete/{id}
+    
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {

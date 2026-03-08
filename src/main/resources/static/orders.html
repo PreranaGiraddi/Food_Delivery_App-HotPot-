@@ -120,7 +120,7 @@ const API    = 'http://localhost:8080';
 const token  = localStorage.getItem('token');
 const userId = localStorage.getItem('userId');
 
-// ✅ All tracking steps — matches TrackingStatus enum in backend
+
 const allSteps = [
     { key:'PLACED',            label:'Order Placed',      icon:'📋' },
     { key:'CONFIRMED',         label:'Order Confirmed',   icon:'✅' },
@@ -129,7 +129,7 @@ const allSteps = [
     { key:'DELIVERED',         label:'Delivered',         icon:'🎉' }
 ];
 
-// All orders stored — so trackOrder() can use order.status as fallback
+
 let allOrders = [];
 
 window.onload = function () {
@@ -152,7 +152,7 @@ async function loadOrders() {
             return;
         }
 
-        allOrders = data; // ✅ save for tracking fallback
+        allOrders = data; 
         displayOrders(data);
 
     } catch (e) {
@@ -228,7 +228,7 @@ function displayOrders(orders) {
     });
 }
 
-// ✅ KEY FIX: trackOrder now receives orderStatus as fallback parameter
+
 async function trackOrder(orderId, orderStatus) {
     document.getElementById('trackingOrderId').textContent = 'Order #' + orderId;
     document.getElementById('trackingSteps').innerHTML = `
@@ -248,36 +248,33 @@ async function trackOrder(orderId, orderStatus) {
         if (res.ok) {
             const tracking = await res.json();
 
-            // ✅ CRITICAL FIX: 
-            // tracking.status is what's in the order_tracking TABLE (may be stale)
-            // orderStatus is the REAL current status from the orders TABLE
-            // Always use whichever is MORE ADVANCED
+           
             const trackingStatus = tracking.status || 'PLACED';
             const finalStatus    = getMoreAdvancedStatus(trackingStatus, orderStatus);
 
             displayTrackingSteps(finalStatus, tracking.message);
 
         } else {
-            // Tracking table has no record — use order status directly
+            
             displayTrackingSteps(orderStatus, getDefaultMessage(orderStatus));
         }
 
     } catch (e) {
-        // Network error — use order status directly
+        
         displayTrackingSteps(orderStatus, getDefaultMessage(orderStatus));
     }
 }
 
-// ✅ Returns whichever status is further along in the delivery journey
+
 function getMoreAdvancedStatus(statusA, statusB) {
     const order = ['PLACED','CONFIRMED','PROCESSING','DISPATCHED','OUT_FOR_DELIVERY','DELIVERED','CANCELLED'];
     const indexA = order.indexOf(statusA);
     const indexB = order.indexOf(statusB);
 
-    // If one is CANCELLED, treat specially
+    
     if (statusA === 'CANCELLED' || statusB === 'CANCELLED') return 'CANCELLED';
 
-    // Return whichever is further along
+    
     return indexA >= indexB ? statusA : statusB;
 }
 
@@ -298,7 +295,7 @@ function displayTrackingSteps(currentStatus, message) {
     const container = document.getElementById('trackingSteps');
     container.innerHTML = '';
 
-    // ✅ CANCELLED — show special card
+    
     if (currentStatus === 'CANCELLED') {
         container.innerHTML = `
             <div class="text-center py-3">
@@ -309,7 +306,7 @@ function displayTrackingSteps(currentStatus, message) {
         return;
     }
 
-    // ✅ Message banner at top
+   
     if (message) {
         container.innerHTML += `
             <div class="alert alert-warning py-2 mb-3" style="border-radius:12px;">
@@ -318,7 +315,7 @@ function displayTrackingSteps(currentStatus, message) {
     }
 
     const currentIndex = allSteps.findIndex(s => s.key === currentStatus);
-    // If status not found in steps (e.g. OUT_FOR_DELIVERY maps to DISPATCHED visually)
+   
     const effectiveIndex = currentIndex === -1
         ? allSteps.findIndex(s => s.key === 'DISPATCHED')
         : currentIndex;

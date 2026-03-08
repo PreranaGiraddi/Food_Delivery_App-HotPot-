@@ -95,7 +95,7 @@
             <div class="page-title">User Management</div>
             <div class="page-subtitle">Manage customer accounts and restaurant owners.</div>
         </div>
-        <!-- TWO SEPARATE BUTTONS — clear purpose for each -->
+        
         <div class="d-flex gap-2">
             <button class="btn-fire" onclick="openAddCustomerModal()">
                 <i class="bi bi-plus-lg me-1"></i> Add Customer
@@ -108,7 +108,7 @@
     <div class="alert-toast" id="alertToast"></div>
     <div class="content-area">
 
-        <!-- STAT PILLS -->
+        
         <div class="d-flex gap-3 mb-4 flex-wrap">
             <div class="stat-pill"><strong id="cntAll">0</strong> Total Users</div>
             <div class="stat-pill" style="border-color:rgba(52,152,219,0.3)"><strong id="cntUser" style="color:var(--info)">0</strong> Customers</div>
@@ -136,7 +136,7 @@
     </div>
 </div>
 
-<!-- ADD CUSTOMER MODAL -->
+
 <div class="modal fade" id="addCustomerModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -163,7 +163,7 @@
     </div>
 </div>
 
-<!-- ADD RESTAURANT OWNER MODAL -->
+
 <div class="modal fade" id="addOwnerModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -193,7 +193,7 @@
     </div>
 </div>
 
-<!-- DELETE MODAL -->
+
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -221,7 +221,7 @@ document.getElementById('sidebarAdminName').textContent = localStorage.getItem('
 const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
 let allUsers = [], filterRole = 'ALL', deleteId = null;
 
-// ─── LOAD ────────────────────────────────────────────────────
+
 async function loadUsers() {
     try {
         const res = await fetch(`${API}/api/user/all`, { headers: H });
@@ -280,7 +280,7 @@ function renderTable() {
         const label = r === 'RESTAURANT' ? 'Restaurant Owner' : r === 'ADMIN' ? 'Admin' : 'Customer';
         const ini = (u.name || u.userName || 'U').slice(0, 1).toUpperCase();
 
-        // Show "Add Restaurant" button only for RESTAURANT role users who may not have a restaurant yet
+        
         const addRestBtn = r === 'RESTAURANT'
             ? `<button class="btn-link-sm" onclick="goAddRestaurant(${u.id},'${(u.name||'').replace(/'/g,"\\'")}')">
                 <i class="bi bi-shop"></i> Add Restaurant
@@ -314,7 +314,7 @@ function renderTable() {
     document.getElementById('tableWrap').innerHTML = h;
 }
 
-// ─── ADD CUSTOMER ────────────────────────────────────────────
+
 function openAddCustomerModal() {
     ['custName','custEmail','custPassword','custMobile'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('custModalAlert').style.display = 'none';
@@ -330,7 +330,7 @@ async function addCustomer() {
     await createUser({ name, email, password, contactNumber: mobile, role: 'ROLE_USER' }, 'addCustomerModal', 'custModalAlert', '✅ Customer created!');
 }
 
-// ─── ADD RESTAURANT OWNER ────────────────────────────────────
+
 function openAddOwnerModal() {
     ['ownerName','ownerEmail','ownerPassword','ownerMobile'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('ownerModalAlert').style.display = 'none';
@@ -344,15 +344,14 @@ async function addRestaurantOwner() {
     const mobile   = document.getElementById('ownerMobile').value.trim();
     if (!name || !email || !password) { showModalAlert('ownerModalAlert', '⚠️ Name, email and password are required!'); return; }
 
-    // ✅ Role is hardcoded — no dropdown needed
     const ok = await createUser({ name, email, password, contactNumber: mobile, role: 'ROLE_RESTAURANT' }, 'addOwnerModal', 'ownerModalAlert', '✅ Restaurant Owner created! Now go to Restaurants → Add Restaurant to set up their restaurant.');
     if (ok) {
-        // After 2s show a reminder toast pointing to restaurants page
+        
         setTimeout(() => showToast('info', '💡 Go to Restaurants page to add this owner\'s restaurant details!'), 2200);
     }
 }
 
-// ─── SHARED CREATE USER ──────────────────────────────────────
+
 async function createUser(payload, modalId, alertId, successMsg) {
     try {
         const res  = await fetch(`${API}/api/auth/register`, { method: 'POST', headers: H, body: JSON.stringify(payload) });
@@ -360,7 +359,7 @@ async function createUser(payload, modalId, alertId, successMsg) {
         if (res.ok) {
             bootstrap.Modal.getInstance(document.getElementById(modalId)).hide();
             showToast('success', successMsg);
-            await loadUsers(); // ✅ Reload immediately to show new user in table
+            await loadUsers(); 
             return true;
         } else {
             showModalAlert(alertId, data.message || 'Failed. Try again.');
@@ -372,15 +371,15 @@ async function createUser(payload, modalId, alertId, successMsg) {
     }
 }
 
-// ─── QUICK LINK TO RESTAURANTS PAGE ─────────────────────────
+
 function goAddRestaurant(userId, ownerName) {
-    // Store info so admin-restaurants page can pre-fill owner
+   
     localStorage.setItem('prefillOwnerId', userId);
     localStorage.setItem('prefillOwnerName', ownerName);
     window.location.href = 'admin-restaurants.html';
 }
 
-// ─── DELETE ──────────────────────────────────────────────────
+
 function openDelete(id, name) {
     deleteId = id;
     document.getElementById('deleteUserName').textContent = `Delete "${name}"? This cannot be undone.`;
@@ -398,7 +397,7 @@ async function confirmDelete() {
     deleteId = null;
 }
 
-// ─── HELPERS ─────────────────────────────────────────────────
+
 function showModalAlert(id, msg) { const el = document.getElementById(id); el.style.display = 'block'; el.textContent = msg; }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 function showToast(type, msg) {

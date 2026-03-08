@@ -24,7 +24,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // ─── REGISTER ────────────────────────────────────────────────────────────
+    
     @Override
     public User registerUser(RegisterRequest request) {
 
@@ -32,7 +32,7 @@ public class AuthServiceImpl implements IAuthService {
             throw new RuntimeException("Email already registered: " + request.getEmail());
         }
 
-        // Strip ROLE_ prefix if present, default to USER
+    
         User.Role role = User.Role.USER;
         if (request.getRole() != null && !request.getRole().isBlank()) {
             String raw = request.getRole().toUpperCase().replace("ROLE_", "");
@@ -57,7 +57,7 @@ public class AuthServiceImpl implements IAuthService {
         return userRepository.save(user);
     }
 
-    // ─── LOGIN ───────────────────────────────────────────────────────────────
+    
     @Override
     public LoginResponse loginUser(LoginRequest request) {
 
@@ -85,27 +85,27 @@ public class AuthServiceImpl implements IAuthService {
         return response;
     }
 
-    // ─── GET BY ID ───────────────────────────────────────────────────────────
+   
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found: " + id));
     }
 
-    // ─── GET BY EMAIL ────────────────────────────────────────────────────────
+   
     @Override
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
     }
 
-    // ─── GET ALL ─────────────────────────────────────────────────────────────
+    
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // ─── UPDATE ──────────────────────────────────────────────────────────────
+ 
     @Override
     public User updateUser(Long id, RegisterRequest request) {
         User user = getUserById(id);
@@ -123,7 +123,7 @@ public class AuthServiceImpl implements IAuthService {
         return userRepository.save(user);
     }
 
-    // ─── DELETE ──────────────────────────────────────────────────────────────
+   
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
@@ -132,7 +132,7 @@ public class AuthServiceImpl implements IAuthService {
         userRepository.deleteById(id);
     }
 
-    // ─── EMAIL EXISTS ────────────────────────────────────────────────────────
+    
     @Override
     public boolean isEmailExists(String email) {
         return userRepository.isEmailExists(email);

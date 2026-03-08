@@ -262,7 +262,7 @@ async function updateStatus(orderId) {
     if (newStatus === 'CANCELLED' && !confirm('Are you sure you want to CANCEL this order?')) return;
 
     try {
-        // ✅ Step 1: Update order status
+        
         const res = await fetch(`${API}/api/order/status/${orderId}?status=${newStatus}`, {
             method:'PUT',
             headers:{ 'Authorization':'Bearer '+token }
@@ -274,7 +274,6 @@ async function updateStatus(orderId) {
             return;
         }
 
-        // ✅ Step 2: Sync tracking table so user dashboard shows updated status
         try {
             await fetch(`${API}/api/tracking/update/${orderId}?status=${newStatus}`, {
                 method:'PUT',

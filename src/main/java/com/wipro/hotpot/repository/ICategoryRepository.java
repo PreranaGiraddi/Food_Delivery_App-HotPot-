@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface ICategoryRepository extends JpaRepository<Category, Long> {
 
-    // ✅ Get all categories for a specific restaurant
+    
     List<Category> findByRestaurantId(Long restaurantId);
 
-    // ✅ Check duplicate name for same restaurant
+    
     boolean existsByNameAndRestaurantId(String name, Long restaurantId);
 }

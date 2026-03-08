@@ -19,13 +19,13 @@ public interface ICartItemRepository extends JpaRepository<CartItem, Long> {
 
     Optional<CartItem> findByCartIdAndMenuItemId(Long cartId, Long menuItemId);
 
-    // ✅ clearAutomatically = true — clears EntityManager cache after delete
+   
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM CartItem ci WHERE ci.cart.id = :cartId")
     void deleteByCartId(@Param("cartId") Long cartId);
 
-    // ✅ Same fix for single item delete
+    
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM CartItem ci WHERE ci.cart.id = :cartId " +

@@ -12,11 +12,11 @@ import com.wipro.hotpot.entity.Cart;
 @Repository
 public interface ICartRepository extends JpaRepository<Cart, Long> {
 
-    // ✅ Find cart by userId
+    
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     Optional<Cart> findByUserId(@Param("userId") Long userId);
 
-    // ✅ Check if cart exists
+    
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END " +
            "FROM Cart c WHERE c.user.id = :userId")
     boolean isCartExists(@Param("userId") Long userId);

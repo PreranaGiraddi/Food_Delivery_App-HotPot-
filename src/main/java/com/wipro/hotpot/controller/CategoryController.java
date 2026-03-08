@@ -40,7 +40,7 @@ public class CategoryController {
         return ResponseEntity.ok(list);
     }
 
-    // GET all categories (admin / general use)
+    
     @GetMapping("/all")
     public ResponseEntity<List<Category>> getAll() {
         return ResponseEntity.ok(categoryRepository.findAll());

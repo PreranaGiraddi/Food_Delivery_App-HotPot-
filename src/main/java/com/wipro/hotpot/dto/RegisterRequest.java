@@ -8,7 +8,7 @@ public class RegisterRequest {
     private String contactNumber;
     private String address;
     private String gender;
-    private String role;   // ← "USER" / "RESTAURANT" / "ADMIN" (with or without ROLE_ prefix)
+    private String role;   
 
     public RegisterRequest() {}
 

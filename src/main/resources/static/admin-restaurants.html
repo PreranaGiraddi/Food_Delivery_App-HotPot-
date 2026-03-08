@@ -106,7 +106,7 @@
     <div class="alert-toast" id="alertToast"></div>
     <div class="content-area">
 
-        <!-- Auto-opened banner if coming from Users page -->
+        
         <div id="prefillBanner" class="prefill-banner">
             🍽️ Adding restaurant for owner: <strong id="prefillOwnerName"></strong> —
             <a href="#" onclick="openAddModal();return false" style="color:var(--gold);font-weight:600">Click here to fill in restaurant details →</a>
@@ -127,7 +127,7 @@
     </div>
 </div>
 
-<!-- ADD RESTAURANT MODAL -->
+
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -151,7 +151,7 @@
 
                 <hr style="border-color:#f0f0f0;margin:18px 0">
 
-                <!-- Step 2: Restaurant details -->
+                
                 <label class="f-label">Step 2 — Restaurant Details</label>
                 <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Restaurant Name *</label><input type="text" class="f-input" id="addName" placeholder="e.g. HotPot Restaurant"></div>
                 <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Location *</label><input type="text" class="f-input" id="addLocation" placeholder="e.g. Bangalore"></div>
@@ -169,7 +169,7 @@
     </div>
 </div>
 
-<!-- EDIT MODAL -->
+
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -188,7 +188,7 @@
     </div>
 </div>
 
-<!-- DELETE MODAL -->
+
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -217,25 +217,25 @@ const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/jso
 
 let allRests = [], allOwners = [], selectedOwnerId = null, deleteId = null;
 
-// ─── INIT ─────────────────────────────────────────────────────
+
 async function init() {
     await Promise.all([ loadRestaurants(), loadOwners() ]);
 
-    // Check if navigated from Users page with a prefilled owner
+   
     const prefillId   = localStorage.getItem('prefillOwnerId');
     const prefillName = localStorage.getItem('prefillOwnerName');
     if (prefillId && prefillName) {
         document.getElementById('prefillOwnerName').textContent = prefillName;
         document.getElementById('prefillBanner').style.display = 'block';
-        // Clear after use
+      
         localStorage.removeItem('prefillOwnerId');
         localStorage.removeItem('prefillOwnerName');
-        // Auto-open the add modal and pre-select that owner
+        
         setTimeout(() => { openAddModal(parseInt(prefillId)); }, 400);
     }
 }
 
-// ─── LOAD RESTAURANTS ────────────────────────────────────────
+
 async function loadRestaurants() {
     try {
         const res = await fetch(`${API}/api/restaurant/all`, { headers: H });
@@ -246,11 +246,11 @@ async function loadRestaurants() {
     } catch(e) {
         console.error(e);
         document.getElementById('tableWrap').innerHTML =
-            '<div class="empty-state">⚠️ Could not load restaurants. Check server.</div>';
+            '<div class="empty-state"> Could not load restaurants. Check server.</div>';
     }
 }
 
-// ─── LOAD OWNERS (RESTAURANT role users) ────────────────────
+
 async function loadOwners() {
     try {
         const res = await fetch(`${API}/api/user/all`, { headers: H });
@@ -269,7 +269,7 @@ function updateCounts() {
     document.getElementById('cntInactive').textContent = allRests.filter(r => r.active === false || r.isActive === false).length;
 }
 
-// ─── RENDER TABLE ────────────────────────────────────────────
+
 function renderTable() {
     const q = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allRests.filter(r =>
@@ -310,13 +310,13 @@ function renderTable() {
     document.getElementById('tableWrap').innerHTML = h;
 }
 
-// ─── OPEN ADD MODAL ──────────────────────────────────────────
+
 function openAddModal(prefillOwnerId = null) {
     selectedOwnerId = null;
     document.getElementById('addAlert').style.display = 'none';
     ['addName','addLocation','addContact','addDesc','addImage'].forEach(id => document.getElementById(id).value = '');
 
-    // Render owner list
+    
     renderOwnerList(prefillOwnerId);
     new bootstrap.Modal(document.getElementById('addModal')).show();
 }
@@ -345,21 +345,21 @@ function renderOwnerList(autoSelectId = null) {
     });
     wrap.innerHTML = h;
 
-    // Auto-select if prefill
+    
     if (autoSelectId) {
         selectOwner(autoSelectId);
     }
 }
 
 function selectOwner(id) {
-    // Clear all
+    
     allOwners.forEach(u => {
         const el = document.getElementById(`owner_${u.id}`);
         const ck = document.getElementById(`ownerCheck_${u.id}`);
         if (el) el.classList.remove('selected');
         if (ck) ck.innerHTML = '';
     });
-    // Select this one
+    
     selectedOwnerId = id;
     const el = document.getElementById(`owner_${id}`);
     const ck = document.getElementById(`ownerCheck_${id}`);
@@ -367,7 +367,7 @@ function selectOwner(id) {
     if (ck) ck.innerHTML = '<i class="bi bi-check-circle-fill" style="color:var(--gold)"></i>';
 }
 
-// ─── ADD RESTAURANT ──────────────────────────────────────────
+
 async function addRestaurant() {
     if (!selectedOwnerId) {
         showModalAlert('addAlert', '⚠️ Please select a restaurant owner first!');
@@ -386,7 +386,7 @@ async function addRestaurant() {
         imageUrl:      document.getElementById('addImage').value.trim()   || null
     };
 
-    // ✅ Correct API: POST /api/restaurant/add?userId={ownerId}
+    
     const url = `${API}/api/restaurant/add?userId=${selectedOwnerId}`;
     console.log('POST', url, body);
 
@@ -409,7 +409,7 @@ async function addRestaurant() {
     }
 }
 
-// ─── EDIT ────────────────────────────────────────────────────
+
 function openEdit(id) {
     const r = allRests.find(x => x.id === id);
     if (!r) return;
@@ -447,7 +447,7 @@ async function saveEdit() {
     } catch { showModalAlert('editAlert', 'Server error'); }
 }
 
-// ─── TOGGLE STATUS ───────────────────────────────────────────
+
 async function toggleStatus(id, currentActive) {
     try {
         const res = await fetch(`${API}/api/restaurant/toggle/${id}?active=${!currentActive}`, { method: 'PUT', headers: H });
@@ -458,7 +458,7 @@ async function toggleStatus(id, currentActive) {
     } catch { showToast('danger', 'Server error'); }
 }
 
-// ─── DELETE ──────────────────────────────────────────────────
+
 function openDelete(id, name) {
     deleteId = id;
     document.getElementById('deleteRestName').textContent = `Delete "${name}"? This cannot be undone.`;
@@ -475,7 +475,7 @@ async function confirmDelete() {
     deleteId = null;
 }
 
-// ─── HELPERS ─────────────────────────────────────────────────
+
 function showModalAlert(id, msg) { const el = document.getElementById(id); el.style.display = 'block'; el.textContent = msg; }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 function showToast(type, msg) {

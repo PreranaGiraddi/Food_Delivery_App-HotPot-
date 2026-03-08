@@ -58,32 +58,31 @@ public class OrderServiceImpl implements IOrderService {
         System.out.println("=== PLACE ORDER START ===");
         System.out.println("UserId: " + userId);
 
-        // Step 1 — Find user
+        
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
-        // Step 2 — Find restaurant
+      
         Restaurant restaurant = restaurantRepository
             .findById(dto.getRestaurantId())
             .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
 
-        // Step 3 — Get cart
+        
         Cart cart = cartRepository.findByUserId(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
 
         System.out.println("CartId: " + cart.getId());
 
-        // Step 4 — Get cart items FRESH from DB
+        
         List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
 
         System.out.println("Cart items found: " + cartItems.size());
 
-        // Step 5 — Check cart not empty
         if (cartItems == null || cartItems.isEmpty()) {
             throw new RuntimeException("Cart is empty! Add items before ordering.");
         }
 
-        // Step 6 — Check all items from same restaurant
+        
         for (CartItem cartItem : cartItems) {
 
             if (cartItem.getMenuItem() == null
@@ -103,7 +102,7 @@ public class OrderServiceImpl implements IOrderService {
             }
         }
 
-        // Step 7 — Create order
+      
         Order order = new Order();
         order.setUser(user);
         order.setRestaurant(restaurant);
@@ -126,12 +125,12 @@ public class OrderServiceImpl implements IOrderService {
 
         order.setOrderItems(orderItems);
 
-        // Step 9 — Save order
+       
         Order savedOrder = orderRepository.save(order);
 
         System.out.println("✅ Order saved! OrderId: " + savedOrder.getId());
 
-        // Step 10 — Create tracking record automatically
+
         try {
             OrderTracking tracking = new OrderTracking();
             tracking.setOrder(savedOrder);
@@ -143,30 +142,27 @@ public class OrderServiceImpl implements IOrderService {
             System.out.println("❌ Tracking failed: " + e.getMessage());
         }
 
-        // ✅ Step 11 — Clear cart CORRECTLY
-        // CORRECT ORDER: Delete from DB first, then clear in-memory list
+        
         System.out.println("Deleting cart items...");
 
-        // 11a — Fetch fresh list and delete from DB first
+        
         List<CartItem> itemsToDelete = cartItemRepository.findByCartId(cart.getId());
         System.out.println("Items to delete: " + itemsToDelete.size());
 
         if (!itemsToDelete.isEmpty()) {
             cartItemRepository.deleteAll(itemsToDelete);
-            cartItemRepository.flush(); // ✅ Force immediate DB commit
+            cartItemRepository.flush(); 
         }
 
-        // 11b — Now clear in-memory list and reset total
+        
         cart.getCartItems().clear();
         cart.setTotalPrice(0.0);
-        cartRepository.saveAndFlush(cart); // ✅ Save clean cart to DB
-
-        // 11c — Verify deletion (for debugging)
+        cartRepository.saveAndFlush(cart); 
         List<CartItem> remaining = cartItemRepository.findByCartId(cart.getId());
         System.out.println("Items remaining after delete: " + remaining.size());
         System.out.println("✅ Cart cleared!");
 
-        // Step 12 — Send confirmation email
+        
         try {
             emailService.sendOrderConfirmationEmail(
                 user.getEmail(),
@@ -227,7 +223,7 @@ public class OrderServiceImpl implements IOrderService {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
 
-        // ✅ Validate status value
+        
         try {
             Order.OrderStatus newStatus = Order.OrderStatus.valueOf(status.toUpperCase());
             order.setStatus(newStatus);
@@ -238,7 +234,7 @@ public class OrderServiceImpl implements IOrderService {
 
         Order saved = orderRepository.save(order);
 
-        // ✅ Also update tracking record if exists
+        
         try {
             trackingRepository.findByOrderId(orderId).ifPresent(tracking -> {
                 tracking.setStatus(OrderTracking.TrackingStatus.valueOf(status.toUpperCase()));
@@ -252,7 +248,7 @@ public class OrderServiceImpl implements IOrderService {
         return saved;
     }
 
-    // ✅ Helper — tracking message for each status
+    
     private String getTrackingMessage(String status) {
         switch (status.toUpperCase()) {
             case "CONFIRMED":  return "Your order has been confirmed by the restaurant!";

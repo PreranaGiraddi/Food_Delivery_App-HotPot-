@@ -35,7 +35,7 @@ public class CartServiceImpl implements ICartService {
     @Autowired
     private IUserRepository userRepository;
 
-    // ===== Get or Create Cart =====
+  
     @Transactional
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
@@ -44,12 +44,12 @@ public class CartServiceImpl implements ICartService {
                 newCart.setUser(userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found")));
                 newCart.setTotalPrice(0.0);
-                newCart.setCartItems(new ArrayList<>()); // ✅ Always init empty list
+                newCart.setCartItems(new ArrayList<>()); 
                 return cartRepository.save(newCart);
             });
     }
 
-    // ===== Add Item to Cart =====
+    
     @Override
     @Transactional
     public Cart addItemToCart(Long userId, Long menuItemId, Integer quantity) {
@@ -58,7 +58,7 @@ public class CartServiceImpl implements ICartService {
         MenuItem menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow(() -> new ResourceNotFoundException("Menu item not found!"));
 
-        // ✅ Use discountPrice if available
+        
         Double priceToUse = (menuItem.getDiscountPrice() != null
                 && menuItem.getDiscountPrice() < menuItem.getPrice())
                 ? menuItem.getDiscountPrice()
@@ -81,14 +81,14 @@ public class CartServiceImpl implements ICartService {
             cartItemRepository.save(cartItem);
         }
 
-        // ✅ Always reload fresh cart before updating total
+       
         Cart freshCart = cartRepository.findById(cart.getId())
             .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
         updateCartTotal(freshCart);
         return cartRepository.save(freshCart);
     }
 
-    // ===== Remove Item =====
+    
     @Override
     @Transactional
     public Cart removeItemFromCart(Long userId, Long menuItemId) {
@@ -104,7 +104,7 @@ public class CartServiceImpl implements ICartService {
         return cartRepository.save(freshCart);
     }
 
-    // ===== Update Quantity =====
+    
     @Override
     @Transactional
     public Cart updateItemQuantity(Long userId, Long menuItemId, Integer quantity) {
@@ -136,7 +136,7 @@ public class CartServiceImpl implements ICartService {
         return cartRepository.save(freshCart);
     }
 
-    // ===== Clear Cart =====
+    
     @Override
     @Transactional
     public String clearCart(Long userId) {
@@ -149,28 +149,28 @@ public class CartServiceImpl implements ICartService {
 
         if (!items.isEmpty()) {
             cartItemRepository.deleteAll(items);
-            cartItemRepository.flush(); // ✅ Force immediate DB delete
+            cartItemRepository.flush(); 
         }
 
-        // ✅ Also clear the in-memory list on cart object
+       
         cart.getCartItems().clear();
         cart.setTotalPrice(0.0);
         cartRepository.saveAndFlush(cart);
 
-        // ✅ Verify
+       
         List<CartItem> remaining = cartItemRepository.findByCartId(cart.getId());
         System.out.println("Items remaining after delete: " + remaining.size());
 
         return "Cart cleared!";
     }
 
-    // ===== Get Cart as DTO =====
+   
     @Override
-    @Transactional // ✅ Added transactional
+    @Transactional 
     public CartDTO getCartDetails(Long userId) {
         Cart cart = getCartByUserId(userId);
 
-        // ✅ Always fetch FRESH items from DB — not from cache
+        
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
 
         CartDTO cartDTO = new CartDTO();
@@ -178,20 +178,20 @@ public class CartServiceImpl implements ICartService {
         cartDTO.setUserId(userId);
 
         if (items == null || items.isEmpty()) {
-            // ✅ Return empty cart properly
+           
             cartDTO.setTotalPrice(0.0);
             cartDTO.setCartItems(new ArrayList<>());
             return cartDTO;
         }
 
-        // ✅ Recalculate total fresh from items — don't trust cart.totalPrice
+        
         double freshTotal = items.stream()
             .mapToDouble(i -> i.getTotalItemPrice() != null ? i.getTotalItemPrice() : 0.0)
             .sum();
 
         cartDTO.setTotalPrice(freshTotal);
 
-        // ✅ Update cart total in DB if it was stale
+        
         if (Math.abs(freshTotal - cart.getTotalPrice()) > 0.01) {
             cart.setTotalPrice(freshTotal);
             cartRepository.save(cart);
@@ -217,7 +217,7 @@ public class CartServiceImpl implements ICartService {
         return cartDTO;
     }
 
-    // ===== Helper =====
+   
     private void updateCartTotal(Cart cart) {
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
         double total = items.stream()

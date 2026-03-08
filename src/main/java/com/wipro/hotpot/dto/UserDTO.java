@@ -15,7 +15,7 @@ public class UserDTO {
 
     public UserDTO() {}
 
-    // Static factory — converts User entity → UserDTO (hides password)
+    
     public static UserDTO from(User u) {
         UserDTO dto = new UserDTO();
         dto.id            = u.getId();
