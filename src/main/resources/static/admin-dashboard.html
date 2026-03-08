@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot | Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--fire:#ff6b35;--fire-dark:#e85d2f;--coal:#1a1a2e;--cream:#faf7f2;--gold:#f5a623;--success:#2ecc71;--danger:#e74c3c;--info:#3498db;--purple:#9b59b6;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:var(--cream);display:flex;min-height:100vh;}
+        .sidebar{width:240px;min-height:100vh;background:var(--coal);position:fixed;left:0;top:0;z-index:1000;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,0.25);}
+        .sidebar-brand{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.07);}
+        .brand-logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--fire);}
+        .brand-sub{font-size:0.62rem;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+        .admin-info{padding:14px 18px;background:rgba(231,76,60,0.08);border-bottom:1px solid rgba(255,255,255,0.05);}
+        .admin-name{font-family:'Syne',sans-serif;font-weight:700;color:#fff;font-size:0.88rem;}
+        .admin-badge{display:inline-block;background:#e74c3c;color:#fff;font-size:0.58rem;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+        .sidebar-nav{padding:14px 10px;flex:1;}
+        .nav-label{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.22);padding:8px 10px 5px;font-weight:600;}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.2s;margin-bottom:2px;font-size:0.87rem;font-weight:500;text-decoration:none;}
+        .nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.82);}
+        .nav-item.active{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;box-shadow:0 4px 14px rgba(231,76,60,0.3);}
+        .nav-item i{font-size:1rem;width:18px;text-align:center;}
+        .sidebar-footer{padding:14px 10px;border-top:1px solid rgba(255,255,255,0.07);}
+        .logout-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:rgba(255,255,255,0.4);cursor:pointer;border:none;background:none;width:100%;font-size:0.85rem;transition:all 0.2s;}
+        .logout-btn:hover{background:rgba(231,76,60,0.12);color:var(--danger);}
+        .main-content{margin-left:240px;flex:1;}
+        .top-bar{background:#fff;padding:15px 28px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+        .page-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--coal);}
+        .page-subtitle{font-size:0.77rem;color:#aaa;}
+        .content-area{padding:24px 28px;}
+        .stat-card{background:#fff;border-radius:16px;padding:22px;border:1px solid #f0f0f0;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+        .stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.07);}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .s1::before{background:#e74c3c;}.s2::before{background:var(--success);}.s3::before{background:var(--info);}.s4::before{background:var(--gold);}.s5::before{background:var(--purple);}
+        .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:14px;}
+        .i1{background:rgba(231,76,60,0.1);color:#e74c3c;}.i2{background:rgba(46,204,113,0.1);color:var(--success);}.i3{background:rgba(52,152,219,0.1);color:var(--info);}.i4{background:rgba(245,166,35,0.1);color:var(--gold);}.i5{background:rgba(155,89,182,0.1);color:var(--purple);}
+        .stat-number{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800;color:var(--coal);line-height:1;}
+        .stat-label{font-size:0.78rem;color:#aaa;margin-top:4px;}
+        .content-card{background:#fff;border-radius:16px;border:1px solid #f0f0f0;overflow:hidden;}
+        .card-head{padding:18px 22px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;}
+        .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.93rem;color:var(--coal);}
+        .custom-table{width:100%;border-collapse:collapse;}
+        .custom-table th{padding:11px 18px;background:#f9f9f9;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#999;text-align:left;}
+        .custom-table td{padding:13px 18px;border-bottom:1px solid #f5f5f5;font-size:0.85rem;color:var(--coal);vertical-align:middle;}
+        .custom-table tr:last-child td{border-bottom:none;}
+        .custom-table tr:hover td{background:#fafafa;}
+        .badge-role{padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;}
+        .quick-card{background:#fff;border-radius:14px;border:1.5px solid #f0f0f0;padding:22px;text-align:center;transition:all 0.2s;text-decoration:none;display:block;}
+        .quick-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.08);transform:translateY(-2px);}
+        .qc-red:hover{border-color:#e74c3c;}.qc-gold:hover{border-color:var(--gold);}.qc-blue:hover{border-color:var(--info);}.qc-purple:hover{border-color:var(--purple);}
+        .quick-icon{font-size:2rem;margin-bottom:8px;}
+        .quick-label{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--coal);}
+        .quick-sub{font-size:0.73rem;color:#bbb;margin-top:2px;}
+        .loading-box{display:flex;align-items:center;justify-content:center;padding:36px;color:#ccc;gap:10px;font-size:0.86rem;}
+        .empty-state{text-align:center;padding:40px 20px;color:#ccc;}
+        .alert-toast{position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;}
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-logo">🍲 HotPot</div><div class="brand-sub">Admin Portal</div></div>
+    <div class="admin-info"><div class="admin-name" id="sidebarAdminName">Administrator</div><span class="admin-badge">🛡️ Super Admin</span></div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a class="nav-item active" href="admin-dashboard.html"><i class="bi bi-grid-fill"></i> Overview</a>
+        <div class="nav-label mt-2">Manage</div>
+        <a class="nav-item" href="admin-users.html"><i class="bi bi-people-fill"></i> Users</a>
+        <a class="nav-item" href="admin-restaurants.html"><i class="bi bi-shop"></i> Restaurants</a>
+        <a class="nav-item" href="admin-menu.html"><i class="bi bi-egg-fried"></i> Menu & Categories</a>
+    </nav>
+    <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button></div>
+</aside>
+<div class="main-content">
+    <div class="top-bar">
+        <div><div class="page-title">Admin Overview</div><div class="page-subtitle">Full system control at a glance.</div></div>
+        <span style="font-size:0.84rem;color:#999">🛡️ <span id="topAdminName"></span></span>
+    </div>
+    <div class="alert-toast" id="alertToast"></div>
+    <div class="content-area">
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md"><div class="stat-card s1"><div class="stat-icon i1"><i class="bi bi-people-fill"></i></div><div class="stat-number" id="statUsers">—</div><div class="stat-label">Total Users</div></div></div>
+            <div class="col-6 col-md"><div class="stat-card s2"><div class="stat-icon i2"><i class="bi bi-shop"></i></div><div class="stat-number" id="statRestaurants">—</div><div class="stat-label">Restaurants</div></div></div>
+            <div class="col-6 col-md"><div class="stat-card s3"><div class="stat-icon i3"><i class="bi bi-egg-fried"></i></div><div class="stat-number" id="statMenuItems">—</div><div class="stat-label">Menu Items</div></div></div>
+            <div class="col-6 col-md"><div class="stat-card s4"><div class="stat-icon i4"><i class="bi bi-tags-fill"></i></div><div class="stat-number" id="statCategories">—</div><div class="stat-label">Categories</div></div></div>
+            <div class="col-6 col-md"><div class="stat-card s5"><div class="stat-icon i5"><i class="bi bi-bag-check-fill"></i></div><div class="stat-number" id="statOrders">—</div><div class="stat-label">Orders</div></div></div>
+        </div>
+        <div class="content-card mb-4">
+            <div class="card-head"><div class="card-title">⚡ Quick Actions</div></div>
+            <div style="padding:20px"><div class="row g-3">
+                <div class="col-6 col-md-3"><a href="admin-users.html" class="quick-card qc-red"><div class="quick-icon">👥</div><div class="quick-label">Manage Users</div><div class="quick-sub">Add or remove accounts</div></a></div>
+                <div class="col-6 col-md-3"><a href="admin-restaurants.html" class="quick-card qc-gold"><div class="quick-icon">🍽️</div><div class="quick-label">Restaurants</div><div class="quick-sub">Manage restaurant listings</div></a></div>
+                <div class="col-6 col-md-3"><a href="admin-menu.html" class="quick-card qc-blue"><div class="quick-icon">📋</div><div class="quick-label">Menu Items</div><div class="quick-sub">Edit any restaurant menu</div></a></div>
+                <div class="col-6 col-md-3"><a href="admin-menu.html" class="quick-card qc-purple"><div class="quick-icon">🏷️</div><div class="quick-label">Categories</div><div class="quick-sub">Manage food categories</div></a></div>
+            </div></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="content-card">
+                    <div class="card-head"><div class="card-title">👥 Recent Users</div><a href="admin-users.html" style="font-size:0.8rem;color:var(--fire);text-decoration:none;font-weight:600">View All →</a></div>
+                    <div id="recentUsersList"><div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading...</div></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="content-card">
+                    <div class="card-head"><div class="card-title">🍽️ Restaurants</div><a href="admin-restaurants.html" style="font-size:0.8rem;color:var(--fire);text-decoration:none;font-weight:600">View All →</a></div>
+                    <div id="recentRestaurantsList"><div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API='http://localhost:8080';
+const token=localStorage.getItem('token');
+const role=localStorage.getItem('userRole')||'';
+if(!token||!role.includes('ADMIN'))window.location.href='login.html';
+const adminName=localStorage.getItem('userName')||'Admin';
+document.getElementById('sidebarAdminName').textContent=adminName;
+document.getElementById('topAdminName').textContent=adminName;
+const H={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
+async function loadDashboard(){
+    try{
+        const[uR,rR,mR,cR]=await Promise.all([
+            fetch(`${API}/api/user/all`,{headers:H}),
+            fetch(`${API}/api/restaurant/all`,{headers:H}),
+            fetch(`${API}/api/menu/all`,{headers:H}),
+            fetch(`${API}/api/category/all`,{headers:H})
+        ]);
+        const users=uR.ok?await uR.json():[];
+        const rests=rR.ok?await rR.json():[];
+        const menus=mR.ok?await mR.json():[];
+        const cats=cR.ok?await cR.json():[];
+        document.getElementById('statUsers').textContent=users.length;
+        document.getElementById('statRestaurants').textContent=rests.length;
+        document.getElementById('statMenuItems').textContent=menus.length;
+        document.getElementById('statCategories').textContent=cats.length;
+        try{const oR=await fetch(`${API}/api/order/all`,{headers:H});const o=oR.ok?await oR.json():[];document.getElementById('statOrders').textContent=o.length;}catch{document.getElementById('statOrders').textContent='—';}
+        // Recent users
+        const u5=users.slice(-5).reverse();
+        if(!u5.length){document.getElementById('recentUsersList').innerHTML='<div class="empty-state">No users yet</div>';}
+        else{
+            let h='<table class="custom-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>';
+            u5.forEach(u=>{const r=(u.role||'USER').replace('ROLE_','');const c=r==='ADMIN'?'#e74c3c':r==='RESTAURANT'?'#b7860b':'#2980b9';const b=r==='ADMIN'?'rgba(231,76,60,0.1)':r==='RESTAURANT'?'rgba(245,166,35,0.1)':'rgba(52,152,219,0.1)';h+=`<tr><td><strong>${u.name||u.userName||'—'}</strong></td><td style="font-size:0.78rem;color:#888">${u.email||'—'}</td><td><span class="badge-role" style="background:${b};color:${c}">${r}</span></td></tr>`;});
+            h+='</tbody></table>';document.getElementById('recentUsersList').innerHTML=h;
+        }
+        // Restaurants
+        if(!rests.length){document.getElementById('recentRestaurantsList').innerHTML='<div class="empty-state">No restaurants yet</div>';}
+        else{
+            let h='<table class="custom-table"><thead><tr><th>Name</th><th>Cuisine</th><th>Status</th></tr></thead><tbody>';
+            rests.slice(0,5).forEach(r=>{const open=r.open!==false;h+=`<tr><td><strong>${r.name||'—'}</strong></td><td style="font-size:0.78rem;color:#888">${r.cuisineType||r.cuisine||'—'}</td><td><span class="badge-role" style="background:${open?'rgba(46,204,113,0.1)':'rgba(231,76,60,0.1)'};color:${open?'#27ae60':'#e74c3c'}">${open?'Open':'Closed'}</span></td></tr>`;});
+            h+='</tbody></table>';document.getElementById('recentRestaurantsList').innerHTML=h;
+        }
+    }catch(e){console.error(e);}
+}
+function logout(){localStorage.clear();window.location.href='login.html';}
+loadDashboard();
+</script>
+</body>
+</html>
