@@ -1,14 +1,14 @@
 package com.wipro.hotpot.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import com.wipro.hotpot.entity.User;
 import org.springframework.stereotype.Service;
 
 import com.wipro.hotpot.dto.RestaurantDTO;
 import com.wipro.hotpot.entity.Restaurant;
-import com.wipro.hotpot.entity.User;
-import com.wipro.hotpot.exception.ResourceNotFoundException;
 import com.wipro.hotpot.repository.IRestaurantRepository;
 import com.wipro.hotpot.repository.IUserRepository;
 
@@ -19,79 +19,105 @@ public class RestaurantServiceImpl implements IRestaurantService {
     private IRestaurantRepository restaurantRepository;
 
     @Autowired
-    private IUserRepository userRepository;  // ✅ needed to find owner
+    private IUserRepository userRepository;
 
-    // ✅ Fix — addRestaurant with userId + dto
+    // ─── ADD RESTAURANT ─────────────────────────────────────────
+    // Called by: POST /api/restaurant/add?userId=1
+    // Body: { name, location, contactNumber, description, imageUrl }
     @Override
-    public Restaurant addRestaurant(Long userId, RestaurantDTO dto) {
+    public RestaurantDTO addRestaurant(RestaurantDTO dto, Long userId) {
         User owner = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "User not found with id: " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(dto.getName());
-        restaurant.setLocation(dto.getLocation());
-        restaurant.setContactNumber(dto.getContactNumber());
-        restaurant.setDescription(dto.getDescription());
-        restaurant.setImageUrl(dto.getImageUrl());
-        restaurant.setActive(true);
-        restaurant.setOwner(owner);  // ✅ set owner
+        Restaurant r = new Restaurant();
+        r.setName(dto.getName());
+        r.setLocation(dto.getLocation());
+        r.setContactNumber(dto.getContactNumber());
+        r.setDescription(dto.getDescription());
+        r.setImageUrl(dto.getImageUrl());
+        r.setOwner(owner);
+        r.setActive(true);
 
-        return restaurantRepository.save(restaurant);
+        return toDTO(restaurantRepository.save(r));
     }
 
+    // ─── UPDATE RESTAURANT ──────────────────────────────────────
     @Override
-    public Restaurant updateRestaurant(Long id, RestaurantDTO dto) {
-        Restaurant restaurant = getRestaurantById(id);
-        restaurant.setName(dto.getName());
-        restaurant.setLocation(dto.getLocation());
-        restaurant.setContactNumber(dto.getContactNumber());
-        restaurant.setDescription(dto.getDescription());
-        restaurant.setImageUrl(dto.getImageUrl());
-        return restaurantRepository.save(restaurant);
+    public RestaurantDTO updateRestaurant(Long id, RestaurantDTO dto) {
+        Restaurant r = restaurantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found: " + id));
+
+        if (dto.getName() != null)          r.setName(dto.getName());
+        if (dto.getLocation() != null)      r.setLocation(dto.getLocation());
+        if (dto.getContactNumber() != null) r.setContactNumber(dto.getContactNumber());
+        if (dto.getDescription() != null)   r.setDescription(dto.getDescription());
+        if (dto.getImageUrl() != null)      r.setImageUrl(dto.getImageUrl());
+
+        return toDTO(restaurantRepository.save(r));
     }
 
+    // ─── GET BY ID ──────────────────────────────────────────────
+    @Override
+    public RestaurantDTO getRestaurantById(Long id) {
+        Restaurant r = restaurantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found: " + id));
+        return toDTO(r);
+    }
+
+    // ─── GET BY OWNER ───────────────────────────────────────────
+    @Override
+    public RestaurantDTO getRestaurantByOwnerId(Long userId) {
+        Restaurant r = restaurantRepository.findByOwnerId(userId)
+                .orElseThrow(() -> new RuntimeException(
+                    "No restaurant found for user: " + userId));
+        return toDTO(r);
+    }
+
+    // ─── GET ALL ────────────────────────────────────────────────
+    @Override
+    public List<RestaurantDTO> getAllRestaurants() {
+        return restaurantRepository.findAll()
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ─── GET ACTIVE ─────────────────────────────────────────────
+    @Override
+    public List<RestaurantDTO> getActiveRestaurants() {
+        return restaurantRepository.findByIsActiveTrue()
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ─── TOGGLE ACTIVE ──────────────────────────────────────────
+    @Override
+    public RestaurantDTO toggleActive(Long id, boolean active) {
+        Restaurant r = restaurantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found: " + id));
+        r.setActive(active);
+        return toDTO(restaurantRepository.save(r));
+    }
+
+    // ─── DELETE ─────────────────────────────────────────────────
     @Override
     public void deleteRestaurant(Long id) {
-        Restaurant restaurant = getRestaurantById(id);
-        restaurantRepository.delete(restaurant);
+        if (!restaurantRepository.existsById(id))
+            throw new RuntimeException("Restaurant not found: " + id);
+        restaurantRepository.deleteById(id);
     }
 
-    @Override
-    public Restaurant getRestaurantById(Long id) {
-        return restaurantRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "Restaurant not found with id: " + id));
-    }
-
-    @Override
-    public List<Restaurant> getAllRestaurants() {
-        return restaurantRepository.findAll();
-    }
-
-    @Override
-    public List<Restaurant> getActiveRestaurants() {
-        return restaurantRepository.findByIsActiveTrue();
-    }
-
-    @Override
-    public List<Restaurant> searchRestaurants(String keyword) {
-        return restaurantRepository.searchByKeyword(keyword);
-    }
-
-    // ✅ Fix — toggle uses existing isActive value
-    @Override
-    public Restaurant toggleRestaurantStatus(Long id) {
-        Restaurant restaurant = getRestaurantById(id);
-        restaurant.setActive(!restaurant.isActive()); // ✅ correct
-        return restaurantRepository.save(restaurant);
-    }
-
-    // ✅ Fix — ONE method, uses userId
-    @Override
-    public Restaurant getRestaurantByOwnerId(Long userId) {
-        return restaurantRepository.findByOwnerId(userId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "No restaurant found for owner with id: " + userId));
+    // ─── ENTITY → DTO ───────────────────────────────────────────
+    private RestaurantDTO toDTO(Restaurant r) {
+        RestaurantDTO dto = new RestaurantDTO();
+        dto.setId(r.getId());
+        dto.setName(r.getName());
+        dto.setLocation(r.getLocation());
+        dto.setContactNumber(r.getContactNumber());
+        dto.setDescription(r.getDescription());
+        dto.setImageUrl(r.getImageUrl());
+        dto.setActive(r.isActive());
+        if (r.getOwner() != null) {
+            dto.setOwnerId(r.getOwner().getId());
+            dto.setOwnerName(r.getOwner().getName());
+        }
+        return dto;
     }
 }

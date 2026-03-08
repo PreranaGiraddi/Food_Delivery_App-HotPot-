@@ -1,17 +1,22 @@
 package com.wipro.hotpot.controller;
 
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.wipro.hotpot.dto.RestaurantDTO;
-import com.wipro.hotpot.entity.Restaurant;
 import com.wipro.hotpot.service.IRestaurantService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/restaurant")
@@ -21,71 +26,80 @@ public class RestaurantController {
     @Autowired
     private IRestaurantService restaurantService;
 
-    // ✅ Add restaurant — userId as RequestParam
+    // POST /api/restaurant/add?userId=1
+    // Body: { "name", "location", "contactNumber", "description", "imageUrl" }
     @PostMapping("/add")
-    public ResponseEntity<Restaurant> addRestaurant(
-            @RequestParam Long userId,
-            @Valid @RequestBody RestaurantDTO dto) {
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(restaurantService.addRestaurant(userId, dto));
+    public ResponseEntity<?> addRestaurant(@RequestBody RestaurantDTO dto,
+                                            @RequestParam Long userId) {
+        try {
+            return ResponseEntity.ok(restaurantService.addRestaurant(dto, userId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    // ✅ Update restaurant
+    // PUT /api/restaurant/update/{id}
     @PutMapping("/update/{id}")
-    public ResponseEntity<Restaurant> updateRestaurant(
-            @PathVariable Long id,
-            @Valid @RequestBody RestaurantDTO dto) {
-        return ResponseEntity.ok(restaurantService.updateRestaurant(id, dto));
+    public ResponseEntity<?> updateRestaurant(@PathVariable Long id,
+                                               @RequestBody RestaurantDTO dto) {
+        try {
+            return ResponseEntity.ok(restaurantService.updateRestaurant(id, dto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    // ✅ Delete restaurant
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteRestaurant(@PathVariable Long id) {
-        restaurantService.deleteRestaurant(id);
-        return ResponseEntity.ok("Restaurant deleted successfully!");
-    }
-
-    // ✅ Get by ID
+    // GET /api/restaurant/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
-        return ResponseEntity.ok(restaurantService.getRestaurantById(id));
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(restaurantService.getRestaurantById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    // ✅ Get all
-    @GetMapping("/all")
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        return ResponseEntity.ok(restaurantService.getAllRestaurants());
-    }
-
-    // ✅ Get active only — used by user frontend
-    @GetMapping("/active")
-    public ResponseEntity<List<Restaurant>> getActiveRestaurants() {
-        return ResponseEntity.ok(restaurantService.getActiveRestaurants());
-    }
-
-    // ✅ Search
-    @GetMapping("/search")
-    public ResponseEntity<List<Restaurant>> searchRestaurants(
-            @RequestParam String keyword) {
-        return ResponseEntity.ok(restaurantService.searchRestaurants(keyword));
-    }
-
-    // ✅ Toggle active/inactive — Fix: no dto needed!
-    @PutMapping("/toggle/{id}")
-    public ResponseEntity<Restaurant> toggleStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(restaurantService.toggleRestaurantStatus(id));
-    }
-
-    // ✅ Get restaurant by owner userId — used by restaurant dashboard
+    // GET /api/restaurant/owner/{userId}  ← dashboard pages use this
     @GetMapping("/owner/{userId}")
     public ResponseEntity<?> getByOwner(@PathVariable Long userId) {
         try {
-            Restaurant restaurant = restaurantService.getRestaurantByOwnerId(userId);
-            return ResponseEntity.ok(restaurant);
-        } catch (Exception e) {
-            return ResponseEntity.status(404)
-                .body("No restaurant found for this owner!");
+            return ResponseEntity.ok(restaurantService.getRestaurantByOwnerId(userId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // GET /api/restaurant/all
+    @GetMapping("/all")
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.ok(restaurantService.getAllRestaurants());
+    }
+
+    // GET /api/restaurant/active
+    @GetMapping("/active")
+    public ResponseEntity<?> getActive() {
+        return ResponseEntity.ok(restaurantService.getActiveRestaurants());
+    }
+
+    // PUT /api/restaurant/toggle/{id}?active=true/false
+    @PutMapping("/toggle/{id}")
+    public ResponseEntity<?> toggleStatus(@PathVariable Long id,
+                                           @RequestParam boolean active) {
+        try {
+            return ResponseEntity.ok(restaurantService.toggleActive(id, active));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // DELETE /api/restaurant/delete/{id}
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            restaurantService.deleteRestaurant(id);
+            return ResponseEntity.ok(Map.of("message", "Restaurant deleted!"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 }

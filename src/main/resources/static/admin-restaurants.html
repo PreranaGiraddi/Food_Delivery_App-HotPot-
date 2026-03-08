@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        :root{--fire:#ff6b35;--fire-dark:#e85d2f;--coal:#1a1a2e;--cream:#faf7f2;--gold:#f5a623;--success:#2ecc71;--danger:#e74c3c;--info:#3498db;--purple:#9b59b6;}
+        :root{--fire:#ff6b35;--fire-dark:#e85d2f;--coal:#1a1a2e;--cream:#faf7f2;--gold:#f5a623;--success:#2ecc71;--danger:#e74c3c;--info:#3498db;}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'DM Sans',sans-serif;background:var(--cream);display:flex;min-height:100vh;}
         .sidebar{width:240px;min-height:100vh;background:var(--coal);position:fixed;left:0;top:0;z-index:1000;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,0.25);}
@@ -33,20 +33,24 @@
         .content-area{padding:24px 28px;}
         .content-card{background:#fff;border-radius:16px;border:1px solid #f0f0f0;overflow:hidden;}
         .card-head{padding:18px 22px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-        .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.93rem;color:var(--coal);}
         .custom-table{width:100%;border-collapse:collapse;}
         .custom-table th{padding:11px 18px;background:#f9f9f9;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#999;text-align:left;}
         .custom-table td{padding:13px 18px;border-bottom:1px solid #f5f5f5;font-size:0.85rem;color:var(--coal);vertical-align:middle;}
         .custom-table tr:last-child td{border-bottom:none;}
         .custom-table tr:hover td{background:#fafafa;}
         .badge-s{padding:4px 11px;border-radius:20px;font-size:0.72rem;font-weight:600;}
-        .bs-open{background:rgba(46,204,113,0.12);color:#27ae60;} .bs-closed{background:rgba(231,76,60,0.1);color:#e74c3c;}
+        .bs-active{background:rgba(46,204,113,0.12);color:#27ae60;}.bs-inactive{background:rgba(231,76,60,0.1);color:#e74c3c;}
         .btn-fire{background:var(--fire);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-weight:600;font-size:0.84rem;transition:all 0.2s;cursor:pointer;}
-        .btn-fire:hover{background:var(--fire-dark);color:#fff;}
-        .btn-danger-sm{background:rgba(231,76,60,0.1);color:#e74c3c;border:none;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+        .btn-fire:hover{background:var(--fire-dark);}
+        .btn-danger-sm{background:rgba(231,76,60,0.1);color:#e74c3c;border:none;border-radius:8px;padding:5px 10px;font-size:0.76rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
         .btn-danger-sm:hover{background:#e74c3c;color:#fff;}
-        .btn-edit-sm{background:rgba(52,152,219,0.1);color:var(--info);border:none;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-right:4px;}
-        .btn-edit-sm:hover{background:var(--info);color:#fff;}
+        .btn-sm-action{border:none;border-radius:8px;padding:5px 10px;font-size:0.76rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-right:3px;}
+        .btn-edit{background:rgba(52,152,219,0.1);color:var(--info);}
+        .btn-edit:hover{background:var(--info);color:#fff;}
+        .btn-toggle-on{background:rgba(231,76,60,0.1);color:#e74c3c;}
+        .btn-toggle-on:hover{background:#e74c3c;color:#fff;}
+        .btn-toggle-off{background:rgba(46,204,113,0.1);color:#27ae60;}
+        .btn-toggle-off:hover{background:#27ae60;color:#fff;}
         .f-input{width:100%;background:#f8f8f8;border:1.5px solid #eee;border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--coal);outline:none;transition:all 0.2s;}
         .f-input:focus{border-color:var(--fire);background:#fff;}
         .f-label{font-size:0.73rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;display:block;}
@@ -60,12 +64,23 @@
         .search-bar{position:relative;min-width:220px;}
         .search-bar input{padding-left:36px;}
         .search-bar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.9rem;}
-        .loading-box{display:flex;align-items:center;justify-content:center;padding:36px;color:#ccc;gap:10px;font-size:0.86rem;}
+        .loading-box{display:flex;align-items:center;justify-content:center;padding:36px;color:#ccc;gap:10px;}
         .empty-state{text-align:center;padding:40px 20px;color:#ccc;}
         .alert-toast{position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;}
         .stat-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #eee;border-radius:10px;padding:8px 16px;font-size:0.84rem;}
         .stat-pill strong{font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--coal);}
         .modal-alert{background:rgba(231,76,60,0.08);border-left:3px solid #e74c3c;color:#c0392b;padding:10px 14px;border-radius:8px;font-size:0.84rem;margin-bottom:14px;display:none;}
+        /* prefill banner shown when navigated from Users page */
+        .prefill-banner{background:rgba(245,166,35,0.09);border:1px solid rgba(245,166,35,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.84rem;color:#856404;display:none;}
+        .prefill-banner strong{color:#b7860b;}
+        /* owner selection */
+        .owner-select-wrap{background:#f8f8f8;border:1.5px solid #eee;border-radius:10px;padding:12px 14px;}
+        .owner-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background 0.15s;}
+        .owner-item:hover{background:#fff;}
+        .owner-item.selected{background:#fff;border:1.5px solid var(--gold);margin:-1px;}
+        .owner-avatar{width:32px;height:32px;border-radius:50%;background:rgba(245,166,35,0.15);color:#b7860b;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0;}
+        .owner-name{font-weight:600;font-size:0.87rem;color:var(--coal);}
+        .owner-email{font-size:0.74rem;color:#bbb;}
     </style>
 </head>
 <body>
@@ -82,21 +97,30 @@
     </nav>
     <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button></div>
 </aside>
+
 <div class="main-content">
     <div class="top-bar">
-        <div><div class="page-title">Restaurant Management</div><div class="page-subtitle">View and manage all restaurant accounts.</div></div>
+        <div><div class="page-title">Restaurant Management</div><div class="page-subtitle">Add restaurant details for registered owners.</div></div>
         <button class="btn-fire" onclick="openAddModal()"><i class="bi bi-plus-lg me-1"></i> Add Restaurant</button>
     </div>
     <div class="alert-toast" id="alertToast"></div>
     <div class="content-area">
+
+        <!-- Auto-opened banner if coming from Users page -->
+        <div id="prefillBanner" class="prefill-banner">
+            🍽️ Adding restaurant for owner: <strong id="prefillOwnerName"></strong> —
+            <a href="#" onclick="openAddModal();return false" style="color:var(--gold);font-weight:600">Click here to fill in restaurant details →</a>
+        </div>
+
         <div class="d-flex gap-3 mb-4 flex-wrap">
             <div class="stat-pill"><strong id="cntAll">0</strong> Total</div>
-            <div class="stat-pill" style="border-color:rgba(46,204,113,0.3)"><strong id="cntOpen" style="color:#27ae60">0</strong> Open</div>
-            <div class="stat-pill" style="border-color:rgba(231,76,60,0.3)"><strong id="cntClosed" style="color:#e74c3c">0</strong> Closed</div>
+            <div class="stat-pill" style="border-color:rgba(46,204,113,0.3)"><strong id="cntActive" style="color:#27ae60">0</strong> Active</div>
+            <div class="stat-pill" style="border-color:rgba(231,76,60,0.3)"><strong id="cntInactive" style="color:#e74c3c">0</strong> Inactive</div>
         </div>
+
         <div class="content-card">
             <div class="card-head">
-                <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="f-input" id="searchInput" placeholder="Search restaurant or cuisine..." oninput="renderTable()"></div>
+                <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="f-input" id="searchInput" placeholder="Search name or location..." oninput="renderTable()"></div>
             </div>
             <div id="tableWrap"><div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading...</div></div>
         </div>
@@ -105,29 +129,61 @@
 
 <!-- ADD RESTAURANT MODAL -->
 <div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><div class="modal-title">🍽️ Add New Restaurant</div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header">
+                <div class="modal-title">🍽️ Add Restaurant</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
             <div class="modal-body">
-                <div class="modal-alert" id="modalAlert"></div>
-                <div class="row g-3">
-                    <div class="col-md-6"><label class="f-label">Restaurant Name *</label><input type="text" class="f-input" id="addName" placeholder="Spice Garden"></div>
-                    <div class="col-md-6"><label class="f-label">Cuisine Type *</label><input type="text" class="f-input" id="addCuisine" placeholder="Indian, Chinese..."></div>
-                    <div class="col-12"><label class="f-label">Description</label><input type="text" class="f-input" id="addDesc" placeholder="Short description of the restaurant"></div>
-                    <div class="col-md-6"><label class="f-label">Address *</label><input type="text" class="f-input" id="addAddress" placeholder="123 Main St, City"></div>
-                    <div class="col-md-6"><label class="f-label">Contact Number</label><input type="text" class="f-input" id="addContact" placeholder="9876543210"></div>
-                    <div class="col-md-6"><label class="f-label">Opening Time</label><input type="text" class="f-input" id="addOpenTime" placeholder="09:00 AM"></div>
-                    <div class="col-md-6"><label class="f-label">Closing Time</label><input type="text" class="f-input" id="addCloseTime" placeholder="11:00 PM"></div>
-                    <div class="col-md-6">
-                        <label class="f-label">Owner User ID (optional)</label>
-                        <select class="f-select" id="addOwner"><option value="">-- Select Owner --</option></select>
+                <div class="modal-alert" id="addAlert"></div>
+
+                <!-- Step 1: Pick owner -->
+                <div id="ownerStep">
+                    <label class="f-label">Step 1 — Select Restaurant Owner *</label>
+                    <div id="ownerListWrap" style="max-height:180px;overflow-y:auto;border:1.5px solid #eee;border-radius:10px;padding:6px">
+                        <div class="loading-box" style="padding:16px"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
                     </div>
-                    <div class="col-md-6"><label class="f-label">Status</label>
-                        <select class="f-select" id="addOpen"><option value="true">Open</option><option value="false">Closed</option></select>
+                    <div style="font-size:0.74rem;color:#bbb;margin-top:6px">
+                        Don't see the owner? <a href="admin-users.html" style="color:var(--gold)">Add a Restaurant Owner first →</a>
                     </div>
                 </div>
+
+                <hr style="border-color:#f0f0f0;margin:18px 0">
+
+                <!-- Step 2: Restaurant details -->
+                <label class="f-label">Step 2 — Restaurant Details</label>
+                <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Restaurant Name *</label><input type="text" class="f-input" id="addName" placeholder="e.g. HotPot Restaurant"></div>
+                <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Location *</label><input type="text" class="f-input" id="addLocation" placeholder="e.g. Bangalore"></div>
+                <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Contact Number</label><input type="text" class="f-input" id="addContact" placeholder="9876543210"></div>
+                <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Description</label><input type="text" class="f-input" id="addDesc" placeholder="Best food in town"></div>
+                <div class="mb-3"><label class="f-label" style="font-size:0.68rem">Image URL</label><input type="text" class="f-input" id="addImage" placeholder="https://..."></div>
             </div>
-            <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn-fire" onclick="addRestaurant()">Create Restaurant</button></div>
+            <div class="modal-footer">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-fire" onclick="addRestaurant()">
+                    <i class="bi bi-check-lg me-1"></i> Create Restaurant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">✏️ Edit Restaurant</div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="modal-alert" id="editAlert"></div>
+                <input type="hidden" id="editId">
+                <div class="mb-3"><label class="f-label">Restaurant Name *</label><input type="text" class="f-input" id="editName"></div>
+                <div class="mb-3"><label class="f-label">Location</label><input type="text" class="f-input" id="editLocation"></div>
+                <div class="mb-3"><label class="f-label">Contact Number</label><input type="text" class="f-input" id="editContact"></div>
+                <div class="mb-3"><label class="f-label">Description</label><input type="text" class="f-input" id="editDesc"></div>
+                <div class="mb-3"><label class="f-label">Image URL</label><input type="text" class="f-input" id="editImage"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn-fire" onclick="saveEdit()">Save Changes</button></div>
         </div>
     </div>
 </div>
@@ -138,9 +194,12 @@
         <div class="modal-content">
             <div class="modal-body text-center" style="padding:28px">
                 <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
-                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--coal);margin-bottom:6px">Delete Restaurant?</div>
-                <div style="font-size:0.84rem;color:#aaa;margin-bottom:20px" id="deleteRestName">This cannot be undone.</div>
-                <div class="d-flex gap-2 justify-content-center"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" onclick="confirmDelete()">Delete</button></div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--coal);margin-bottom:6px">Delete Restaurant?</div>
+                <div style="font-size:0.84rem;color:#aaa;margin-bottom:20px" id="deleteRestName"></div>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                </div>
             </div>
         </div>
     </div>
@@ -148,123 +207,286 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const API='http://localhost:8080';
-const token=localStorage.getItem('token');
-const role=localStorage.getItem('userRole')||'';
-if(!token||!role.includes('ADMIN'))window.location.href='login.html';
-document.getElementById('sidebarAdminName').textContent=localStorage.getItem('userName')||'Admin';
-const H={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
-let allRests=[],deleteId=null;
+const API = 'http://localhost:8080';
+const token = localStorage.getItem('token');
+const userRole = localStorage.getItem('userRole') || '';
+if (!token || !userRole.includes('ADMIN')) window.location.href = 'login.html';
 
-async function loadRestaurants(){
-    try{
-        const res=await fetch(`${API}/api/restaurant/all`,{headers:H});
-        if(!res.ok)throw new Error();
-        allRests=await res.json();
-        updateCounts();renderTable();
-    }catch{document.getElementById('tableWrap').innerHTML='<div class="empty-state">⚠️ Could not load restaurants.</div>';}
+document.getElementById('sidebarAdminName').textContent = localStorage.getItem('userName') || 'Admin';
+const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+
+let allRests = [], allOwners = [], selectedOwnerId = null, deleteId = null;
+
+// ─── INIT ─────────────────────────────────────────────────────
+async function init() {
+    await Promise.all([ loadRestaurants(), loadOwners() ]);
+
+    // Check if navigated from Users page with a prefilled owner
+    const prefillId   = localStorage.getItem('prefillOwnerId');
+    const prefillName = localStorage.getItem('prefillOwnerName');
+    if (prefillId && prefillName) {
+        document.getElementById('prefillOwnerName').textContent = prefillName;
+        document.getElementById('prefillBanner').style.display = 'block';
+        // Clear after use
+        localStorage.removeItem('prefillOwnerId');
+        localStorage.removeItem('prefillOwnerName');
+        // Auto-open the add modal and pre-select that owner
+        setTimeout(() => { openAddModal(parseInt(prefillId)); }, 400);
+    }
 }
 
-function updateCounts(){
-    document.getElementById('cntAll').textContent=allRests.length;
-    document.getElementById('cntOpen').textContent=allRests.filter(r=>r.open!==false).length;
-    document.getElementById('cntClosed').textContent=allRests.filter(r=>r.open===false).length;
+// ─── LOAD RESTAURANTS ────────────────────────────────────────
+async function loadRestaurants() {
+    try {
+        const res = await fetch(`${API}/api/restaurant/all`, { headers: H });
+        if (!res.ok) throw new Error('Status: ' + res.status);
+        allRests = await res.json();
+        updateCounts();
+        renderTable();
+    } catch(e) {
+        console.error(e);
+        document.getElementById('tableWrap').innerHTML =
+            '<div class="empty-state">⚠️ Could not load restaurants. Check server.</div>';
+    }
 }
 
-function renderTable(){
-    const q=document.getElementById('searchInput').value.toLowerCase();
-    const filtered=allRests.filter(r=>{
-        const name=(r.name||'').toLowerCase();
-        const cuisine=(r.cuisineType||r.cuisine||'').toLowerCase();
-        return!q||name.includes(q)||cuisine.includes(q);
-    });
-    if(!filtered.length){document.getElementById('tableWrap').innerHTML='<div class="empty-state">No restaurants found</div>';return;}
-    let h=`<table class="custom-table"><thead><tr><th>#</th><th>Restaurant</th><th>Cuisine</th><th>Address</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
-    filtered.forEach((r,i)=>{
-        const open=r.open!==false;
-        h+=`<tr>
+// ─── LOAD OWNERS (RESTAURANT role users) ────────────────────
+async function loadOwners() {
+    try {
+        const res = await fetch(`${API}/api/user/all`, { headers: H });
+        if (!res.ok) throw new Error();
+        const all = await res.json();
+        allOwners = all.filter(u => (u.role || '').includes('RESTAURANT'));
+    } catch(e) {
+        console.error('Could not load owners:', e);
+        allOwners = [];
+    }
+}
+
+function updateCounts() {
+    document.getElementById('cntAll').textContent      = allRests.length;
+    document.getElementById('cntActive').textContent   = allRests.filter(r => r.active !== false && r.isActive !== false).length;
+    document.getElementById('cntInactive').textContent = allRests.filter(r => r.active === false || r.isActive === false).length;
+}
+
+// ─── RENDER TABLE ────────────────────────────────────────────
+function renderTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allRests.filter(r =>
+        !q || (r.name||'').toLowerCase().includes(q) || (r.location||'').toLowerCase().includes(q)
+    );
+
+    if (!filtered.length) {
+        document.getElementById('tableWrap').innerHTML = '<div class="empty-state">No restaurants found. Add one using the button above.</div>';
+        return;
+    }
+
+    let h = `<table class="custom-table">
+        <thead><tr><th>#</th><th>Restaurant</th><th>Location</th><th>Contact</th><th>Owner</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+
+    filtered.forEach((r, i) => {
+        const active = r.active !== false && r.isActive !== false;
+        h += `<tr>
             <td style="color:#bbb;font-size:0.78rem">${i+1}</td>
-            <td><strong>${r.name||'—'}</strong><div style="font-size:0.75rem;color:#bbb">${r.description||''}</div></td>
-            <td style="color:#888">${r.cuisineType||r.cuisine||'—'}</td>
-            <td style="color:#888;font-size:0.8rem">${r.address||'—'}</td>
-            <td style="color:#888">${r.contactNumber||r.contact||'—'}</td>
-            <td><span class="badge-s ${open?'bs-open':'bs-closed'}">${open?'Open':'Closed'}</span></td>
             <td>
-                <button class="btn-edit-sm" onclick="toggleStatus(${r.id},${open})"><i class="bi bi-toggle-${open?'on':'off'}"></i> ${open?'Close':'Open'}</button>
-                <button class="btn-danger-sm" onclick="openDelete(${r.id},'${(r.name||'this restaurant').replace(/'/g,"\\'")}')"><i class="bi bi-trash3"></i></button>
+                <strong>${r.name || '—'}</strong>
+                <div style="font-size:0.74rem;color:#bbb">${r.description || ''}</div>
+            </td>
+            <td style="color:#888">${r.location || '—'}</td>
+            <td style="color:#888">${r.contactNumber || '—'}</td>
+            <td style="color:#888;font-size:0.8rem">${r.ownerName || '—'}<br><span style="font-size:0.7rem;color:#ccc">ID:${r.ownerId||'?'}</span></td>
+            <td><span class="badge-s ${active ? 'bs-active' : 'bs-inactive'}">${active ? '● Active' : '○ Inactive'}</span></td>
+            <td>
+                <button class="btn-sm-action btn-edit" onclick="openEdit(${r.id})"><i class="bi bi-pencil"></i> Edit</button>
+                <button class="btn-sm-action ${active ? 'btn-toggle-on' : 'btn-toggle-off'}" onclick="toggleStatus(${r.id},${active})">
+                    ${active ? '⏸ Deactivate' : '▶ Activate'}
+                </button>
+                <button class="btn-danger-sm" onclick="openDelete(${r.id},'${(r.name||'').replace(/'/g,"\\'")}')"><i class="bi bi-trash3"></i></button>
             </td>
         </tr>`;
     });
-    h+='</tbody></table>';
-    document.getElementById('tableWrap').innerHTML=h;
+
+    h += '</tbody></table>';
+    document.getElementById('tableWrap').innerHTML = h;
 }
 
-async function openAddModal(){
-    document.getElementById('modalAlert').style.display='none';
-    ['addName','addCuisine','addDesc','addAddress','addContact','addOpenTime','addCloseTime'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('addOpen').value='true';
-    // Load restaurant-role users for owner dropdown
-    try{
-        const res=await fetch(`${API}/api/user/all`,{headers:H});
-        if(res.ok){
-            const users=await res.json();
-            const owners=users.filter(u=>(u.role||'').includes('RESTAURANT'));
-            const sel=document.getElementById('addOwner');
-            sel.innerHTML='<option value="">-- Select Owner --</option>';
-            owners.forEach(u=>sel.innerHTML+=`<option value="${u.id}">${u.name||u.email}</option>`);
-        }
-    }catch{}
+// ─── OPEN ADD MODAL ──────────────────────────────────────────
+function openAddModal(prefillOwnerId = null) {
+    selectedOwnerId = null;
+    document.getElementById('addAlert').style.display = 'none';
+    ['addName','addLocation','addContact','addDesc','addImage'].forEach(id => document.getElementById(id).value = '');
+
+    // Render owner list
+    renderOwnerList(prefillOwnerId);
     new bootstrap.Modal(document.getElementById('addModal')).show();
 }
 
-async function addRestaurant(){
-    const name=document.getElementById('addName').value.trim();
-    const cuisine=document.getElementById('addCuisine').value.trim();
-    const address=document.getElementById('addAddress').value.trim();
-    if(!name||!cuisine||!address){showModalAlert('Please fill required fields!');return;}
-    const body={
-        name,cuisineType:cuisine,
-        description:document.getElementById('addDesc').value.trim(),
-        address,
-        contactNumber:document.getElementById('addContact').value.trim(),
-        openingTime:document.getElementById('addOpenTime').value.trim(),
-        closingTime:document.getElementById('addCloseTime').value.trim(),
-        open:document.getElementById('addOpen').value==='true'
+function renderOwnerList(autoSelectId = null) {
+    const wrap = document.getElementById('ownerListWrap');
+    if (!allOwners.length) {
+        wrap.innerHTML = `<div style="padding:14px;text-align:center;color:#bbb;font-size:0.84rem">
+            No restaurant owners found.<br>
+            <a href="admin-users.html" style="color:var(--gold);font-weight:600">Add one in Users page first →</a>
+        </div>`;
+        return;
+    }
+
+    let h = '';
+    allOwners.forEach(u => {
+        const ini = (u.name || 'O').slice(0,1).toUpperCase();
+        h += `<div class="owner-item" id="owner_${u.id}" onclick="selectOwner(${u.id})">
+            <div class="owner-avatar">${ini}</div>
+            <div>
+                <div class="owner-name">${u.name || '—'}</div>
+                <div class="owner-email">${u.email} &nbsp;•&nbsp; ID: ${u.id}</div>
+            </div>
+            <div style="margin-left:auto;font-size:0.8rem;color:#ddd" id="ownerCheck_${u.id}"></div>
+        </div>`;
+    });
+    wrap.innerHTML = h;
+
+    // Auto-select if prefill
+    if (autoSelectId) {
+        selectOwner(autoSelectId);
+    }
+}
+
+function selectOwner(id) {
+    // Clear all
+    allOwners.forEach(u => {
+        const el = document.getElementById(`owner_${u.id}`);
+        const ck = document.getElementById(`ownerCheck_${u.id}`);
+        if (el) el.classList.remove('selected');
+        if (ck) ck.innerHTML = '';
+    });
+    // Select this one
+    selectedOwnerId = id;
+    const el = document.getElementById(`owner_${id}`);
+    const ck = document.getElementById(`ownerCheck_${id}`);
+    if (el) el.classList.add('selected');
+    if (ck) ck.innerHTML = '<i class="bi bi-check-circle-fill" style="color:var(--gold)"></i>';
+}
+
+// ─── ADD RESTAURANT ──────────────────────────────────────────
+async function addRestaurant() {
+    if (!selectedOwnerId) {
+        showModalAlert('addAlert', '⚠️ Please select a restaurant owner first!');
+        return;
+    }
+    const name     = document.getElementById('addName').value.trim();
+    const location = document.getElementById('addLocation').value.trim();
+    if (!name)     { showModalAlert('addAlert', '⚠️ Restaurant name is required!'); return; }
+    if (!location) { showModalAlert('addAlert', '⚠️ Location is required!'); return; }
+
+    const body = {
+        name,
+        location,
+        contactNumber: document.getElementById('addContact').value.trim() || null,
+        description:   document.getElementById('addDesc').value.trim()    || null,
+        imageUrl:      document.getElementById('addImage').value.trim()   || null
     };
-    const ownerId=document.getElementById('addOwner').value;
-    if(ownerId)body.ownerId=parseInt(ownerId);
-    try{
-        const res=await fetch(`${API}/api/restaurant/add`,{method:'POST',headers:H,body:JSON.stringify(body)});
-        if(res.ok){bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();showToast('success','✅ Restaurant added!');loadRestaurants();}
-        else{const d=await res.json();showModalAlert(d.message||'Failed to add restaurant');}
-    }catch{showModalAlert('Server error.');}
+
+    // ✅ Correct API: POST /api/restaurant/add?userId={ownerId}
+    const url = `${API}/api/restaurant/add?userId=${selectedOwnerId}`;
+    console.log('POST', url, body);
+
+    try {
+        const res  = await fetch(url, { method: 'POST', headers: H, body: JSON.stringify(body) });
+        const data = await res.json();
+        console.log('Response:', res.status, data);
+
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+            showToast('success', `✅ Restaurant "${name}" created successfully!`);
+            document.getElementById('prefillBanner').style.display = 'none';
+            await loadRestaurants();
+        } else {
+            showModalAlert('addAlert', data.message || `Server error (${res.status}). Check console.`);
+        }
+    } catch(e) {
+        console.error('Error adding restaurant:', e);
+        showModalAlert('addAlert', 'Could not connect to server. Is Spring Boot running on port 8080?');
+    }
 }
 
-async function toggleStatus(id,currentOpen){
-    try{
-        const res=await fetch(`${API}/api/restaurant/toggle/${id}?open=${!currentOpen}`,{method:'PUT',headers:H});
-        if(res.ok){showToast('success',`Restaurant ${!currentOpen?'opened':'closed'}!`);loadRestaurants();}
-        else showToast('danger','Could not update status');
-    }catch{showToast('danger','Server error');}
+// ─── EDIT ────────────────────────────────────────────────────
+function openEdit(id) {
+    const r = allRests.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('editId').value       = id;
+    document.getElementById('editName').value     = r.name || '';
+    document.getElementById('editLocation').value = r.location || '';
+    document.getElementById('editContact').value  = r.contactNumber || '';
+    document.getElementById('editDesc').value     = r.description || '';
+    document.getElementById('editImage').value    = r.imageUrl || '';
+    document.getElementById('editAlert').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('editModal')).show();
 }
 
-function openDelete(id,name){deleteId=id;document.getElementById('deleteRestName').textContent=`Delete "${name}"? This cannot be undone.`;new bootstrap.Modal(document.getElementById('deleteModal')).show();}
+async function saveEdit() {
+    const id   = document.getElementById('editId').value;
+    const name = document.getElementById('editName').value.trim();
+    if (!name) { showModalAlert('editAlert', 'Name is required!'); return; }
+    const body = {
+        name,
+        location:      document.getElementById('editLocation').value.trim(),
+        contactNumber: document.getElementById('editContact').value.trim(),
+        description:   document.getElementById('editDesc').value.trim(),
+        imageUrl:      document.getElementById('editImage').value.trim()
+    };
+    try {
+        const res = await fetch(`${API}/api/restaurant/update/${id}`, { method: 'PUT', headers: H, body: JSON.stringify(body) });
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+            showToast('success', '✅ Restaurant updated!');
+            await loadRestaurants();
+        } else {
+            const d = await res.json();
+            showModalAlert('editAlert', d.message || 'Update failed');
+        }
+    } catch { showModalAlert('editAlert', 'Server error'); }
+}
 
-async function confirmDelete(){
-    if(!deleteId)return;
-    try{
-        const res=await fetch(`${API}/api/restaurant/delete/${deleteId}`,{method:'DELETE',headers:H});
+// ─── TOGGLE STATUS ───────────────────────────────────────────
+async function toggleStatus(id, currentActive) {
+    try {
+        const res = await fetch(`${API}/api/restaurant/toggle/${id}?active=${!currentActive}`, { method: 'PUT', headers: H });
+        if (res.ok) {
+            showToast('success', `Restaurant ${!currentActive ? 'activated' : 'deactivated'}!`);
+            await loadRestaurants();
+        } else showToast('danger', '❌ Could not update');
+    } catch { showToast('danger', 'Server error'); }
+}
+
+// ─── DELETE ──────────────────────────────────────────────────
+function openDelete(id, name) {
+    deleteId = id;
+    document.getElementById('deleteRestName').textContent = `Delete "${name}"? This cannot be undone.`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+async function confirmDelete() {
+    if (!deleteId) return;
+    try {
+        const res = await fetch(`${API}/api/restaurant/delete/${deleteId}`, { method: 'DELETE', headers: H });
         bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-        if(res.ok){showToast('success','✅ Restaurant deleted!');loadRestaurants();}
-        else showToast('danger','❌ Could not delete');
-    }catch{showToast('danger','Server error');}
-    deleteId=null;
+        if (res.ok) { showToast('success', '✅ Deleted!'); await loadRestaurants(); }
+        else showToast('danger', '❌ Could not delete');
+    } catch { showToast('danger', 'Server error'); }
+    deleteId = null;
 }
 
-function showModalAlert(msg){const el=document.getElementById('modalAlert');el.style.display='block';el.textContent=msg;}
-function logout(){localStorage.clear();window.location.href='login.html';}
-function showToast(type,msg){const t=document.getElementById('alertToast');const c={success:'#2ecc71',danger:'#e74c3c',warning:'#f5a623',info:'#3498db'};t.style.cssText=`display:block;background:#fff;border-left:4px solid ${c[type]};color:#333;position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12)`;t.textContent=msg;setTimeout(()=>t.style.display='none',3500);}
-loadRestaurants();
+// ─── HELPERS ─────────────────────────────────────────────────
+function showModalAlert(id, msg) { const el = document.getElementById(id); el.style.display = 'block'; el.textContent = msg; }
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+function showToast(type, msg) {
+    const t = document.getElementById('alertToast');
+    const c = { success:'#2ecc71', danger:'#e74c3c', warning:'#f5a623', info:'#3498db' };
+    t.style.cssText = `display:block;background:#fff;border-left:4px solid ${c[type]||'#ccc'};color:#333;position:fixed;top:20px;right:20px;z-index:9999;min-width:280px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12)`;
+    t.textContent = msg;
+    setTimeout(() => t.style.display = 'none', 4000);
+}
+
+init();
 </script>
 </body>
 </html>

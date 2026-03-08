@@ -33,7 +33,6 @@
         .content-area{padding:24px 28px;}
         .content-card{background:#fff;border-radius:16px;border:1px solid #f0f0f0;overflow:hidden;}
         .card-head{padding:18px 22px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-        .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.93rem;color:var(--coal);}
         .custom-table{width:100%;border-collapse:collapse;}
         .custom-table th{padding:11px 18px;background:#f9f9f9;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#999;text-align:left;}
         .custom-table td{padding:13px 18px;border-bottom:1px solid #f5f5f5;font-size:0.85rem;color:var(--coal);vertical-align:middle;}
@@ -41,14 +40,16 @@
         .custom-table tr:hover td{background:#fafafa;}
         .badge-role{padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;}
         .btn-fire{background:var(--fire);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-weight:600;font-size:0.84rem;transition:all 0.2s;cursor:pointer;}
-        .btn-fire:hover{background:var(--fire-dark);color:#fff;}
+        .btn-fire:hover{background:var(--fire-dark);}
+        .btn-gold{background:linear-gradient(135deg,#f5a623,#e8950a);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-weight:600;font-size:0.84rem;transition:all 0.2s;cursor:pointer;}
+        .btn-gold:hover{opacity:0.9;}
         .btn-danger-sm{background:rgba(231,76,60,0.1);color:#e74c3c;border:none;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
         .btn-danger-sm:hover{background:#e74c3c;color:#fff;}
+        .btn-link-sm{background:rgba(245,166,35,0.1);color:#b7860b;border:none;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-right:4px;}
+        .btn-link-sm:hover{background:#f5a623;color:#fff;}
         .f-input{width:100%;background:#f8f8f8;border:1.5px solid #eee;border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--coal);outline:none;transition:all 0.2s;}
         .f-input:focus{border-color:var(--fire);background:#fff;}
         .f-label{font-size:0.73rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;display:block;}
-        .f-select{width:100%;background:#f8f8f8;border:1.5px solid #eee;border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--coal);outline:none;}
-        .f-select:focus{border-color:var(--fire);}
         .modal-content{border-radius:18px;border:none;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
         .modal-header{border-bottom:1px solid #f0f0f0;padding:20px 24px;}
         .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--coal);}
@@ -67,6 +68,10 @@
         .stat-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #eee;border-radius:10px;padding:8px 16px;font-size:0.84rem;}
         .stat-pill strong{font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--coal);}
         .modal-alert{background:rgba(231,76,60,0.08);border-left:3px solid #e74c3c;color:#c0392b;padding:10px 14px;border-radius:8px;font-size:0.84rem;margin-bottom:14px;display:none;}
+        .role-fixed-banner{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+        .role-fixed-banner .rfi{font-size:1.4rem;}
+        .role-fixed-banner .rft{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:#b7860b;}
+        .role-fixed-banner .rfs{font-size:0.76rem;color:#bbb;margin-top:2px;}
     </style>
 </head>
 <body>
@@ -83,54 +88,107 @@
     </nav>
     <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button></div>
 </aside>
+
 <div class="main-content">
     <div class="top-bar">
-        <div><div class="page-title">User Management</div><div class="page-subtitle">Add, view and delete user accounts.</div></div>
-        <button class="btn-fire" onclick="openAddModal()"><i class="bi bi-plus-lg me-1"></i> Add User</button>
+        <div>
+            <div class="page-title">User Management</div>
+            <div class="page-subtitle">Manage customer accounts and restaurant owners.</div>
+        </div>
+        <!-- TWO SEPARATE BUTTONS — clear purpose for each -->
+        <div class="d-flex gap-2">
+            <button class="btn-fire" onclick="openAddCustomerModal()">
+                <i class="bi bi-plus-lg me-1"></i> Add Customer
+            </button>
+            <button class="btn-gold" onclick="openAddOwnerModal()">
+                <i class="bi bi-shop me-1"></i> Add Restaurant Owner
+            </button>
+        </div>
     </div>
     <div class="alert-toast" id="alertToast"></div>
     <div class="content-area">
+
+        <!-- STAT PILLS -->
         <div class="d-flex gap-3 mb-4 flex-wrap">
-            <div class="stat-pill"><strong id="cntAll">0</strong> Total</div>
+            <div class="stat-pill"><strong id="cntAll">0</strong> Total Users</div>
             <div class="stat-pill" style="border-color:rgba(52,152,219,0.3)"><strong id="cntUser" style="color:var(--info)">0</strong> Customers</div>
-            <div class="stat-pill" style="border-color:rgba(245,166,35,0.3)"><strong id="cntRest" style="color:var(--gold)">0</strong> Restaurants</div>
+            <div class="stat-pill" style="border-color:rgba(245,166,35,0.3)"><strong id="cntRest" style="color:var(--gold)">0</strong> Restaurant Owners</div>
             <div class="stat-pill" style="border-color:rgba(231,76,60,0.3)"><strong id="cntAdmin" style="color:#e74c3c">0</strong> Admins</div>
         </div>
+
         <div class="content-card">
             <div class="card-head">
-                <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="f-input" id="searchInput" placeholder="Search name or email..." oninput="renderTable()"></div>
+                <div class="search-bar">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="f-input" id="searchInput" placeholder="Search name or email..." oninput="renderTable()">
+                </div>
                 <div class="filter-tabs">
                     <button class="filter-tab active" onclick="setFilter('ALL',this)">All</button>
-                    <button class="filter-tab" onclick="setFilter('USER',this)">Customer</button>
-                    <button class="filter-tab" onclick="setFilter('RESTAURANT',this)">Restaurant</button>
-                    <button class="filter-tab" onclick="setFilter('ADMIN',this)">Admin</button>
+                    <button class="filter-tab" onclick="setFilter('USER',this)">Customers</button>
+                    <button class="filter-tab" onclick="setFilter('RESTAURANT',this)">Restaurant Owners</button>
+                    <button class="filter-tab" onclick="setFilter('ADMIN',this)">Admins</button>
                 </div>
             </div>
-            <div id="tableWrap"><div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading users...</div></div>
+            <div id="tableWrap">
+                <div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading users...</div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- ADD USER MODAL -->
-<div class="modal fade" id="addModal" tabindex="-1">
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><div class="modal-title">➕ Add New User</div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <div class="modal-alert" id="modalAlert"></div>
-                <div class="mb-3"><label class="f-label">Full Name *</label><input type="text" class="f-input" id="addName" placeholder="John Doe"></div>
-                <div class="mb-3"><label class="f-label">Email *</label><input type="email" class="f-input" id="addEmail" placeholder="john@example.com"></div>
-                <div class="mb-3"><label class="f-label">Password *</label><input type="password" class="f-input" id="addPassword" placeholder="Min 6 characters"></div>
-                <div class="mb-3"><label class="f-label">Mobile</label><input type="text" class="f-input" id="addMobile" placeholder="9876543210"></div>
-                <div class="mb-3"><label class="f-label">Role *</label>
-                    <select class="f-select" id="addRole">
-                        <option value="ROLE_USER">Customer</option>
-                        <option value="ROLE_RESTAURANT">Restaurant Owner</option>
-                        <option value="ROLE_ADMIN">Admin</option>
-                    </select>
-                </div>
+            <div class="modal-header">
+                <div class="modal-title">🛍️ Add New Customer</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn-fire" onclick="addUser()">Create User</button></div>
+            <div class="modal-body">
+                <div class="modal-alert" id="custModalAlert"></div>
+                <div class="role-fixed-banner">
+                    <div class="rfi">🛍️</div>
+                    <div><div class="rft">Role: Customer</div><div class="rfs">Can browse restaurants and place orders</div></div>
+                </div>
+                <div class="mb-3"><label class="f-label">Full Name *</label><input type="text" class="f-input" id="custName" placeholder="John Doe"></div>
+                <div class="mb-3"><label class="f-label">Email *</label><input type="email" class="f-input" id="custEmail" placeholder="john@example.com"></div>
+                <div class="mb-3"><label class="f-label">Password *</label><input type="password" class="f-input" id="custPassword" placeholder="Min 6 characters"></div>
+                <div class="mb-3"><label class="f-label">Mobile</label><input type="text" class="f-input" id="custMobile" placeholder="9876543210"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-fire" onclick="addCustomer()">Create Customer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD RESTAURANT OWNER MODAL -->
+<div class="modal fade" id="addOwnerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🍽️ Add Restaurant Owner</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-alert" id="ownerModalAlert"></div>
+                <div class="role-fixed-banner" style="background:rgba(245,166,35,0.08);border-color:rgba(245,166,35,0.25)">
+                    <div class="rfi">🍽️</div>
+                    <div>
+                        <div class="rft">Role: Restaurant Owner</div>
+                        <div class="rfs">After creating, go to Restaurants page to add their restaurant details</div>
+                    </div>
+                </div>
+                <div class="mb-3"><label class="f-label">Owner Full Name *</label><input type="text" class="f-input" id="ownerName" placeholder="e.g. Ravi Kumar"></div>
+                <div class="mb-3"><label class="f-label">Email *</label><input type="email" class="f-input" id="ownerEmail" placeholder="ravi@restaurant.com"></div>
+                <div class="mb-3"><label class="f-label">Password *</label><input type="password" class="f-input" id="ownerPassword" placeholder="Min 6 characters"></div>
+                <div class="mb-3"><label class="f-label">Mobile</label><input type="text" class="f-input" id="ownerMobile" placeholder="9876543210"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-gold" onclick="addRestaurantOwner()">Create Restaurant Owner</button>
+            </div>
         </div>
     </div>
 </div>
@@ -143,7 +201,10 @@
                 <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
                 <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--coal);margin-bottom:6px">Delete User?</div>
                 <div style="font-size:0.84rem;color:#aaa;margin-bottom:20px" id="deleteUserName">This cannot be undone.</div>
-                <div class="d-flex gap-2 justify-content-center"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" onclick="confirmDelete()">Delete</button></div>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                </div>
             </div>
         </div>
     </div>
@@ -151,98 +212,203 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const API='http://localhost:8080';
-const token=localStorage.getItem('token');
-const role=localStorage.getItem('userRole')||'';
-if(!token||!role.includes('ADMIN'))window.location.href='login.html';
-document.getElementById('sidebarAdminName').textContent=localStorage.getItem('userName')||'Admin';
-const H={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
-let allUsers=[],filterRole='ALL',deleteId=null;
+const API = 'http://localhost:8080';
+const token = localStorage.getItem('token');
+const userRole = localStorage.getItem('userRole') || '';
+if (!token || !userRole.includes('ADMIN')) window.location.href = 'login.html';
+document.getElementById('sidebarAdminName').textContent = localStorage.getItem('userName') || 'Admin';
 
-async function loadUsers(){
-    try{
-        const res=await fetch(`${API}/api/user/all`,{headers:H});
-        if(!res.ok)throw new Error();
-        allUsers=await res.json();
-        updateCounts();renderTable();
-    }catch{document.getElementById('tableWrap').innerHTML='<div class="empty-state">⚠️ Could not load users. Check API.</div>';}
+const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+let allUsers = [], filterRole = 'ALL', deleteId = null;
+
+// ─── LOAD ────────────────────────────────────────────────────
+async function loadUsers() {
+    try {
+        const res = await fetch(`${API}/api/user/all`, { headers: H });
+        if (!res.ok) throw new Error('API error: ' + res.status);
+        allUsers = await res.json();
+        updateCounts();
+        renderTable();
+    } catch(e) {
+        console.error(e);
+        document.getElementById('tableWrap').innerHTML =
+            `<div class="empty-state">⚠️ Could not load users.<br><small style="color:#bbb">Make sure GET /api/user/all is accessible</small></div>`;
+    }
 }
 
-function updateCounts(){
-    document.getElementById('cntAll').textContent=allUsers.length;
-    document.getElementById('cntUser').textContent=allUsers.filter(u=>{const r=(u.role||'').replace('ROLE_','');return r==='USER';}).length;
-    document.getElementById('cntRest').textContent=allUsers.filter(u=>(u.role||'').includes('RESTAURANT')).length;
-    document.getElementById('cntAdmin').textContent=allUsers.filter(u=>(u.role||'').includes('ADMIN')).length;
+function updateCounts() {
+    document.getElementById('cntAll').textContent   = allUsers.length;
+    document.getElementById('cntUser').textContent  = allUsers.filter(u => normalizeRole(u) === 'USER').length;
+    document.getElementById('cntRest').textContent  = allUsers.filter(u => normalizeRole(u) === 'RESTAURANT').length;
+    document.getElementById('cntAdmin').textContent = allUsers.filter(u => normalizeRole(u) === 'ADMIN').length;
 }
 
-function setFilter(f,el){filterRole=f;document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderTable();}
+function normalizeRole(u) {
+    return (u.role || '').replace('ROLE_', '').toUpperCase();
+}
 
-function renderTable(){
-    const q=document.getElementById('searchInput').value.toLowerCase();
-    const filtered=allUsers.filter(u=>{
-        const name=(u.name||u.userName||'').toLowerCase();
-        const email=(u.email||'').toLowerCase();
-        const r=(u.role||'').replace('ROLE_','');
-        return(!q||name.includes(q)||email.includes(q))&&(filterRole==='ALL'||r===filterRole);
+function setFilter(f, el) {
+    filterRole = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderTable();
+}
+
+function renderTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allUsers.filter(u => {
+        const name  = (u.name || u.userName || '').toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        const r = normalizeRole(u);
+        const matchQ = !q || name.includes(q) || email.includes(q);
+        const matchF = filterRole === 'ALL' || r === filterRole;
+        return matchQ && matchF;
     });
-    if(!filtered.length){document.getElementById('tableWrap').innerHTML='<div class="empty-state">No users found</div>';return;}
-    let h=`<table class="custom-table"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Mobile</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
-    filtered.forEach((u,i)=>{
-        const r=(u.role||'USER').replace('ROLE_','');
-        const c=r==='ADMIN'?'#e74c3c':r==='RESTAURANT'?'#b7860b':'#2980b9';
-        const b=r==='ADMIN'?'rgba(231,76,60,0.1)':r==='RESTAURANT'?'rgba(245,166,35,0.1)':'rgba(52,152,219,0.1)';
-        const ini=(u.name||u.userName||'U').slice(0,1).toUpperCase();
-        h+=`<tr>
-            <td style="color:#bbb;font-size:0.78rem">${i+1}</td>
-            <td><div class="d-flex align-items-center gap-2"><div class="avatar" style="background:${b};color:${c}">${ini}</div><strong>${u.name||u.userName||'—'}</strong></div></td>
-            <td style="color:#888">${u.email||'—'}</td>
-            <td style="color:#888">${u.mobileNumber||u.mobile||'—'}</td>
-            <td><span class="badge-role" style="background:${b};color:${c}">${r}</span></td>
-            <td><button class="btn-danger-sm" onclick="openDelete(${u.id},'${(u.name||u.email||'this user').replace(/'/g,"\\'")}')"><i class="bi bi-trash3"></i> Delete</button></td>
+
+    if (!filtered.length) {
+        document.getElementById('tableWrap').innerHTML = '<div class="empty-state">No users found</div>';
+        return;
+    }
+
+    let h = `<table class="custom-table">
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Mobile</th><th>Role</th><th>Actions</th></tr></thead><tbody>`;
+
+    filtered.forEach((u, i) => {
+        const r   = normalizeRole(u);
+        const col = r === 'ADMIN' ? '#e74c3c' : r === 'RESTAURANT' ? '#b7860b' : '#2980b9';
+        const bg  = r === 'ADMIN' ? 'rgba(231,76,60,0.1)' : r === 'RESTAURANT' ? 'rgba(245,166,35,0.1)' : 'rgba(52,152,219,0.1)';
+        const label = r === 'RESTAURANT' ? 'Restaurant Owner' : r === 'ADMIN' ? 'Admin' : 'Customer';
+        const ini = (u.name || u.userName || 'U').slice(0, 1).toUpperCase();
+
+        // Show "Add Restaurant" button only for RESTAURANT role users who may not have a restaurant yet
+        const addRestBtn = r === 'RESTAURANT'
+            ? `<button class="btn-link-sm" onclick="goAddRestaurant(${u.id},'${(u.name||'').replace(/'/g,"\\'")}')">
+                <i class="bi bi-shop"></i> Add Restaurant
+               </button>`
+            : '';
+
+        h += `<tr>
+            <td style="color:#bbb;font-size:0.78rem">${i + 1}</td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar" style="background:${bg};color:${col}">${ini}</div>
+                    <div>
+                        <strong>${u.name || u.userName || '—'}</strong>
+                        <div style="font-size:0.73rem;color:#bbb">ID: ${u.id}</div>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#888">${u.email || '—'}</td>
+            <td style="color:#888">${u.mobileNumber || u.mobile || u.contactNumber || '—'}</td>
+            <td><span class="badge-role" style="background:${bg};color:${col}">${label}</span></td>
+            <td>
+                ${addRestBtn}
+                <button class="btn-danger-sm" onclick="openDelete(${u.id},'${(u.name || u.email || 'this user').replace(/'/g, "\\'")}')">
+                    <i class="bi bi-trash3"></i> Delete
+                </button>
+            </td>
         </tr>`;
     });
-    h+='</tbody></table>';
-    document.getElementById('tableWrap').innerHTML=h;
+
+    h += '</tbody></table>';
+    document.getElementById('tableWrap').innerHTML = h;
 }
 
-function openAddModal(){
-    ['addName','addEmail','addPassword','addMobile'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('addRole').value='ROLE_USER';
-    document.getElementById('modalAlert').style.display='none';
-    new bootstrap.Modal(document.getElementById('addModal')).show();
+// ─── ADD CUSTOMER ────────────────────────────────────────────
+function openAddCustomerModal() {
+    ['custName','custEmail','custPassword','custMobile'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('custModalAlert').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('addCustomerModal')).show();
 }
 
-async function addUser(){
-    const name=document.getElementById('addName').value.trim();
-    const email=document.getElementById('addEmail').value.trim();
-    const password=document.getElementById('addPassword').value.trim();
-    const mobile=document.getElementById('addMobile').value.trim();
-    const role=document.getElementById('addRole').value;
-    if(!name||!email||!password){showModalAlert('Please fill all required fields!');return;}
-    try{
-        const res=await fetch(`${API}/api/auth/register`,{method:'POST',headers:H,body:JSON.stringify({name,email,password,mobileNumber:mobile,role})});
-        const data=await res.json();
-        if(res.ok){bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();showToast('success','✅ User created!');loadUsers();}
-        else{showModalAlert(data.message||'Failed to create user');}
-    }catch{showModalAlert('Server error.');}
+async function addCustomer() {
+    const name     = document.getElementById('custName').value.trim();
+    const email    = document.getElementById('custEmail').value.trim();
+    const password = document.getElementById('custPassword').value.trim();
+    const mobile   = document.getElementById('custMobile').value.trim();
+    if (!name || !email || !password) { showModalAlert('custModalAlert', '⚠️ Name, email and password are required!'); return; }
+    await createUser({ name, email, password, contactNumber: mobile, role: 'ROLE_USER' }, 'addCustomerModal', 'custModalAlert', '✅ Customer created!');
 }
 
-function openDelete(id,name){deleteId=id;document.getElementById('deleteUserName').textContent=`Delete "${name}"? This cannot be undone.`;new bootstrap.Modal(document.getElementById('deleteModal')).show();}
+// ─── ADD RESTAURANT OWNER ────────────────────────────────────
+function openAddOwnerModal() {
+    ['ownerName','ownerEmail','ownerPassword','ownerMobile'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ownerModalAlert').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('addOwnerModal')).show();
+}
 
-async function confirmDelete(){
-    if(!deleteId)return;
-    try{
-        const res=await fetch(`${API}/api/user/delete/${deleteId}`,{method:'DELETE',headers:H});
+async function addRestaurantOwner() {
+    const name     = document.getElementById('ownerName').value.trim();
+    const email    = document.getElementById('ownerEmail').value.trim();
+    const password = document.getElementById('ownerPassword').value.trim();
+    const mobile   = document.getElementById('ownerMobile').value.trim();
+    if (!name || !email || !password) { showModalAlert('ownerModalAlert', '⚠️ Name, email and password are required!'); return; }
+
+    // ✅ Role is hardcoded — no dropdown needed
+    const ok = await createUser({ name, email, password, contactNumber: mobile, role: 'ROLE_RESTAURANT' }, 'addOwnerModal', 'ownerModalAlert', '✅ Restaurant Owner created! Now go to Restaurants → Add Restaurant to set up their restaurant.');
+    if (ok) {
+        // After 2s show a reminder toast pointing to restaurants page
+        setTimeout(() => showToast('info', '💡 Go to Restaurants page to add this owner\'s restaurant details!'), 2200);
+    }
+}
+
+// ─── SHARED CREATE USER ──────────────────────────────────────
+async function createUser(payload, modalId, alertId, successMsg) {
+    try {
+        const res  = await fetch(`${API}/api/auth/register`, { method: 'POST', headers: H, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById(modalId)).hide();
+            showToast('success', successMsg);
+            await loadUsers(); // ✅ Reload immediately to show new user in table
+            return true;
+        } else {
+            showModalAlert(alertId, data.message || 'Failed. Try again.');
+            return false;
+        }
+    } catch(e) {
+        showModalAlert(alertId, 'Server error. Is Spring Boot running?');
+        return false;
+    }
+}
+
+// ─── QUICK LINK TO RESTAURANTS PAGE ─────────────────────────
+function goAddRestaurant(userId, ownerName) {
+    // Store info so admin-restaurants page can pre-fill owner
+    localStorage.setItem('prefillOwnerId', userId);
+    localStorage.setItem('prefillOwnerName', ownerName);
+    window.location.href = 'admin-restaurants.html';
+}
+
+// ─── DELETE ──────────────────────────────────────────────────
+function openDelete(id, name) {
+    deleteId = id;
+    document.getElementById('deleteUserName').textContent = `Delete "${name}"? This cannot be undone.`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+async function confirmDelete() {
+    if (!deleteId) return;
+    try {
+        const res = await fetch(`${API}/api/user/delete/${deleteId}`, { method: 'DELETE', headers: H });
         bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-        if(res.ok){showToast('success','✅ User deleted!');loadUsers();}
-        else{showToast('danger','❌ Could not delete user');}
-    }catch{showToast('danger','Server error');}
-    deleteId=null;
+        if (res.ok) { showToast('success', '✅ User deleted!'); await loadUsers(); }
+        else showToast('danger', '❌ Could not delete user');
+    } catch { showToast('danger', 'Server error'); }
+    deleteId = null;
 }
 
-function showModalAlert(msg){const el=document.getElementById('modalAlert');el.style.display='block';el.textContent=msg;}
-function logout(){localStorage.clear();window.location.href='login.html';}
-function showToast(type,msg){const t=document.getElementById('alertToast');const c={success:'#2ecc71',danger:'#e74c3c',warning:'#f5a623',info:'#3498db'};t.style.cssText=`display:block;background:#fff;border-left:4px solid ${c[type]};color:#333;position:fixed;top:20px;right:20px;z-index:9999;min-width:260px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12)`;t.textContent=msg;setTimeout(()=>t.style.display='none',3500);}
+// ─── HELPERS ─────────────────────────────────────────────────
+function showModalAlert(id, msg) { const el = document.getElementById(id); el.style.display = 'block'; el.textContent = msg; }
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+function showToast(type, msg) {
+    const t = document.getElementById('alertToast');
+    const c = { success:'#2ecc71', danger:'#e74c3c', warning:'#f5a623', info:'#3498db' };
+    t.style.cssText = `display:block;background:#fff;border-left:4px solid ${c[type]||'#ccc'};color:#333;position:fixed;top:20px;right:20px;z-index:9999;min-width:280px;border-radius:12px;padding:13px 17px;font-size:0.86rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12)`;
+    t.textContent = msg;
+    setTimeout(() => t.style.display = 'none', 4000);
+}
+
 loadUsers();
 </script>
 </body>
