@@ -1,88 +1,49 @@
 package com.wipro.hotpot.controller;
 
-import java.util.List;
-
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.wipro.hotpot.entity.User;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import com.wipro.hotpot.dto.LoginRequest;
 import com.wipro.hotpot.dto.LoginResponse;
 import com.wipro.hotpot.dto.RegisterRequest;
+import com.wipro.hotpot.entity.User;
 import com.wipro.hotpot.service.IAuthService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
     private IAuthService authService;
 
-  
+    // POST /api/auth/register
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody RegisterRequest request) {
-        User user = authService.registerUser(request);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            User saved = authService.registerUser(request);
+            // Return same shape as LoginResponse so frontend gets id + role back
+            LoginResponse resp = new LoginResponse();
+            resp.setId(saved.getId());
+            resp.setName(saved.getName());
+            resp.setEmail(saved.getEmail());
+            resp.setRole("ROLE_" + saved.getRole().name());
+            resp.setMessage("Registration successful!");
+            return ResponseEntity.ok(resp);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    
+    // POST /api/auth/login
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest request) {
-        LoginResponse response = authService.loginUser(request);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-   
-    @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = authService.getUserById(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    
-    @GetMapping("/user/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        User user = authService.getUserByEmail(email);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-   
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = authService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    
-    @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id,
-                                           @Valid @RequestBody RegisterRequest request) {
-        User user = authService.updateUser(id, request);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    
-    @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        authService.deleteUser(id);
-        return new ResponseEntity<>("User deleted successfully!", HttpStatus.OK);
-    }
-
-    
-    @GetMapping("/isEmailExists/{email}")
-    public ResponseEntity<Boolean> isEmailExists(@PathVariable String email) {
-        boolean exists = authService.isEmailExists(email);
-        return new ResponseEntity<>(exists, HttpStatus.OK);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            LoginResponse response = authService.loginUser(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of("message", e.getMessage()));
+        }
     }
 }

@@ -2,20 +2,13 @@ package com.wipro.hotpot.controller;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.wipro.hotpot.dto.RegisterRequest;
 import com.wipro.hotpot.entity.User;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.wipro.hotpot.repository.IUserRepository;
+import com.wipro.hotpot.service.IAuthService;
 
 @RestController
 @RequestMapping("/api/user")
@@ -23,39 +16,58 @@ import com.wipro.hotpot.repository.IUserRepository;
 public class UserController {
 
     @Autowired
-    private IUserRepository userRepository;
+    private IAuthService authService;
 
-    // GET /api/user/all  — admin only (secured by JWT in SecurityConfig)
+    // GET /api/user/all
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+        return ResponseEntity.ok(authService.getAllUsers());
     }
 
     // GET /api/user/{id}
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return ResponseEntity.ok(authService.getUserById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // GET /api/user/role/RESTAURANT
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
+        try {
+            User.Role r = User.Role.valueOf(role.toUpperCase().replace("ROLE_", ""));
+            List<User> filtered = authService.getAllUsers()
+                    .stream()
+                    .filter(u -> u.getRole() == r)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(filtered);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // PUT /api/user/update/{id}
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id,
+                                        @RequestBody RegisterRequest request) {
+        try {
+            return ResponseEntity.ok(authService.updateUser(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     // DELETE /api/user/delete/{id}
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) {
+        try {
+            authService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-        userRepository.deleteById(id);
-        return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
-    }
-
-    // PUT /api/user/toggle/{id}?active=true/false  — activate/deactivate
-    @PutMapping("/toggle/{id}")
-    public ResponseEntity<?> toggleUser(@PathVariable Long id, @RequestParam boolean active) {
-        return userRepository.findById(id).map(user -> {
-            user.setActive(active);
-            userRepository.save(user);
-            return ResponseEntity.ok(Map.of("message", "User " + (active ? "activated" : "deactivated")));
-        }).orElse(ResponseEntity.notFound().build());
     }
 }
