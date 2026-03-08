@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot - Order Food Online</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fire: #ff6b35;
+            --fire-dark: #e04e1a;
+            --fire-light: #ff8f62;
+            --cream: #fff8f2;
+            --dark: #1a1008;
+            --mid: #3d2010;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: rgba(26, 16, 8, 0.85) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,107,53,0.15);
+            padding: 1rem 0;
+            position: fixed !important;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9rem !important;
+            font-weight: 900 !important;
+            color: var(--fire) !important;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand span {
+            color: #fff;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.75) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover { color: var(--fire) !important; }
+
+        .btn-hotpot {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white !important;
+            border: none;
+            border-radius: 50px;
+            padding: 9px 26px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.35);
+        }
+
+        .btn-hotpot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,107,53,0.5);
+        }
+
+        /* ── HERO ── */
+        .hero-section {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Layered food image backgrounds via CSS */
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=80') center/cover no-repeat;
+            transform: scale(1.08);
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            from { transform: scale(1.08); }
+            to   { transform: scale(1.15); }
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(26,16,8,0.92) 0%,
+                rgba(26,16,8,0.70) 50%,
+                rgba(61,32,16,0.55) 100%
+            );
+        }
+
+        .hero-overlay-right {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 50%, rgba(255,107,53,0.12) 0%, transparent 60%);
+        }
+
+        /* Floating food chips */
+        .food-chip {
+            position: absolute;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255,107,53,0.4);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            animation: floatChip 6s ease-in-out infinite;
+        }
+
+        .food-chip img { width: 100%; height: 100%; object-fit: cover; }
+
+        .chip-1 { width: 140px; height: 140px; top: 18%; right: 12%; animation-delay: 0s; }
+        .chip-2 { width: 100px; height: 100px; top: 55%; right: 22%; animation-delay: 1.5s; }
+        .chip-3 { width: 80px;  height: 80px;  top: 32%; right: 6%;  animation-delay: 3s; }
+
+        @keyframes floatChip {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50%       { transform: translateY(-18px) rotate(3deg); }
+        }
+
+        .hero-content { position: relative; z-index: 2; padding-top: 80px; }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,107,53,0.15);
+            border: 1px solid rgba(255,107,53,0.35);
+            color: var(--fire-light);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-radius: 50px;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideUp 0.6s ease both;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 6vw, 5.5rem);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.08;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideUp 0.6s ease 0.15s both;
+        }
+
+        .hero-title .accent { color: var(--fire); }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.65);
+            font-weight: 300;
+            max-width: 480px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            animation: fadeSlideUp 0.6s ease 0.3s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            animation: fadeSlideUp 0.6s ease 0.45s both;
+        }
+
+        .btn-primary-hero {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 38px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 30px rgba(255,107,53,0.4);
+        }
+
+        .btn-primary-hero:hover {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(255,107,53,0.55);
+        }
+
+        .btn-secondary-hero {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 15px 38px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary-hero:hover {
+            color: white;
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.35);
+        }
+
+        /* Stats bar */
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            margin-top: 3rem;
+            animation: fadeSlideUp 0.6s ease 0.6s both;
+        }
+
+        .stat-item { text-align: left; }
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--fire);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.45);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        /* ── FEATURES ── */
+        .features-section {
+            background: var(--cream);
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--fire), var(--fire-light), var(--fire));
+        }
+
+        .section-eyebrow {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--fire);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .feature-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 20px rgba(26,16,8,0.07);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--fire), var(--fire-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(255,107,53,0.15);
+        }
+
+        .feature-card:hover::after { transform: scaleX(1); }
+
+        .feature-icon-wrap {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(255,107,53,0.12), rgba(255,107,53,0.06));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon { font-size: 2rem; color: var(--fire); }
+
+        .feature-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-desc {
+            color: #7a6055;
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+
+        /* ── FOOD STRIP ── */
+        .food-strip {
+            background: var(--dark);
+            padding: 5rem 0;
+            overflow: hidden;
+        }
+
+        .food-strip-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .food-card-mini {
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 3/4;
+            cursor: pointer;
+        }
+
+        .food-card-mini img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .food-card-mini:hover img { transform: scale(1.08); }
+
+        .food-card-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(26,16,8,0.9));
+            padding: 2rem 1.2rem 1.2rem;
+        }
+
+        .food-card-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .food-card-tag {
+            color: var(--fire-light);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* ── CTA ── */
+        .cta-section {
+            background: linear-gradient(135deg, var(--fire), #c94419);
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -10%;
+            width: 500px; height: 500px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            color: white;
+        }
+
+        .btn-cta {
+            background: white;
+            color: var(--fire);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-cta:hover {
+            color: var(--fire-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.3);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #100a04;
+            color: rgba(255,255,255,0.4);
+            padding: 2.5rem 0;
+            border-top: 1px solid rgba(255,107,53,0.1);
+        }
+
+        footer .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--fire);
+        }
+
+        footer a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover { color: var(--fire); }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .food-chip { display: none; }
+            .hero-stats { gap: 1.5rem; }
+        }
+    
+        /* ── BOWL LOGO ANIMATIONS ── */
+        /* Steam rise */
+        .bowl-svg .steam-group .s1,
+        .bowl-svg .steam-group .s2,
+        .bowl-svg .steam-group .s3 {
+            animation: steamRise 2.2s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        .bowl-svg .steam-group .s1 { animation-delay: 0s; }
+        .bowl-svg .steam-group .s2 { animation-delay: 0.4s; }
+        .bowl-svg .steam-group .s3 { animation-delay: 0.8s; }
+
+        @keyframes steamRise {
+            0%   { opacity: 0;   transform: translateY(2px) scaleX(1);   }
+            20%  { opacity: 0.9; transform: translateY(-1px) scaleX(1.1); }
+            60%  { opacity: 0.5; transform: translateY(-5px) scaleX(0.85); }
+            100% { opacity: 0;   transform: translateY(-9px) scaleX(1);  }
+        }
+
+        /* Lid float animation — always running subtly */
+        .bowl-svg .lid-group {
+            animation: lidFloat 3s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidFloat {
+            0%,100% { transform: translateY(0px);  }
+            50%      { transform: translateY(-1.5px); }
+        }
+
+        /* Lid lifts up on brand hover */
+        .navbar-brand:hover .bowl-svg .lid-group,
+        .brand:hover .bowl-svg .lid-group {
+            animation: lidOpen 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidOpen {
+            0%   { transform: translateY(0px)  rotate(0deg);  }
+            60%  { transform: translateY(-7px) rotate(-8deg); }
+            100% { transform: translateY(-6px) rotate(-6deg); }
+        }
+
+        /* Scale up bowl slightly on hover */
+        .navbar-brand:hover .bowl-svg,
+        .brand:hover .bowl-svg {
+            transform: scale(1.08);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .bowl-svg { transition: transform 0.3s ease; }
+        </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="index.html"><span class="hotpot-logo" style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;">
+<svg class="bowl-svg" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- STEAM (3 wiggly lines, animated) -->
+  <g class="steam-group">
+    <path class="s1" d="M14 13 C13 11 15 9 14 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <path class="s2" d="M21 12 C20 10 22 8 21 6" stroke="#ff6b35" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+    <path class="s3" d="M28 13 C27 11 29 9 28 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- LID GROUP (lifts on hover) -->
+  <g class="lid-group">
+    <!-- Lid body -->
+    <path d="M9 19 Q9 15 21 15 Q33 15 33 19 Z" fill="#e04e1a"/>
+    <!-- Lid top arc highlight -->
+    <path d="M11 18 Q11 16 21 16 Q31 16 31 18" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <!-- Lid knob -->
+    <rect x="18" y="12.5" width="6" height="3" rx="1.5" fill="#c23a0e"/>
+    <rect x="19.5" y="11" width="3" height="2" rx="1" fill="#a52d08"/>
+  </g>
+
+  <!-- BOWL BODY -->
+  <!-- Bowl rim -->
+  <ellipse cx="21" cy="20" rx="12" ry="2.2" fill="#ff6b35"/>
+  <!-- Bowl outer -->
+  <path d="M9 20 Q9 33 21 33 Q33 33 33 20 Z" fill="#ff6b35"/>
+  <!-- Bowl inner shadow -->
+  <path d="M11 20 Q11 31 21 31 Q31 31 31 20 Z" fill="#e04e1a"/>
+
+  <!-- FOOD inside bowl (visible above rim) -->
+  <!-- Noodle / food swirl 1 -->
+  <path d="M13 20 Q15 18 17 20 Q19 22 21 20 Q23 18 25 20 Q27 22 29 20" stroke="#ffd54f" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <!-- Noodle swirl 2 -->
+  <path d="M14 22 Q16 20.5 18 22 Q20 23.5 22 22 Q24 20.5 26 22 Q27 23 28 22" stroke="#ffb74d" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- Little garnish dots -->
+  <circle cx="16" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+  <circle cx="21" cy="19.5" r="1" fill="#69f0ae" opacity="0.85"/>
+  <circle cx="26" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+
+  <!-- Bowl shine -->
+  <ellipse cx="15" cy="26" rx="2" ry="3.5" fill="rgba(255,255,255,0.1)" transform="rotate(-20 15 26)"/>
+</svg>
+</span> Hot<span>Pot</span></a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="restaurants.html">
+                        <i class="bi bi-grid me-1"></i>Restaurants
+                    </a>
+                </li>
+                <li class="nav-item" id="loginNav">
+                    <a class="nav-link" href="login.html">Login</a>
+                </li>
+                <li class="nav-item" id="registerNav">
+                    <a class="btn btn-hotpot ms-2" href="register.html">Get Started</a>
+                </li>
+                <li class="nav-item d-none" id="logoutNav">
+                    <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-overlay-right"></div>
+
+    <!-- Floating food circles -->
+    <div class="food-chip chip-1">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80" alt="pizza">
+    </div>
+    <div class="food-chip chip-2">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200&q=80" alt="noodles">
+    </div>
+    <div class="food-chip chip-3">
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80" alt="salad">
+    </div>
+
+    <div class="container hero-content">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="hero-label">
+                    <i class="bi bi-lightning-fill"></i> Fast Delivery · Top Restaurants
+                </div>
+                <h1 class="hero-title">
+                    Great Food,<br>
+                    <span class="accent">Delivered</span> Hot.
+                </h1>
+                <p class="hero-subtitle">
+                    Order from hundreds of top-rated restaurants near you. Fresh, fast, and at your door in minutes.
+                </p>
+                <div class="hero-actions">
+                    <a href="restaurants.html" class="btn-primary-hero">
+                        <i class="bi bi-search"></i> Browse Restaurants
+                    </a>
+                    <a href="register.html" class="btn-secondary-hero">
+                        <i class="bi bi-person-plus"></i> Register
+                    </a>
+                </div>
+
+               
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="brand" style="display:flex;align-items:center;gap:8px;">
+                    <svg class="bowl-svg" width="32" height="32" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g class="steam-group">
+                        <path class="s1" d="M14 13 C13 11 15 9 14 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                        <path class="s2" d="M21 12 C20 10 22 8 21 6" stroke="#ff6b35" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                        <path class="s3" d="M28 13 C27 11 29 9 28 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                      </g>
+                      <g class="lid-group">
+                        <path d="M9 19 Q9 15 21 15 Q33 15 33 19 Z" fill="#e04e1a"/>
+                        <path d="M11 18 Q11 16 21 16 Q31 16 31 18" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none" stroke-linecap="round"/>
+                        <rect x="18" y="12.5" width="6" height="3" rx="1.5" fill="#c23a0e"/>
+                        <rect x="19.5" y="11" width="3" height="2" rx="1" fill="#a52d08"/>
+                      </g>
+                      <ellipse cx="21" cy="20" rx="12" ry="2.2" fill="#ff6b35"/>
+                      <path d="M9 20 Q9 33 21 33 Q33 33 33 20 Z" fill="#ff6b35"/>
+                      <path d="M11 20 Q11 31 21 31 Q31 31 31 20 Z" fill="#e04e1a"/>
+                      <path d="M13 20 Q15 18 17 20 Q19 22 21 20 Q23 18 25 20 Q27 22 29 20" stroke="#ffd54f" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+                      <path d="M14 22 Q16 20.5 18 22 Q20 23.5 22 22 Q24 20.5 26 22 Q27 23 28 22" stroke="#ffb74d" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"/>
+                      <circle cx="16" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+                      <circle cx="21" cy="19.5" r="1" fill="#69f0ae" opacity="0.85"/>
+                      <circle cx="26" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+                    </svg>
+                    HotPot
+                </div>
+                <div style="font-size:0.82rem; margin-top:5px;">Delicious, delivered.</div>
+            </div>
+            <div class="col-md-4 text-md-center mb-3 mb-md-0">
+                <a href="restaurants.html" class="me-3">Restaurants</a>
+                <a href="login.html" class="me-3">Login</a>
+                <a href="register.html">Register</a>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span style="font-size:0.85rem;">© 2026 HotPot. All rights reserved.</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    window.onload = function () {
+        const token = localStorage.getItem('token');
+        if (token) {
+            document.getElementById('loginNav').classList.add('d-none');
+            document.getElementById('registerNav').classList.add('d-none');
+            document.getElementById('logoutNav').classList.remove('d-none');
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+</script>
+
+</body>
+</html>

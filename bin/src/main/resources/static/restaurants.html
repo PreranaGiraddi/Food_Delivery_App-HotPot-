@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot - Restaurants</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fire: #ff6b35;
+            --fire-dark: #e04e1a;
+            --fire-light: #ff8f62;
+            --cream: #fff8f2;
+            --dark: #1a1008;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f5f0eb;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: rgba(26,16,8,0.92) !important;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,107,53,0.15);
+            padding: 0.85rem 0;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 1.8rem !important;
+            font-weight: 900 !important;
+            color: var(--fire) !important;
+        }
+
+        .navbar-brand span { color: #fff; }
+
+        .nav-link {
+            color: rgba(255,255,255,0.75) !important;
+            font-weight: 500;
+            font-size: 0.92rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover { color: var(--fire) !important; }
+
+        .navbar-toggler { border-color: rgba(255,107,53,0.4); }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,107,53,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ── HEADER BANNER ── */
+        .page-header {
+            background:
+                linear-gradient(135deg, rgba(26,16,8,0.88) 0%, rgba(61,32,16,0.75) 100%),
+                url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80') center/cover no-repeat;
+            padding: 60px 0 50px;
+        }
+
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+
+        .page-header p {
+            color: rgba(255,255,255,0.65);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Search */
+        .search-wrap {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 6px 6px 6px 20px;
+            display: flex;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            flex: 1;
+        }
+
+        .search-wrap input::placeholder { color: rgba(255,255,255,0.5); }
+
+        .search-wrap button {
+            background: var(--fire);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            padding: 9px 22px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-wrap button:hover { background: var(--fire-dark); }
+
+        /* ── RESTAURANT CARD ── */
+        .restaurant-card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(26,16,8,0.08);
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            cursor: pointer;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 16px 40px rgba(255,107,53,0.15);
+        }
+
+        .card-img-wrap {
+            height: 185px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .restaurant-card:hover .card-img-wrap img {
+            transform: scale(1.08);
+        }
+
+        .card-img-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(26,16,8,0.45));
+            pointer-events: none;
+        }
+
+        .restaurant-initial {
+            position: absolute;
+            bottom: 10px; left: 14px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 900;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+            z-index: 2;
+            letter-spacing: 0.5px;
+        }
+
+        .open-badge {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: rgba(40,167,69,0.9);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(4px);
+        }
+
+        .open-badge i { font-size: 0.45rem; }
+
+        .card-body { padding: 1.25rem; }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-meta {
+            font-size: 0.82rem;
+            color: #9e8070;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 3px;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: #b09080;
+            line-height: 1.55;
+            margin-top: 0.6rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer-custom {
+            padding: 0 1.25rem 1.25rem;
+            background: transparent;
+            border: none;
+        }
+
+        .btn-menu {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(255,107,53,0.3);
+        }
+
+        .btn-menu:hover {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(255,107,53,0.4);
+        }
+
+        /* ── STATES ── */
+        .spinner-section {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner-border { color: var(--fire) !important; }
+
+        #noResults { color: #9e8070; }
+        #noResults .empty-icon { font-size: 4rem; }
+
+        .btn-show-all {
+            background: var(--fire);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-show-all:hover { background: var(--fire-dark); color: white; }
+
+        /* Alert */
+        #alertBox { border-radius: 12px; font-weight: 500; }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #1a1008;
+            color: rgba(255,255,255,0.35);
+            border-top: 1px solid rgba(255,107,53,0.1);
+        }
+
+        footer strong { color: var(--fire); }
+
+        /* Nav username */
+        #userName { color: #ffc107 !important; }
+    
+        /* ── BOWL LOGO ANIMATIONS ── */
+        /* Steam rise */
+        .bowl-svg .steam-group .s1,
+        .bowl-svg .steam-group .s2,
+        .bowl-svg .steam-group .s3 {
+            animation: steamRise 2.2s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        .bowl-svg .steam-group .s1 { animation-delay: 0s; }
+        .bowl-svg .steam-group .s2 { animation-delay: 0.4s; }
+        .bowl-svg .steam-group .s3 { animation-delay: 0.8s; }
+
+        @keyframes steamRise {
+            0%   { opacity: 0;   transform: translateY(2px) scaleX(1);   }
+            20%  { opacity: 0.9; transform: translateY(-1px) scaleX(1.1); }
+            60%  { opacity: 0.5; transform: translateY(-5px) scaleX(0.85); }
+            100% { opacity: 0;   transform: translateY(-9px) scaleX(1);  }
+        }
+
+        /* Lid float animation — always running subtly */
+        .bowl-svg .lid-group {
+            animation: lidFloat 3s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidFloat {
+            0%,100% { transform: translateY(0px);  }
+            50%      { transform: translateY(-1.5px); }
+        }
+
+        /* Lid lifts up on brand hover */
+        .navbar-brand:hover .bowl-svg .lid-group,
+        .brand:hover .bowl-svg .lid-group {
+            animation: lidOpen 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+            transform-box: fill-box;
+            transform-origin: bottom center;
+        }
+        @keyframes lidOpen {
+            0%   { transform: translateY(0px)  rotate(0deg);  }
+            60%  { transform: translateY(-7px) rotate(-8deg); }
+            100% { transform: translateY(-6px) rotate(-6deg); }
+        }
+
+        /* Scale up bowl slightly on hover */
+        .navbar-brand:hover .bowl-svg,
+        .brand:hover .bowl-svg {
+            transform: scale(1.08);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .bowl-svg { transition: transform 0.3s ease; }
+        </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html"><span class="hotpot-logo" style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;">
+<svg class="bowl-svg" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- STEAM (3 wiggly lines, animated) -->
+  <g class="steam-group">
+    <path class="s1" d="M14 13 C13 11 15 9 14 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <path class="s2" d="M21 12 C20 10 22 8 21 6" stroke="#ff6b35" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+    <path class="s3" d="M28 13 C27 11 29 9 28 7" stroke="#ff8f62" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- LID GROUP (lifts on hover) -->
+  <g class="lid-group">
+    <!-- Lid body -->
+    <path d="M9 19 Q9 15 21 15 Q33 15 33 19 Z" fill="#e04e1a"/>
+    <!-- Lid top arc highlight -->
+    <path d="M11 18 Q11 16 21 16 Q31 16 31 18" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <!-- Lid knob -->
+    <rect x="18" y="12.5" width="6" height="3" rx="1.5" fill="#c23a0e"/>
+    <rect x="19.5" y="11" width="3" height="2" rx="1" fill="#a52d08"/>
+  </g>
+
+  <!-- BOWL BODY -->
+  <!-- Bowl rim -->
+  <ellipse cx="21" cy="20" rx="12" ry="2.2" fill="#ff6b35"/>
+  <!-- Bowl outer -->
+  <path d="M9 20 Q9 33 21 33 Q33 33 33 20 Z" fill="#ff6b35"/>
+  <!-- Bowl inner shadow -->
+  <path d="M11 20 Q11 31 21 31 Q31 31 31 20 Z" fill="#e04e1a"/>
+
+  <!-- FOOD inside bowl (visible above rim) -->
+  <!-- Noodle / food swirl 1 -->
+  <path d="M13 20 Q15 18 17 20 Q19 22 21 20 Q23 18 25 20 Q27 22 29 20" stroke="#ffd54f" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <!-- Noodle swirl 2 -->
+  <path d="M14 22 Q16 20.5 18 22 Q20 23.5 22 22 Q24 20.5 26 22 Q27 23 28 22" stroke="#ffb74d" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- Little garnish dots -->
+  <circle cx="16" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+  <circle cx="21" cy="19.5" r="1" fill="#69f0ae" opacity="0.85"/>
+  <circle cx="26" cy="21" r="1.1" fill="#ff5252" opacity="0.85"/>
+
+  <!-- Bowl shine -->
+  <ellipse cx="15" cy="26" rx="2" ry="3.5" fill="rgba(255,255,255,0.1)" transform="rotate(-20 15 26)"/>
+</svg>
+</span> Hot<span>Pot</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="restaurants.html"><i class="bi bi-shop me-1"></i>Restaurants</a></li>
+                <li class="nav-item d-none" id="cartNav"><a class="nav-link" href="cart.html"><i class="bi bi-cart3 me-1"></i>Cart</a></li>
+                <li class="nav-item d-none" id="ordersNav"><a class="nav-link" href="orders.html"><i class="bi bi-bag-check me-1"></i>My Orders</a></li>
+                <li class="nav-item d-none" id="userNav"><span class="nav-link fw-bold" id="userName"></span></li>
+                <li class="nav-item" id="loginNav"><a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                <li class="nav-item d-none" id="logoutNav"><button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="container text-center">
+        <h2>🍽️ All Restaurants</h2>
+        <p class="mb-4">Find your favourite restaurant and order now!</p>
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Search restaurants..." onkeyup="searchRestaurants()">
+            <button onclick="searchRestaurants()"><i class="bi bi-search me-1"></i> Search</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container py-5">
+
+    <div id="alertBox" class="alert d-none"></div>
+
+    <div id="loadingSection" class="spinner-section">
+        <div class="text-center">
+            <div class="spinner-border" style="width:3rem;height:3rem;"></div>
+            <p class="mt-3 text-muted">Loading restaurants...</p>
+        </div>
+    </div>
+
+    <div id="noResults" class="text-center py-5 d-none">
+        <div class="empty-icon">🍽️</div>
+        <h5 class="mt-3">No restaurants found!</h5>
+        <button class="btn btn-show-all mt-3" onclick="loadRestaurants()">Show All</button>
+    </div>
+
+    <div class="row g-4" id="restaurantsGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-0">🍲 <strong>HotPot</strong> © 2024</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API = 'http://localhost:8080';
+    let allRestaurants = [];
+
+    window.onload = function () {
+        updateNavbar();
+        loadRestaurants();
+    }
+
+    function updateNavbar() {
+        const token = localStorage.getItem('token');
+        const name  = localStorage.getItem('userName');
+        if (token) {
+            document.getElementById('loginNav').classList.add('d-none');
+            document.getElementById('cartNav').classList.remove('d-none');
+            document.getElementById('ordersNav').classList.remove('d-none');
+            document.getElementById('userNav').classList.remove('d-none');
+            document.getElementById('logoutNav').classList.remove('d-none');
+            document.getElementById('userName').textContent = '👤 ' + name;
+        }
+    }
+
+    async function loadRestaurants() {
+        document.getElementById('loadingSection').classList.remove('d-none');
+        document.getElementById('restaurantsGrid').innerHTML = '';
+        document.getElementById('noResults').classList.add('d-none');
+
+        try {
+            const response = await fetch(`${API}/api/restaurant/active`);
+            const data = await response.json();
+            allRestaurants = data;
+            displayRestaurants(data);
+        } catch (error) {
+            showAlert('danger', 'Cannot connect to server!');
+        } finally {
+            document.getElementById('loadingSection').classList.add('d-none');
+        }
+    }
+
+    async function searchRestaurants() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) { displayRestaurants(allRestaurants); return; }
+        try {
+            const response = await fetch(`${API}/api/restaurant/search?keyword=${keyword}`);
+            const data = await response.json();
+            displayRestaurants(data);
+        } catch (error) {
+            showAlert('danger', 'Search failed!');
+        }
+    }
+
+    function displayRestaurants(restaurants) {
+        const grid = document.getElementById('restaurantsGrid');
+        grid.innerHTML = '';
+
+        if (!restaurants || restaurants.length === 0) {
+            document.getElementById('noResults').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('noResults').classList.add('d-none');
+
+        function getRestaurantImage(name, index) {
+            const n = name.toLowerCase();
+            if (n.includes('hotpot') || n.includes('north') || n.includes('punjabi') || n.includes('mughal'))
+                return 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80';
+            if (n.includes('biriyani') || n.includes('biryani') || n.includes('meghana') || n.includes('dum'))
+                return 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80';
+            if (n.includes('corner house') || n.includes('dessert') || n.includes('chocolate') || n.includes('sweet') || n.includes('ice cream'))
+                return 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=600&q=80';
+            if (n.includes('rameshwaram') || n.includes('south') || n.includes('dosa') || n.includes('idli') || n.includes('cafe') || n.includes('udupi'))
+                return 'https://images.unsplash.com/photo-1630383249896-424e482df921?w=600&q=80';
+            const fallback = [
+                'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80',
+                'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80',
+                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+                'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',
+                'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80',
+            ];
+            return fallback[index % fallback.length];
+        }
+
+        restaurants.forEach((r, index) => {
+            const imgUrl = getRestaurantImage(r.name || '', index);
+            const initial = r.name ? r.name.charAt(0).toUpperCase() : '🍽';
+            const col = document.createElement('div');
+            col.className = 'col-md-4 col-sm-6';
+            col.innerHTML = `
+                <div class="card restaurant-card h-100" onclick="goToMenu(${r.id}, '${r.name}')">
+                    <div class="card-img-wrap">
+                        <img src="${imgUrl}" alt="${r.name}" loading="lazy">
+                        <div class="open-badge">
+                            <i class="bi bi-circle-fill"></i> Open
+                        </div>
+                        <div class="restaurant-initial">${r.name}</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">${r.name}</h5>
+                        <div class="card-meta">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> ${r.location}
+                        </div>
+                        <div class="card-meta">
+                            <i class="bi bi-telephone-fill text-success"></i> ${r.contactNumber || 'N/A'}
+                        </div>
+                        <p class="card-desc">${r.description || 'Delicious food awaits!'}</p>
+                    </div>
+                    <div class="card-footer-custom">
+                        <button class="btn-menu">
+                            <i class="bi bi-menu-button-wide me-1"></i> View Menu
+                        </button>
+                    </div>
+                </div>`;
+            grid.appendChild(col);
+        });
+    }
+
+    function goToMenu(restaurantId, restaurantName) {
+        localStorage.setItem('selectedRestaurantId', String(restaurantId));
+        localStorage.setItem('selectedRestaurantName', restaurantName);
+        window.location.href = 'menu.html';
+    }
+
+    function showAlert(type, msg) {
+        const el = document.getElementById('alertBox');
+        el.className = `alert alert-${type}`;
+        el.textContent = msg;
+        el.classList.remove('d-none');
+        setTimeout(() => el.classList.add('d-none'), 3000);
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+</script>
+</body>
+</html>

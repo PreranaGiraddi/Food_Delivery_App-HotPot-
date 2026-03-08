@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot | Menu Items</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --fire:#ff6b35; --fire-dark:#e85d2f; --coal:#1a1a2e; --cream:#faf7f2; --success:#2ecc71; --danger:#e74c3c; --gold:#f5a623; --info:#3498db; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--cream); display:flex; min-height:100vh; }
+        .sidebar { width:240px; min-height:100vh; background:var(--coal); position:fixed; left:0; top:0; z-index:1000; display:flex; flex-direction:column; box-shadow:4px 0 20px rgba(0,0,0,0.25); }
+        .sidebar-brand { padding:22px 18px; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .brand-logo { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--fire); }
+        .brand-sub  { font-size:0.62rem; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+        .rest-info  { padding:14px 18px; background:rgba(255,107,53,0.07); border-bottom:1px solid rgba(255,255,255,0.05); }
+        .rest-name  { font-family:'Syne',sans-serif; font-weight:700; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rest-badge { display:inline-block; background:var(--fire); color:#fff; font-size:0.58rem; padding:2px 8px; border-radius:20px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+        .sidebar-nav { padding:14px 10px; flex:1; }
+        .nav-label   { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.22); padding:8px 10px 5px; font-weight:600; }
+        .nav-item    { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.2s; margin-bottom:2px; font-size:0.87rem; font-weight:500; text-decoration:none; }
+        .nav-item:hover  { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); }
+        .nav-item.active { background:linear-gradient(135deg,var(--fire),var(--fire-dark)); color:#fff; box-shadow:0 4px 14px rgba(255,107,53,0.3); }
+        .nav-item i { font-size:1rem; width:18px; text-align:center; }
+        .sidebar-footer { padding:14px 10px; border-top:1px solid rgba(255,255,255,0.07); }
+        .logout-btn { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; color:rgba(255,255,255,0.4); cursor:pointer; border:none; background:none; width:100%; font-size:0.85rem; transition:all 0.2s; }
+        .logout-btn:hover { background:rgba(231,76,60,0.12); color:var(--danger); }
+        .main-content { margin-left:240px; flex:1; }
+        .top-bar { background:#fff; padding:15px 28px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .page-title    { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; color:var(--coal); }
+        .page-subtitle { font-size:0.77rem; color:#aaa; }
+        .content-area  { padding:24px 28px; }
+
+        /* MENU GRID */
+        .menu-card { background:#fff; border-radius:14px; border:1.5px solid #f0f0f0; overflow:hidden; transition:all 0.2s; }
+        .menu-card:hover { border-color:var(--fire); box-shadow:0 6px 20px rgba(255,107,53,0.1); transform:translateY(-2px); }
+        /* Out of stock: grey the card visually but NEVER block pointer events on buttons */
+        .menu-card.out-of-stock { border-left: 4px solid #e74c3c; }
+        .menu-card-top { padding:16px; border-bottom:1px solid #f5f5f5; }
+        .menu-name  { font-family:'Syne',sans-serif; font-weight:700; font-size:0.97rem; color:var(--coal); }
+        .menu-price { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; color:var(--fire); }
+        .menu-card-body { padding:14px 16px; }
+        .menu-desc { font-size:0.8rem; color:#999; line-height:1.5; margin-bottom:10px; }
+        .tag { display:inline-block; padding:3px 9px; border-radius:20px; font-size:0.72rem; font-weight:600; margin:2px; }
+        .tag-veg    { background:rgba(46,204,113,0.1);  color:#27ae60; }
+        .tag-nonveg { background:rgba(231,76,60,0.1);   color:var(--danger); }
+        .tag-vegan  { background:rgba(52,152,219,0.1);  color:var(--info); }
+        .tag-avail  { background:rgba(46,204,113,0.1);  color:#27ae60; }
+        .tag-out    { background:rgba(231,76,60,0.1);   color:var(--danger); }
+        .tag-info   { background:#f5f5f5; color:#888; }
+
+        /* NUTRITION BOX */
+        .nutrition-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:10px; }
+        .nut-item { background:#f9f9f9; border-radius:8px; padding:6px; text-align:center; }
+        .nut-val  { font-weight:700; font-size:0.8rem; color:var(--coal); }
+        .nut-lbl  { font-size:0.62rem; color:#bbb; text-transform:uppercase; letter-spacing:0.4px; }
+
+        .menu-card-foot { padding:11px 16px; background:#fafafa; display:flex; gap:7px; }
+
+        /* BUTTONS */
+        .btn-fire { background:var(--fire); color:#fff; border:none; border-radius:10px; padding:9px 18px; font-weight:600; font-size:0.85rem; transition:all 0.2s; cursor:pointer; }
+        .btn-fire:hover { background:var(--fire-dark); color:#fff; transform:translateY(-1px); }
+        .btn-outline-fire { background:transparent; color:var(--fire); border:1.5px solid var(--fire); border-radius:8px; padding:7px 13px; font-weight:600; font-size:0.82rem; transition:all 0.2s; cursor:pointer; }
+        .btn-outline-fire:hover { background:var(--fire); color:#fff; }
+        .btn-sm-act { border-radius:8px; font-size:0.78rem; font-weight:600; padding:6px 11px; border:none; cursor:pointer; transition:all 0.2s; }
+        .btn-edit   { background:#f0f0f0; color:#555; }
+        .btn-edit:hover   { background:#ddd; }
+        .btn-del    { background:rgba(231,76,60,0.08); color:var(--danger); }
+        .btn-del:hover    { background:rgba(231,76,60,0.18); }
+        .btn-mark-out   { background:rgba(231,76,60,0.1);  color:#e74c3c; }
+        .btn-mark-out:hover { background:rgba(231,76,60,0.2); }
+        .btn-mark-avail { background:rgba(46,204,113,0.1); color:#27ae60; }
+        .btn-mark-avail:hover { background:rgba(46,204,113,0.2); }
+
+        /* MODAL */
+        .modal-content { border-radius:18px; border:none; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+        .modal-header  { background:var(--coal); color:#fff; border-radius:18px 18px 0 0; padding:18px 22px; border:none; }
+        .modal-title   { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; }
+        .modal-body    { padding:22px; }
+        .modal-footer  { padding:14px 22px; border-top:1px solid #f0f0f0; }
+        .form-label    { font-size:0.78rem; font-weight:600; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
+        .form-control,.form-select { border:1.5px solid #eee; border-radius:10px; padding:9px 13px; font-size:0.88rem; }
+        .form-control:focus,.form-select:focus { border-color:var(--fire); box-shadow:0 0 0 3px rgba(255,107,53,0.1); }
+
+        /* SEARCH BAR */
+        .search-bar { background:#fff; border-radius:14px; border:1.5px solid #f0f0f0; padding:16px 22px; margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+
+        .alert-toast { position:fixed; top:20px;right:20px; z-index:9999; min-width:260px; border-radius:12px; padding:13px 17px; font-size:0.86rem; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.12); display:none; }
+        .loading-box { display:flex; align-items:center; justify-content:center; padding:40px; color:#ccc; gap:10px; font-size:0.86rem; }
+        .empty-state { text-align:center; padding:50px 20px; color:#ccc; }
+        .empty-icon  { font-size:3rem; margin-bottom:12px; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo">🍲 HotPot</div>
+        <div class="brand-sub">Restaurant Portal</div>
+    </div>
+    <div class="rest-info">
+        <div class="rest-name" id="sidebarName">Loading...</div>
+        <span class="rest-badge">🟢 Active</span>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a class="nav-item" href="restaurant-dashboard.html"><i class="bi bi-grid-fill"></i> Overview</a>
+        <a class="nav-item" href="restaurant-orders.html"><i class="bi bi-bag-check-fill"></i> Active Orders</a>
+        <a class="nav-item" href="restaurant-order-history.html"><i class="bi bi-clock-history"></i> Order History</a>
+        <div class="nav-label mt-2">Menu</div>
+        <a class="nav-item active" href="restaurant-menu.html"><i class="bi bi-egg-fried"></i> Menu Items</a>
+        <a class="nav-item" href="restaurant-categories.html"><i class="bi bi-tags-fill"></i> Categories</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </div>
+</aside>
+
+<div class="main-content">
+    <div class="top-bar">
+        <div>
+            <div class="page-title">Menu Items</div>
+            <div class="page-subtitle">Add, edit, delete and manage availability of your dishes.</div>
+        </div>
+        <button class="btn-fire" onclick="openAddModal()"><i class="bi bi-plus-lg me-1"></i> Add Menu Item</button>
+    </div>
+
+    <div class="alert-toast" id="alertToast"></div>
+
+    <div class="content-area">
+        <!-- SEARCH & FILTER -->
+        <div class="search-bar">
+            <input type="text" class="form-control" id="searchInput" placeholder="🔍 Search dishes..." style="max-width:240px" oninput="filterMenu()">
+            <select class="form-select" id="filterDiet" style="max-width:150px" onchange="filterMenu()">
+                <option value="">All Types</option>
+                <option value="VEG">🥦 Veg</option>
+                <option value="NONVEG">🍗 Non-Veg</option>
+                <option value="VEGAN">🌱 Vegan</option>
+            </select>
+            <select class="form-select" id="filterAvail" style="max-width:160px" onchange="filterMenu()">
+                <option value="">All Status</option>
+                <option value="true">✅ Available</option>
+                <option value="false">❌ Out of Stock</option>
+            </select>
+            <span class="text-muted ms-auto" style="font-size:0.82rem" id="itemCount"></span>
+        </div>
+
+        <!-- MENU GRID -->
+        <div class="row g-3" id="menuGrid">
+            <div class="col-12">
+                <div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading menu items...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal fade" id="menuModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Menu Item</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Item Name *</label>
+                        <input type="text" class="form-control" id="fName" placeholder="e.g. Chicken Biryani">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="fCategory">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-control" id="fDesc" rows="2" placeholder="e.g. Aromatic slow-cooked chicken biryani with saffron..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Key Ingredients</label>
+                        <textarea class="form-control" id="fIngredients" rows="2" placeholder="e.g. Basmati rice, Chicken, Saffron, Cardamom, Cloves, Yogurt, Onions..."></textarea>
+                        <small class="text-muted" style="font-size:0.75rem">🧄 List main ingredients separated by commas</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Price (₹) *</label>
+                        <input type="number" class="form-control" id="fPrice" placeholder="199">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Discount Price (₹)</label>
+                        <input type="number" class="form-control" id="fDiscount" placeholder="149">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Dietary Type *</label>
+                        <select class="form-select" id="fDiet">
+                            <option value="">Select</option>
+                            <option value="VEG">🥦 Vegetarian</option>
+                            <option value="NONVEG">🍗 Non-Vegetarian</option>
+                            <option value="VEGAN">🌱 Vegan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Taste Info</label>
+                        <select class="form-select" id="fTaste">
+                            <option value="">Select Taste</option>
+                            <option value="Sweet">🍬 Sweet</option>
+                            <option value="Spicy Light">🌶️ Spicy Light</option>
+                            <option value="Spicy Full">🌶️🌶️ Spicy Full</option>
+                            <option value="Mild">😊 Mild</option>
+                            <option value="Tangy">🍋 Tangy</option>
+                            <option value="Savory">🧂 Savory</option>
+                            <option value="Bitter">☕ Bitter</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Availability Time</label>
+                        <select class="form-select" id="fAvailTime">
+                            <option value="All Day">🕐 All Day</option>
+                            <option value="Breakfast">🌅 Breakfast (7AM–11AM)</option>
+                            <option value="Lunch">☀️ Lunch (12PM–3PM)</option>
+                            <option value="Dinner">🌙 Dinner (7PM–11PM)</option>
+                            <option value="Snacks">☕ Snacks (4PM–7PM)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cooking Time (minutes)</label>
+                        <input type="number" class="form-control" id="fCookTime" placeholder="20">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Availability Status</label>
+                        <select class="form-select" id="fAvail">
+                            <option value="true">✅ Available</option>
+                            <option value="false">❌ Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <!-- NUTRITIONAL INFO -->
+                    <div class="col-12">
+                        <div class="p-3 rounded-3" style="background:#f9f9f9;border:1px solid #eee">
+                            <div class="fw-bold mb-2" style="font-size:0.85rem;color:#555">🥗 Nutritional Info (per serving)</div>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label">Calories (kcal)</label>
+                                    <input type="number" class="form-control" id="fCalories" placeholder="250">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label">Fats (g)</label>
+                                    <input type="number" class="form-control" id="fFats" placeholder="12">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label">Proteins (g)</label>
+                                    <input type="number" class="form-control" id="fProteins" placeholder="18">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label">Carbohydrates (g)</label>
+                                    <input type="number" class="form-control" id="fCarbs" placeholder="35">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-fire" onclick="saveItem()"><i class="bi bi-check-lg me-1"></i> Save Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API    = 'http://localhost:8080';
+const token  = localStorage.getItem('token');
+const userId = localStorage.getItem('userId');
+let restId   = localStorage.getItem('restaurantId');
+let allItems = [];
+let allCats  = [];
+
+window.onload = function() {
+    if (!token || !userId) { window.location.href = 'login.html'; return; }
+    loadRestaurant();
+};
+
+async function loadRestaurant() {
+    if (restId) { document.getElementById('sidebarName').textContent = 'My Restaurant'; loadMenu(); loadCategories(); return; }
+    try {
+        const res  = await fetch(`${API}/api/restaurant/owner/${userId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        const rest = Array.isArray(data) ? data[0] : data;
+        if (!rest) { showAlert('danger', 'No restaurant found!'); return; }
+        restId = rest.id;
+        localStorage.setItem('restaurantId', rest.id);
+        document.getElementById('sidebarName').textContent = rest.name;
+        loadMenu();
+        loadCategories();
+    } catch(e) { showAlert('danger','Server error!'); }
+}
+
+async function loadMenu() {
+    try {
+        const res = await fetch(`${API}/api/menu/restaurant/${restId}?_=${Date.now()}`, { headers: { 'Authorization': 'Bearer ' + token } });
+        const raw = res.ok ? await res.json() : [];
+        // Java's boolean getter drops "is" prefix → backend sends "available", not "isAvailable"
+        console.log('Raw menu item sample:', raw[0]); // debug: see "available" vs "isAvailable"
+        allItems = (Array.isArray(raw) ? raw : []).map(item => ({
+            ...item,
+            isAvailable: item.isAvailable !== undefined ? Boolean(item.isAvailable)
+                       : item.available  !== undefined ? Boolean(item.available)
+                       : true
+        }));
+        renderMenu(allItems);
+    } catch(e) { console.error(e); }
+}
+
+async function loadCategories() {
+    try {
+        const res = await fetch(`${API}/api/category/restaurant/${restId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+        allCats = res.ok ? await res.json() : [];
+    } catch(e) { console.error(e); }
+}
+
+function filterMenu() {
+    const q     = document.getElementById('searchInput').value.toLowerCase();
+    const diet  = document.getElementById('filterDiet').value;
+    const avail = document.getElementById('filterAvail').value;
+    const filtered = allItems.filter(i => {
+        const mq = !q    || i.name?.toLowerCase().includes(q) || i.description?.toLowerCase().includes(q);
+        const md = !diet  || i.dietaryType === diet;
+        const ma = avail === '' || String(i.isAvailable) === avail;
+        return mq && md && ma;
+    });
+    renderMenu(filtered);
+}
+
+function renderMenu(items) {
+    const grid = document.getElementById('menuGrid');
+    document.getElementById('itemCount').textContent = items.length + ' item(s)';
+    if (!items.length) {
+        grid.innerHTML = `<div class="col-12"><div class="empty-state"><div class="empty-icon">🍽️</div><div>No menu items found!</div></div></div>`;
+        return;
+    }
+    grid.innerHTML = items.map(item => {
+        const dietTag = item.dietaryType === 'VEG' ? `<span class="tag tag-veg">🥦 Veg</span>` :
+                        item.dietaryType === 'VEGAN'? `<span class="tag tag-vegan">🌱 Vegan</span>` :
+                                                      `<span class="tag tag-nonveg">🍗 Non-Veg</span>`;
+        const availBadge = item.isAvailable
+            ? `<span class="tag tag-avail">✅ Available</span>`
+            : `<span class="tag tag-out">❌ Out of Stock</span>`;
+        const toggleBtn = item.isAvailable
+            ? `<button class="btn-sm-act btn-mark-out flex-grow-1" onclick="toggleStock(${item.id}, false)">🔴 Mark Out of Stock</button>`
+            : `<button class="btn-sm-act btn-mark-avail flex-grow-1" onclick="toggleStock(${item.id}, true)">🟢 Mark Available</button>`;
+        const hasNutrition = item.calories || item.fats || item.proteins || item.carbs;
+        const nutritionHtml = hasNutrition ? `
+            <div class="nutrition-grid">
+                <div class="nut-item"><div class="nut-val">${item.calories||'—'}</div><div class="nut-lbl">Calories</div></div>
+                <div class="nut-item"><div class="nut-val">${item.fats!=null?item.fats+'g':'—'}</div><div class="nut-lbl">Fats</div></div>
+                <div class="nut-item"><div class="nut-val">${item.proteins!=null?item.proteins+'g':'—'}</div><div class="nut-lbl">Protein</div></div>
+                <div class="nut-item"><div class="nut-val">${item.carbs!=null?item.carbs+'g':'—'}</div><div class="nut-lbl">Carbs</div></div>
+            </div>` : '';
+        return `
+        <div class="col-md-6 col-lg-4">
+            <div class="menu-card ${item.isAvailable ? '' : 'out-of-stock'}">
+                <div class="menu-card-top">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <div class="menu-name">${item.name}</div>
+                        <div class="menu-price">₹${item.discountPrice||item.price}</div>
+                    </div>
+                    <div class="d-flex gap-1 flex-wrap">${dietTag}${availBadge}</div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="menu-desc">${item.description||'No description provided.'}</div>
+                    ${item.ingredients ? `<div style="font-size:0.78rem;color:#aaa;margin-top:5px;margin-bottom:8px;line-height:1.5">🧄 <strong>Ingredients:</strong> ${item.ingredients}</div>` : ''}
+                    <div class="d-flex gap-2 flex-wrap">
+                        ${item.tasteInfo ? `<span class="tag tag-info">🌶️ ${item.tasteInfo}</span>` : ''}
+                        ${item.cookingTime ? `<span class="tag tag-info">⏱️ ${item.cookingTime} min</span>` : ''}
+                        ${item.availabilityTime ? `<span class="tag tag-info">🕐 ${item.availabilityTime}</span>` : ''}
+                        ${item.discountPrice && item.discountPrice < item.price ? `<span class="tag tag-info">🏷️ Was ₹${item.price}</span>` : ''}
+                    </div>
+                    ${nutritionHtml}
+                </div>
+                <div class="menu-card-foot">
+                    <button class="btn-sm-act btn-edit" onclick="openEditModal(${item.id})"><i class="bi bi-pencil"></i> Edit</button>
+                    ${toggleBtn}
+                    <button class="btn-sm-act btn-del" onclick="deleteItem(${item.id},'${item.name.replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openAddModal() {
+    document.getElementById('editId').value = '';
+    document.getElementById('modalTitle').textContent = 'Add Menu Item';
+    clearForm();
+    populateCats(null);
+    new bootstrap.Modal(document.getElementById('menuModal')).show();
+}
+
+function openEditModal(id) {
+    const item = allItems.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('editId').value   = id;
+    document.getElementById('modalTitle').textContent = 'Edit Menu Item';
+    document.getElementById('fName').value        = item.name||'';
+    document.getElementById('fDesc').value        = item.description||'';
+    document.getElementById('fIngredients').value = item.ingredients||'';
+    document.getElementById('fPrice').value       = item.price||'';
+    document.getElementById('fDiscount').value = item.discountPrice||'';
+    document.getElementById('fDiet').value     = item.dietaryType||'';
+    document.getElementById('fTaste').value    = item.tasteInfo||'';
+    document.getElementById('fAvailTime').value= item.availabilityTime||'All Day';
+    document.getElementById('fCookTime').value = item.cookingTime||'';
+    document.getElementById('fAvail').value    = item.isAvailable?'true':'false';
+    document.getElementById('fCalories').value = item.calories||'';
+    document.getElementById('fFats').value     = item.fats||'';
+    document.getElementById('fProteins').value = item.proteins||'';
+    document.getElementById('fCarbs').value    = item.carbs||'';
+    populateCats(item.categoryId || item.category?.id);
+    new bootstrap.Modal(document.getElementById('menuModal')).show();
+}
+
+function populateCats(selectedId) {
+    const sel = document.getElementById('fCategory');
+    sel.innerHTML = '<option value="">Select Category</option>';
+    allCats.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id; o.textContent = c.name;
+        if (selectedId && c.id === selectedId) o.selected = true;
+        sel.appendChild(o);
+    });
+}
+
+function clearForm() {
+    ['fName','fDesc','fIngredients','fPrice','fDiscount','fCookTime','fCalories','fFats','fProteins','fCarbs'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fDiet').value = '';
+    document.getElementById('fTaste').value = '';
+    document.getElementById('fAvailTime').value = 'All Day';
+    document.getElementById('fAvail').value = 'true';
+}
+
+async function saveItem() {
+    const id    = document.getElementById('editId').value;
+    const name  = document.getElementById('fName').value.trim();
+    const price = document.getElementById('fPrice').value;
+    if (!name || !price) { showAlert('warning','Item name and price are required!'); return; }
+
+    const payload = {
+        name, restaurantId: parseInt(restId),
+        description:      document.getElementById('fDesc').value.trim(),
+        price:            parseFloat(price),
+        discountPrice:    parseFloat(document.getElementById('fDiscount').value)||null,
+        dietaryType:      document.getElementById('fDiet').value,
+        tasteInfo:        document.getElementById('fTaste').value,
+        availabilityTime: document.getElementById('fAvailTime').value,
+        cookingTime:      parseInt(document.getElementById('fCookTime').value)||null,
+        isAvailable:      document.getElementById('fAvail').value === 'true',
+        categoryId:       document.getElementById('fCategory').value ? parseInt(document.getElementById('fCategory').value) : null,
+        calories:         parseInt(document.getElementById('fCalories').value)||null,
+        fats:             parseFloat(document.getElementById('fFats').value)||null,
+        proteins:         parseFloat(document.getElementById('fProteins').value)||null,
+        carbs:            parseFloat(document.getElementById('fCarbs').value)||null,
+        ingredients:      document.getElementById('fIngredients').value.trim()||null,
+    };
+
+    try {
+        const url    = id ? `${API}/api/menu/update/${id}` : `${API}/api/menu/add`;
+        const method = id ? 'PUT' : 'POST';
+        const res    = await fetch(url, { method, headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token }, body: JSON.stringify(payload) });
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
+            showAlert('success', id ? '✅ Menu item updated!' : '✅ Menu item added!');
+            loadMenu();
+        } else {
+            const err = await res.json();
+            showAlert('danger', err.message||'Save failed!');
+        }
+    } catch(e) { showAlert('danger','Server error!'); }
+}
+
+async function toggleStock(id, available) {
+    try {
+        const item = allItems.find(i => i.id === id);
+        if (!item) return;
+
+        // Send both field names — Java backend might use either
+        const updated = { ...item, isAvailable: available, available: available };
+        console.log('Toggling item', id, 'to isAvailable=', available);
+
+        // Try dedicated availability endpoint first (most reliable)
+        let res = await fetch(`${API}/api/menu/availability/${id}?isAvailable=${available}`, {
+            method: 'PUT', headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        // If that fails, try full update
+        if (!res.ok) {
+            res = await fetch(`${API}/api/menu/update/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify(updated)
+            });
+        }
+
+        if (res.ok) {
+            showAlert('success', available ? '🟢 Marked as Available!' : '🔴 Marked as Out of Stock!');
+            await loadMenu(); // reload fresh from server
+        } else {
+            showAlert('danger', 'Update failed! Check backend endpoint.');
+        }
+    } catch(e) { showAlert('danger', 'Server error!'); }
+}
+
+async function deleteItem(id, name) {
+    if (!confirm(`Delete "${name}" from menu? This cannot be undone!`)) return;
+    try {
+        const res = await fetch(`${API}/api/menu/delete/${id}`, { method:'DELETE', headers:{ 'Authorization':'Bearer '+token } });
+        if (res.ok) { showAlert('success',`✅ "${name}" deleted!`); loadMenu(); }
+        else showAlert('danger','Delete failed!');
+    } catch(e) { showAlert('danger','Server error!'); }
+}
+
+function showAlert(type, msg) { const el=document.getElementById('alertToast'); el.className=`alert-toast alert alert-${type}`; el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',3500); }
+function logout() { if(confirm('Logout?')){ localStorage.clear(); window.location.href='index.html'; } }
+</script>
+</body>
+</html>

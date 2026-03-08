@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot | Restaurant Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --fire:#ff6b35; --fire-dark:#e85d2f; --coal:#1a1a2e; --cream:#faf7f2; --gold:#f5a623; --success:#2ecc71; --danger:#e74c3c; --info:#3498db; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--cream); display:flex; min-height:100vh; }
+        .sidebar { width:240px; min-height:100vh; background:var(--coal); position:fixed; left:0; top:0; z-index:1000; display:flex; flex-direction:column; box-shadow:4px 0 20px rgba(0,0,0,0.25); }
+        .sidebar-brand { padding:22px 18px; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .brand-logo { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--fire); }
+        .brand-sub  { font-size:0.62rem; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+        .rest-info  { padding:14px 18px; background:rgba(255,107,53,0.07); border-bottom:1px solid rgba(255,255,255,0.05); }
+        .rest-name  { font-family:'Syne',sans-serif; font-weight:700; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rest-badge { display:inline-block; background:var(--fire); color:#fff; font-size:0.58rem; padding:2px 8px; border-radius:20px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+        .sidebar-nav { padding:14px 10px; flex:1; }
+        .nav-label   { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.22); padding:8px 10px 5px; font-weight:600; }
+        .nav-item    { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.2s; margin-bottom:2px; font-size:0.87rem; font-weight:500; text-decoration:none; }
+        .nav-item:hover  { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); }
+        .nav-item.active { background:linear-gradient(135deg,var(--fire),var(--fire-dark)); color:#fff; box-shadow:0 4px 14px rgba(255,107,53,0.3); }
+        .nav-item i { font-size:1rem; width:18px; text-align:center; }
+        .sidebar-footer { padding:14px 10px; border-top:1px solid rgba(255,255,255,0.07); }
+        .logout-btn { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; color:rgba(255,255,255,0.4); cursor:pointer; border:none; background:none; width:100%; font-size:0.85rem; transition:all 0.2s; }
+        .logout-btn:hover { background:rgba(231,76,60,0.12); color:var(--danger); }
+        .main-content { margin-left:240px; flex:1; }
+        .top-bar { background:#fff; padding:15px 28px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .page-title    { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; color:var(--coal); }
+        .page-subtitle { font-size:0.77rem; color:#aaa; }
+        .content-area  { padding:24px 28px; }
+        .stat-card { background:#fff; border-radius:16px; padding:22px; border:1px solid #f0f0f0; position:relative; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; }
+        .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.07); }
+        .stat-card::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; }
+        .s1::before{background:var(--fire);} .s2::before{background:var(--success);} .s3::before{background:var(--info);} .s4::before{background:var(--gold);} .s5::before{background:#9b59b6;}
+        .stat-icon { width:44px;height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; margin-bottom:14px; }
+        .i1{background:rgba(255,107,53,0.1);color:var(--fire);} .i2{background:rgba(46,204,113,0.1);color:var(--success);} .i3{background:rgba(52,152,219,0.1);color:var(--info);} .i4{background:rgba(245,166,35,0.1);color:var(--gold);} .i5{background:rgba(155,89,182,0.1);color:#9b59b6;}
+        .stat-number { font-family:'Syne',sans-serif; font-size:1.85rem; font-weight:800; color:var(--coal); line-height:1; }
+        .stat-label  { font-size:0.78rem; color:#aaa; margin-top:4px; }
+        .content-card { background:#fff; border-radius:16px; border:1px solid #f0f0f0; overflow:hidden; }
+        .card-head { padding:18px 22px; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; justify-content:space-between; }
+        .card-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.93rem; color:var(--coal); }
+        .custom-table { width:100%; border-collapse:collapse; }
+        .custom-table th { padding:11px 18px; background:#f9f9f9; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#999; text-align:left; }
+        .custom-table td { padding:13px 18px; border-bottom:1px solid #f5f5f5; font-size:0.85rem; color:var(--coal); vertical-align:middle; }
+        .custom-table tr:last-child td { border-bottom:none; }
+        .custom-table tr:hover td { background:#fafafa; }
+        .badge-s { padding:4px 11px; border-radius:20px; font-size:0.72rem; font-weight:600; }
+        .bs-placed{background:rgba(52,152,219,0.12);color:var(--info);}
+        .bs-confirmed{background:rgba(245,166,35,0.12);color:var(--gold);}
+        .bs-processing{background:rgba(155,89,182,0.12);color:#9b59b6;}
+        .bs-dispatched{background:rgba(46,204,113,0.12);color:var(--success);}
+        .bs-delivered{background:rgba(46,204,113,0.18);color:#27ae60;}
+        .bs-cancelled{background:rgba(231,76,60,0.12);color:var(--danger);}
+        .btn-fire { background:var(--fire); color:#fff; border:none; border-radius:10px; padding:8px 18px; font-weight:600; font-size:0.84rem; transition:all 0.2s; cursor:pointer; }
+        .btn-fire:hover { background:var(--fire-dark); color:#fff; }
+        .btn-outline-fire { background:transparent; color:var(--fire); border:1.5px solid var(--fire); border-radius:10px; padding:7px 14px; font-weight:600; font-size:0.82rem; transition:all 0.2s; cursor:pointer; text-decoration:none; display:inline-block; }
+        .btn-outline-fire:hover { background:var(--fire); color:#fff; }
+        .quick-card { background:#fff; border-radius:14px; border:1.5px solid #f0f0f0; padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; text-decoration:none; display:block; }
+        .quick-card:hover { border-color:var(--fire); box-shadow:0 6px 20px rgba(255,107,53,0.1); transform:translateY(-2px); }
+        .quick-icon  { font-size:1.9rem; margin-bottom:8px; }
+        .quick-label { font-family:'Syne',sans-serif; font-size:0.83rem; font-weight:700; color:var(--coal); }
+        .quick-sub   { font-size:0.73rem; color:#bbb; margin-top:2px; }
+        .alert-toast { position:fixed; top:20px;right:20px; z-index:9999; min-width:260px; border-radius:12px; padding:13px 17px; font-size:0.86rem; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.12); display:none; }
+        .loading-box { display:flex; align-items:center; justify-content:center; padding:36px; color:#ccc; gap:10px; font-size:0.86rem; }
+        .empty-state { text-align:center; padding:40px 20px; color:#ccc; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo">🍲 HotPot</div>
+        <div class="brand-sub">Restaurant Portal</div>
+    </div>
+    <div class="rest-info">
+        <div class="rest-name" id="sidebarName">Loading...</div>
+        <span class="rest-badge">🟢 Active</span>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a class="nav-item active" href="restaurant-dashboard.html"><i class="bi bi-grid-fill"></i> Overview</a>
+        <a class="nav-item" href="restaurant-orders.html"><i class="bi bi-bag-check-fill"></i> Active Orders</a>
+        <a class="nav-item" href="restaurant-order-history.html"><i class="bi bi-clock-history"></i> Order History</a>
+        <div class="nav-label mt-2">Menu</div>
+        <a class="nav-item" href="restaurant-menu.html"><i class="bi bi-egg-fried"></i> Menu Items</a>
+        <a class="nav-item" href="restaurant-categories.html"><i class="bi bi-tags-fill"></i> Categories</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </div>
+</aside>
+
+<div class="main-content">
+    <div class="top-bar">
+        <div>
+            <div class="page-title">Overview</div>
+            <div class="page-subtitle">Welcome back! Here's what's happening today.</div>
+        </div>
+        <span style="font-size:0.84rem;color:#999">👤 <span id="ownerName"></span></span>
+    </div>
+
+    <div class="alert-toast" id="alertToast"></div>
+
+    <div class="content-area">
+        <!-- STATS -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md">
+                <div class="stat-card s1"><div class="stat-icon i1"><i class="bi bi-bag-check-fill"></i></div><div class="stat-number" id="statTotal">—</div><div class="stat-label">Total Orders</div></div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-card s2"><div class="stat-icon i2"><i class="bi bi-check-circle-fill"></i></div><div class="stat-number" id="statDelivered">—</div><div class="stat-label">Delivered</div></div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-card s3"><div class="stat-icon i3"><i class="bi bi-hourglass-split"></i></div><div class="stat-number" id="statPending">—</div><div class="stat-label">Pending</div></div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-card s4"><div class="stat-icon i4"><i class="bi bi-egg-fried"></i></div><div class="stat-number" id="statMenu">—</div><div class="stat-label">Menu Items</div></div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-card s5"><div class="stat-icon i5"><i class="bi bi-currency-rupee"></i></div><div class="stat-number" id="statRevenue">—</div><div class="stat-label">Revenue</div></div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><a class="quick-card" href="restaurant-menu.html"><div class="quick-icon">🍽️</div><div class="quick-label">Add Menu Item</div><div class="quick-sub">Add new dish</div></a></div>
+            <div class="col-6 col-md-3"><a class="quick-card" href="restaurant-categories.html"><div class="quick-icon">🏷️</div><div class="quick-label">Categories</div><div class="quick-sub">Manage categories</div></a></div>
+            <div class="col-6 col-md-3"><a class="quick-card" href="restaurant-orders.html"><div class="quick-icon">📦</div><div class="quick-label">Active Orders</div><div class="quick-sub">Update statuses</div></a></div>
+            <div class="col-6 col-md-3"><a class="quick-card" href="restaurant-order-history.html"><div class="quick-icon">📋</div><div class="quick-label">Order History</div><div class="quick-sub">All past orders</div></a></div>
+        </div>
+
+        <!-- RECENT ORDERS -->
+        <div class="content-card">
+            <div class="card-head">
+                <div class="card-title">📦 Recent Orders</div>
+                <a class="btn-outline-fire" href="restaurant-orders.html">View All</a>
+            </div>
+            <div id="recentOrders">
+                <div class="loading-box"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API = 'http://localhost:8080';
+const token = localStorage.getItem('token');
+const userId = localStorage.getItem('userId');
+let restId = localStorage.getItem('restaurantId');
+
+window.onload = function() {
+    if (!token || !userId) { window.location.href = 'login.html'; return; }
+    const role = localStorage.getItem('userRole');
+    if (role !== 'ROLE_RESTAURANT' && role !== 'RESTAURANT') { alert('Access denied!'); window.location.href = 'index.html'; return; }
+    document.getElementById('ownerName').textContent = localStorage.getItem('userName') || 'Owner';
+    loadRestaurant();
+};
+
+async function loadRestaurant() {
+    try {
+        const res = await fetch(`${API}/api/restaurant/owner/${userId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        const rest = Array.isArray(data) ? data[0] : data;
+        if (!rest) { showAlert('danger', 'No restaurant found!'); return; }
+        restId = rest.id;
+        localStorage.setItem('restaurantId', rest.id);
+        document.getElementById('sidebarName').textContent = rest.name;
+        loadStats();
+    } catch(e) { showAlert('danger', 'Server error!'); }
+}
+
+async function loadStats() {
+    try {
+        const [ordRes, menuRes] = await Promise.all([
+            fetch(`${API}/api/order/restaurant/${restId}`, { headers: { 'Authorization': 'Bearer ' + token } }),
+            fetch(`${API}/api/menu/restaurant/${restId}`, { headers: { 'Authorization': 'Bearer ' + token } })
+        ]);
+        const orders = ordRes.ok ? await ordRes.json() : [];
+        const menu   = menuRes.ok ? await menuRes.json() : [];
+
+        const delivered = orders.filter(o => o.status === 'DELIVERED').length;
+        const pending   = orders.filter(o => ['PLACED','CONFIRMED','PROCESSING','DISPATCHED'].includes(o.status)).length;
+        const revenue   = orders.filter(o => o.status !== 'CANCELLED').reduce((s,o) => s+(o.totalAmount||0), 0);
+
+        document.getElementById('statTotal').textContent     = orders.length;
+        document.getElementById('statDelivered').textContent = delivered;
+        document.getElementById('statPending').textContent   = pending;
+        document.getElementById('statMenu').textContent      = menu.length;
+        document.getElementById('statRevenue').textContent   = '₹'+revenue.toFixed(0);
+
+        renderRecent(orders.slice(0,6));
+    } catch(e) { console.error(e); }
+}
+
+function renderRecent(orders) {
+    const el = document.getElementById('recentOrders');
+    if (!orders.length) { el.innerHTML = '<div class="empty-state">📭 No orders yet!</div>'; return; }
+    el.innerHTML = `<table class="custom-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${orders.map(o=>`<tr>
+            <td><strong>#${o.id}</strong></td>
+            <td>${o.user?.name||'Customer'}</td>
+            <td>${(o.orderItems||[]).length} item(s)</td>
+            <td class="fw-bold">₹${(o.totalAmount||0).toFixed(2)}</td>
+            <td><span class="badge-s bs-${o.status?.toLowerCase()}">${o.status}</span></td>
+            <td class="text-muted">${fmt(o.orderedAt)}</td>
+        </tr>`).join('')}</tbody></table>`;
+}
+
+function fmt(d) { if (!d) return '—'; return new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function showAlert(type, msg) { const el=document.getElementById('alertToast'); el.className=`alert-toast alert alert-${type}`; el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',3500); }
+function logout() { if(confirm('Logout?')){ localStorage.clear(); window.location.href='index.html'; } }
+</script>
+</body>
+</html>

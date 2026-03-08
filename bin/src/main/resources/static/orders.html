@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot - My Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .navbar-brand { color:#ff6b35 !important; font-size:1.8rem; font-weight:700; }
+        .btn-hotpot { background-color:#ff6b35; color:white; border:none; border-radius:25px; padding:8px 20px; }
+        .btn-hotpot:hover { background-color:#e55a25; color:white; }
+        .order-card { border:none; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.08); margin-bottom:20px; transition:transform 0.2s; }
+        .order-card:hover { transform:translateY(-3px); }
+
+        /* Status badges */
+        .status-PLACED      { background:#fff3cd; color:#856404; }
+        .status-CONFIRMED   { background:#cce5ff; color:#004085; }
+        .status-PROCESSING  { background:#d1ecf1; color:#0c5460; }
+        .status-DISPATCHED  { background:#d4edda; color:#155724; }
+        .status-OUT_FOR_DELIVERY { background:#c3e6cb; color:#155724; }
+        .status-DELIVERED   { background:#d4edda; color:#155724; }
+        .status-CANCELLED   { background:#f8d7da; color:#721c24; }
+        .status-badge { padding:6px 15px; border-radius:25px; font-weight:600; font-size:0.85rem; }
+
+        /* Tracking Steps */
+        .track-step { display:flex; align-items:flex-start; margin-bottom:0; position:relative; }
+        .track-left { display:flex; flex-direction:column; align-items:center; margin-right:16px; min-width:24px; }
+        .track-dot  { width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:#fff; font-weight:700; }
+        .track-dot.done    { background:#28a745; }
+        .track-dot.current { background:#ff6b35; box-shadow:0 0 0 5px rgba(255,107,53,0.2); }
+        .track-dot.pending { background:#dee2e6; }
+        .track-line { width:2px; flex:1; min-height:28px; background:#dee2e6; }
+        .track-line.done   { background:#28a745; }
+        .track-body { padding-bottom:24px; flex:1; }
+
+        .price-tag  { color:#ff6b35; font-weight:700; }
+        .empty-orders { min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        footer { background-color:#2d2d2d; color:#aaa; }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">🍲 HotPot</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="restaurants.html"><i class="bi bi-shop"></i> Restaurants</a></li>
+                <li class="nav-item"><a class="nav-link" href="cart.html"><i class="bi bi-cart3"></i> Cart</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="orders.html" style="color:#ff6b35"><i class="bi bi-bag-check"></i> My Orders</a></li>
+                <li class="nav-item"><span class="nav-link fw-bold text-warning" id="userName"></span></li>
+                <li class="nav-item"><button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<div style="background:linear-gradient(135deg,#ff6b35,#f7c59f); padding:25px 0;">
+    <div class="container text-white">
+        <h3 class="fw-bold mb-0"><i class="bi bi-bag-check"></i> My Orders</h3>
+        <p class="mb-0">Track all your orders here</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div id="alertBox" class="alert d-none"></div>
+
+    <div id="loadingSection" class="text-center py-5">
+        <div class="spinner-border text-warning" style="width:3rem;height:3rem;"></div>
+        <p class="mt-3 text-muted">Loading orders...</p>
+    </div>
+
+    <div id="emptyOrders" class="d-none">
+        <div class="empty-orders text-center">
+            <div style="font-size:5rem">📦</div>
+            <h4 class="mt-3 text-muted">No orders yet!</h4>
+            <p class="text-muted">Order something delicious!</p>
+            <a href="restaurants.html" class="btn btn-hotpot mt-2">
+                <i class="bi bi-shop"></i> Browse Restaurants
+            </a>
+        </div>
+    </div>
+
+    <div id="ordersList"></div>
+</div>
+
+<!-- TRACKING MODAL -->
+<div class="modal fade" id="trackingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold"><i class="bi bi-geo-alt-fill text-warning"></i> Order Tracking</h5>
+                    <p class="text-muted small mb-0" id="trackingOrderId"></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4 pt-3">
+                <div id="trackingSteps"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-0">🍲 <strong class="text-white">HotPot</strong> © 2024</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API    = 'http://localhost:8080';
+const token  = localStorage.getItem('token');
+const userId = localStorage.getItem('userId');
+
+// ✅ All tracking steps — matches TrackingStatus enum in backend
+const allSteps = [
+    { key:'PLACED',            label:'Order Placed',      icon:'📋' },
+    { key:'CONFIRMED',         label:'Order Confirmed',   icon:'✅' },
+    { key:'PROCESSING',        label:'Being Prepared',    icon:'👨‍🍳' },
+    { key:'DISPATCHED',        label:'Out for Delivery',  icon:'🛵' },
+    { key:'DELIVERED',         label:'Delivered',         icon:'🎉' }
+];
+
+// All orders stored — so trackOrder() can use order.status as fallback
+let allOrders = [];
+
+window.onload = function () {
+    if (!token || !userId) { window.location.href = 'login.html'; return; }
+    document.getElementById('userName').textContent = '👤 ' + localStorage.getItem('userName');
+    loadOrders();
+}
+
+async function loadOrders() {
+    try {
+        const res  = await fetch(`${API}/api/order/history/${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+
+        document.getElementById('loadingSection').classList.add('d-none');
+
+        if (!data || data.length === 0) {
+            document.getElementById('emptyOrders').classList.remove('d-none');
+            return;
+        }
+
+        allOrders = data; // ✅ save for tracking fallback
+        displayOrders(data);
+
+    } catch (e) {
+        document.getElementById('loadingSection').classList.add('d-none');
+        showAlert('danger', 'Cannot load orders!');
+    }
+}
+
+function displayOrders(orders) {
+    const list = document.getElementById('ordersList');
+    list.innerHTML = '';
+
+    orders.forEach(order => {
+        const date        = new Date(order.orderedAt).toLocaleString('en-IN');
+        const isCancellable = !['DELIVERED','CANCELLED'].includes(order.status);
+
+        const card = document.createElement('div');
+        card.className = 'card order-card';
+        card.innerHTML = `
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+
+                    <!-- Order Info -->
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0">Order #${order.id}</h6>
+                            <span class="status-badge status-${order.status}">
+                                ${getStatusIcon(order.status)} ${order.status}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-shop"></i>
+                            ${order.restaurant ? order.restaurant.name : 'Restaurant'}
+                        </p>
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-calendar"></i> ${date}
+                        </p>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-geo-alt"></i> ${order.deliveryAddress}
+                        </p>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="col-md-5">
+                        <h6 class="text-muted small fw-bold mb-2">ITEMS</h6>
+                        ${order.orderItems ? order.orderItems.map(item =>
+                            `<div class="small text-muted">
+                                • ${item.menuItem ? item.menuItem.name : 'Item'} × ${item.quantity}
+                             </div>`
+                        ).join('') : '<p class="text-muted small">No items</p>'}
+                    </div>
+
+                    <!-- Total & Actions -->
+                    <div class="col-md-3 text-end">
+                        <div class="price-tag fs-5 mb-3">
+                            ₹${order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'}
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-hotpot btn-sm"
+                                    onclick="trackOrder(${order.id}, '${order.status}')">
+                                <i class="bi bi-geo-alt"></i> Track
+                            </button>
+                            ${isCancellable ? `
+                            <button class="btn btn-outline-danger btn-sm"
+                                    onclick="cancelOrder(${order.id})">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        list.appendChild(card);
+    });
+}
+
+// ✅ KEY FIX: trackOrder now receives orderStatus as fallback parameter
+async function trackOrder(orderId, orderStatus) {
+    document.getElementById('trackingOrderId').textContent = 'Order #' + orderId;
+    document.getElementById('trackingSteps').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-warning"></div>
+            <p class="mt-2 text-muted small">Loading...</p>
+        </div>`;
+
+    const modal = new bootstrap.Modal(document.getElementById('trackingModal'));
+    modal.show();
+
+    try {
+        const res = await fetch(`${API}/api/tracking/order/${orderId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (res.ok) {
+            const tracking = await res.json();
+
+            // ✅ CRITICAL FIX: 
+            // tracking.status is what's in the order_tracking TABLE (may be stale)
+            // orderStatus is the REAL current status from the orders TABLE
+            // Always use whichever is MORE ADVANCED
+            const trackingStatus = tracking.status || 'PLACED';
+            const finalStatus    = getMoreAdvancedStatus(trackingStatus, orderStatus);
+
+            displayTrackingSteps(finalStatus, tracking.message);
+
+        } else {
+            // Tracking table has no record — use order status directly
+            displayTrackingSteps(orderStatus, getDefaultMessage(orderStatus));
+        }
+
+    } catch (e) {
+        // Network error — use order status directly
+        displayTrackingSteps(orderStatus, getDefaultMessage(orderStatus));
+    }
+}
+
+// ✅ Returns whichever status is further along in the delivery journey
+function getMoreAdvancedStatus(statusA, statusB) {
+    const order = ['PLACED','CONFIRMED','PROCESSING','DISPATCHED','OUT_FOR_DELIVERY','DELIVERED','CANCELLED'];
+    const indexA = order.indexOf(statusA);
+    const indexB = order.indexOf(statusB);
+
+    // If one is CANCELLED, treat specially
+    if (statusA === 'CANCELLED' || statusB === 'CANCELLED') return 'CANCELLED';
+
+    // Return whichever is further along
+    return indexA >= indexB ? statusA : statusB;
+}
+
+function getDefaultMessage(status) {
+    const msgs = {
+        'PLACED':            '📋 Your order has been placed!',
+        'CONFIRMED':         '✅ Restaurant confirmed your order!',
+        'PROCESSING':        '👨‍🍳 Your food is being prepared!',
+        'DISPATCHED':        '🛵 Your order is on the way!',
+        'OUT_FOR_DELIVERY':  '🛵 Your order is out for delivery!',
+        'DELIVERED':         '🎉 Your order has been delivered!',
+        'CANCELLED':         '❌ This order was cancelled.'
+    };
+    return msgs[status] || 'Order status: ' + status;
+}
+
+function displayTrackingSteps(currentStatus, message) {
+    const container = document.getElementById('trackingSteps');
+    container.innerHTML = '';
+
+    // ✅ CANCELLED — show special card
+    if (currentStatus === 'CANCELLED') {
+        container.innerHTML = `
+            <div class="text-center py-3">
+                <div style="font-size:3rem">❌</div>
+                <h5 class="text-danger mt-2">Order Cancelled</h5>
+                <p class="text-muted">${message || 'This order has been cancelled.'}</p>
+            </div>`;
+        return;
+    }
+
+    // ✅ Message banner at top
+    if (message) {
+        container.innerHTML += `
+            <div class="alert alert-warning py-2 mb-3" style="border-radius:12px;">
+                <i class="bi bi-info-circle"></i> <strong>${message}</strong>
+            </div>`;
+    }
+
+    const currentIndex = allSteps.findIndex(s => s.key === currentStatus);
+    // If status not found in steps (e.g. OUT_FOR_DELIVERY maps to DISPATCHED visually)
+    const effectiveIndex = currentIndex === -1
+        ? allSteps.findIndex(s => s.key === 'DISPATCHED')
+        : currentIndex;
+
+    allSteps.forEach((step, index) => {
+        const isLast    = index === allSteps.length - 1;
+        const isDone    = index < effectiveIndex;
+        const isCurrent = index === effectiveIndex;
+        const isPending = index > effectiveIndex;
+
+        const dotClass  = isDone ? 'done' : isCurrent ? 'current' : 'pending';
+        const lineClass = isDone ? 'done' : '';
+        const textMuted = isPending ? 'text-muted' : '';
+
+        container.innerHTML += `
+            <div class="track-step">
+                <div class="track-left">
+                    <div class="track-dot ${dotClass}">
+                        ${isDone ? '✓' : ''}
+                    </div>
+                    ${!isLast ? `<div class="track-line ${lineClass}"></div>` : ''}
+                </div>
+                <div class="track-body">
+                    <div class="fw-bold ${textMuted}">${step.icon} ${step.label}</div>
+                    <small class="${
+                        isCurrent ? 'text-warning fw-bold' :
+                        isDone    ? 'text-success'         :
+                                    'text-muted'
+                    }">
+                        ${isCurrent ? '← You are here' : isDone ? 'Completed ✓' : 'Pending'}
+                    </small>
+                </div>
+            </div>`;
+    });
+}
+
+async function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+    try {
+        const res = await fetch(`${API}/api/order/cancel/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            showAlert('success', '✅ Order cancelled successfully!');
+            loadOrders();
+        } else {
+            const data = await res.json();
+            showAlert('danger', data.message || 'Cannot cancel order!');
+        }
+    } catch (e) { showAlert('danger', 'Server error!'); }
+}
+
+function getStatusIcon(status) {
+    const icons = {
+        'PLACED':'📋','CONFIRMED':'✅','PROCESSING':'👨‍🍳',
+        'DISPATCHED':'🛵','OUT_FOR_DELIVERY':'🛵','DELIVERED':'🎉','CANCELLED':'❌'
+    };
+    return icons[status] || '📦';
+}
+
+function showAlert(type, msg) {
+    const el = document.getElementById('alertBox');
+    el.className = `alert alert-${type}`;
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 3000);
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

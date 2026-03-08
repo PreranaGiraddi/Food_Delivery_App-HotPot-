@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPot - Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fire: #ff6b35;
+            --fire-dark: #e04e1a;
+            --dark: #1a1008;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f5f0eb; }
+
+        /* NAVBAR */
+        .navbar { background: rgba(26,16,8,0.92) !important; backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,107,53,0.15); padding:0.85rem 0; }
+        .navbar-brand { font-family:'Playfair Display',serif !important; font-size:1.8rem !important; font-weight:900 !important; color:var(--fire) !important; }
+        .navbar-brand span { color:#fff; }
+        .nav-link { color:rgba(255,255,255,0.75) !important; font-weight:500; font-size:0.92rem; transition:color 0.2s; }
+        .nav-link:hover { color:var(--fire) !important; }
+
+        /* PAGE HEADER */
+        .page-header {
+            background:
+                linear-gradient(135deg, rgba(26,16,8,0.88), rgba(61,32,16,0.72)),
+                url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80') center/cover no-repeat;
+            padding: 48px 0 40px;
+        }
+        .page-header h3 { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4vw,2.6rem); font-weight:900; color:#fff; margin-bottom:0; }
+        .page-header p { color:rgba(255,255,255,0.5); font-size:0.88rem; margin-top:4px; }
+
+        /* SECTION CARDS */
+        .hotpot-card { background:#fff; border:none; border-radius:20px; box-shadow:0 2px 20px rgba(26,16,8,0.07); }
+
+        /* STEP BADGE */
+        .step-badge {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white; border-radius: 50%;
+            width: 32px; height: 32px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; margin-right: 10px;
+            box-shadow: 0 3px 10px rgba(255,107,53,0.35);
+            flex-shrink: 0;
+        }
+        .section-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--dark); display:flex; align-items:center; }
+
+        /* FORM FIELDS */
+        .form-control, .form-select {
+            border: 1.5px solid #e8ddd5;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            color: var(--dark);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--fire);
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+            outline: none;
+        }
+        .form-label { font-weight: 600; font-size: 0.85rem; color: #7a6055; margin-bottom: 6px; }
+        textarea { resize: vertical; text-align:left !important; }
+        textarea::placeholder, input::placeholder { color: #c0a898; }
+
+        /* PAYMENT OPTIONS */
+        .payment-option {
+            border: 1.5px solid #e8ddd5;
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: #fff;
+        }
+        .payment-option:hover { border-color: var(--fire); background: #fffaf7; }
+        .payment-option.selected { border-color: var(--fire); background: #fff5f0; box-shadow: 0 0 0 3px rgba(255,107,53,0.1); }
+        .payment-label { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+        .payment-sub { color: #9e8070; font-size: 0.8rem; }
+        .pay-icon { font-size: 2rem; }
+
+        /* SECURITY ROW */
+        .security-note { background: #f0faf0; border-radius: 12px; padding: 10px 14px; border: 1px solid #c8e6c9; }
+
+        /* SUMMARY CARD */
+        .summary-sticky { position: sticky; top: 80px; }
+        .summary-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--dark); }
+        .summary-item { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+        .summary-item-name { font-weight:600; font-size:0.9rem; color:var(--dark); }
+        .summary-item-qty { color:#9e8070; font-size:0.78rem; }
+        .summary-item-price { font-weight:700; font-size:0.9rem; color:var(--dark); }
+        .summary-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.9rem; }
+        .summary-label { color:#9e8070; }
+        .discount-label { color:#2e7d32; font-size:0.85rem; font-weight:600; }
+        .discount-value { color:#2e7d32; font-weight:700; }
+        .free-badge { background:#e8f5e9; color:#2e7d32; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:50px; }
+        .total-row { display:flex; justify-content:space-between; align-items:center; }
+        .total-label { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--dark); }
+        .total-amount { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:var(--fire); }
+
+        .btn-place-order {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white; border: none; border-radius: 50px;
+            padding: 14px 0; font-size: 1rem; font-weight: 700;
+            width: 100%; transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-place-order:hover { color:white; transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,107,53,0.45); }
+
+        /* PAYMENT OVERLAY */
+        .payment-overlay {
+            position: fixed; inset: 0;
+            background: rgba(26,16,8,0.85);
+            backdrop-filter: blur(6px);
+            z-index: 9999; display: none;
+            align-items: center; justify-content: center;
+        }
+        .payment-box {
+            background: white; border-radius: 24px;
+            padding: 40px 36px; text-align: center;
+            max-width: 380px; width: 90%;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+        }
+        .payment-progress { height: 7px; border-radius: 4px; background: #f0ebe6; overflow: hidden; margin: 20px 0; }
+        .payment-bar { height: 100%; background: linear-gradient(90deg, var(--fire), #f7c59f); width: 0%; transition: width 0.4s ease; border-radius: 4px; }
+        .payment-step-text { font-size: 0.82rem; color: #9e8070; }
+
+        /* SUCCESS MODAL */
+        .modal-content { border-radius: 24px !important; border: none !important; }
+        .modal-header-success { background: var(--dark); border-radius: 24px 24px 0 0; padding: 1.5rem; }
+        .btn-orders {
+            background: linear-gradient(135deg, var(--fire), var(--fire-dark));
+            color: white; border: none; border-radius: 50px;
+            padding: 13px 0; font-size: 0.95rem; font-weight: 700;
+            width: 100%; transition: all 0.3s; font-family: 'DM Sans', sans-serif;
+        }
+        .btn-orders:hover { color:white; transform:translateY(-2px); }
+        .btn-more { background:transparent; color:#9e8070; border:1.5px solid #e8ddd5; border-radius:50px; padding:11px 0; font-size:0.9rem; font-weight:600; width:100%; transition:all 0.2s; font-family:'DM Sans',sans-serif; text-decoration:none; display:block; }
+        .btn-more:hover { border-color:var(--fire); color:var(--fire); }
+
+        footer { background:#1a1008; color:rgba(255,255,255,0.35); border-top:1px solid rgba(255,107,53,0.1); }
+        footer strong { color:var(--fire); }
+        #alertBox { border-radius:12px; font-weight:500; }
+        .spinner-border { color: var(--fire) !important; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">🍲 Hot<span>Pot</span></a>
+        <div class="navbar-nav ms-auto align-items-center gap-2">
+            <a class="nav-link" href="cart.html"><i class="bi bi-arrow-left me-1"></i>Back to Cart</a>
+            <span class="nav-link fw-bold" id="userName" style="color:#ffc107;"></span>
+        </div>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="container">
+        <h3><i class="bi bi-bag-check me-2"></i>Checkout</h3>
+        <p>Almost there — complete your order</p>
+    </div>
+</div>
+
+<!-- PAYMENT OVERLAY -->
+<div class="payment-overlay" id="paymentOverlay">
+    <div class="payment-box">
+        <div style="font-size:3rem;" id="paymentIcon">💳</div>
+        <h5 class="fw-bold mt-3" id="paymentTitle" style="font-family:'Playfair Display',serif;">Processing Payment...</h5>
+        <p class="text-muted small" id="paymentMsg">Please wait, do not close this window</p>
+        <div class="payment-progress">
+            <div class="payment-bar" id="paymentBar"></div>
+        </div>
+        <div class="payment-step-text" id="paymentStep">Connecting to payment gateway...</div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div id="alertBox" class="alert d-none"></div>
+
+    <div class="row g-4">
+
+        <!-- LEFT — Address + Payment -->
+        <div class="col-lg-7">
+
+            <!-- Step 1 — Delivery Address -->
+            <div class="hotpot-card p-4 mb-4">
+                <div class="section-title mb-3">
+                    <span class="step-badge">1</span> Delivery Address
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-geo-alt me-1" style="color:var(--fire);"></i>Full Delivery Address</label>
+                    <textarea class="form-control" id="deliveryAddress" rows="3" placeholder="House no, street, area, landmark..."></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label"><i class="bi bi-building me-1" style="color:var(--fire);"></i>City</label>
+                        <input type="text" class="form-control" id="deliveryCity" placeholder="City">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label"><i class="bi bi-mailbox me-1" style="color:var(--fire);"></i>Pincode</label>
+                        <input type="text" class="form-control" id="deliveryPincode" placeholder="6-digit pincode" maxlength="6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 — Payment Method -->
+            <div class="hotpot-card p-4">
+                <div class="section-title mb-3">
+                    <span class="step-badge">2</span> Payment Method
+                </div>
+                <div class="d-flex flex-column gap-3">
+
+                    <!-- COD -->
+                    <div class="payment-option selected" id="pay_COD" onclick="selectPayment('CASH_ON_DELIVERY')">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="pay-icon">💵</span>
+                            <div class="flex-grow-1">
+                                <div class="payment-label">Cash on Delivery</div>
+                                <div class="payment-sub">Pay when your order arrives</div>
+                            </div>
+                            <i class="bi bi-check-circle-fill fs-5 text-success" id="check_COD"></i>
+                        </div>
+                    </div>
+
+                    <!-- UPI -->
+                    <div class="payment-option" id="pay_UPI" onclick="selectPayment('UPI')">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="pay-icon">📱</span>
+                            <div class="flex-grow-1">
+                                <div class="payment-label">UPI Payment</div>
+                                <div class="payment-sub">GPay, PhonePe, Paytm, BHIM</div>
+                            </div>
+                            <i class="bi bi-circle fs-5 text-muted" id="check_UPI"></i>
+                        </div>
+                        <div id="upiInput" class="d-none mt-3">
+                            <input type="text" class="form-control" id="upiId" placeholder="Enter UPI ID (e.g. name@upi)">
+                        </div>
+                    </div>
+
+                    <!-- CARD -->
+                    <div class="payment-option" id="pay_CARD" onclick="selectPayment('CARD')">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="pay-icon">💳</span>
+                            <div class="flex-grow-1">
+                                <div class="payment-label">Credit / Debit Card</div>
+                                <div class="payment-sub">Visa, Mastercard, Rupay</div>
+                            </div>
+                            <i class="bi bi-circle fs-5 text-muted" id="check_CARD"></i>
+                        </div>
+                        <div id="cardInput" class="d-none mt-3">
+                            <div class="mb-2">
+                                <input type="text" class="form-control" id="cardNumber" placeholder="Card number (16 digits)" maxlength="19" oninput="formatCard(this)">
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="cardCvv" placeholder="CVV" maxlength="3">
+                                </div>
+                            </div>
+                            <input type="text" class="form-control" id="cardName" placeholder="Name on card">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Note -->
+                <div class="security-note d-flex align-items-center gap-2 mt-3">
+                    <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+                    <small class="text-muted">Your payment info is <strong>encrypted and secure</strong>. We never store card details.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT — Order Summary -->
+        <div class="col-lg-5">
+            <div class="hotpot-card p-4 summary-sticky">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="step-badge">3</span>
+                    <span class="summary-title">Order Summary</span>
+                </div>
+
+                <div id="summaryLoading" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm"></div>
+                    <p class="text-muted small mt-2">Loading cart...</p>
+                </div>
+
+                <div id="summaryContent" class="d-none">
+                    <div id="summaryItems" class="mb-3"></div>
+                    <hr style="border-color:#f5ede8;">
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal (MRP)</span>
+                        <span id="summaryMRP">₹0</span>
+                    </div>
+                    <div class="summary-row" id="discountRow">
+                        <span class="discount-label"><i class="bi bi-tag-fill me-1"></i>Discount</span>
+                        <span class="discount-value" id="summaryDiscount">-₹0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Delivery</span>
+                        <span class="free-badge">FREE 🎉</span>
+                    </div>
+                    <hr style="border-color:#f5ede8;">
+                    <div class="total-row mb-4">
+                        <span class="total-label">Total Payable</span>
+                        <span class="total-amount" id="summaryTotal">₹0</span>
+                    </div>
+
+                    <button class="btn-place-order mb-2" onclick="placeOrder()">
+                        <span id="orderSpinner" class="spinner-border spinner-border-sm d-none me-2"></span>
+                        <i class="bi bi-bag-heart me-2"></i>Place Order
+                    </button>
+                    <p class="text-center mb-0 mt-2" style="font-size:0.78rem;color:#b09080;">
+                        <i class="bi bi-shield-check text-success me-1"></i>Safe & Secure Checkout
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-5">
+                <div style="font-size:4rem;" id="successIcon">🎉</div>
+                <h4 class="fw-bold mt-3" id="successTitle" style="font-family:'Playfair Display',serif;color:var(--dark);">Order Placed!</h4>
+                <p class="text-muted" id="successMessage"></p>
+                <p class="fw-bold fs-5" id="modalOrderId" style="color:var(--fire);"></p>
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <button class="btn-orders" onclick="goToOrders()"><i class="bi bi-bag-check me-2"></i>Track My Order</button>
+                    <a href="restaurants.html" class="btn-more"><i class="bi bi-shop me-2"></i>Order More Food</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-0">🍲 <strong>HotPot</strong> © 2024</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API    = 'http://localhost:8080';
+    const token  = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const restaurantId = localStorage.getItem('selectedRestaurantId') || localStorage.getItem('cartRestaurantId');
+
+    let selectedPayment = 'CASH_ON_DELIVERY';
+    let cartTotal = 0, cartItems = [], originalMRP = 0;
+
+    window.onload = function () {
+        if (!token || !userId) { window.location.href = 'login.html'; return; }
+        document.getElementById('userName').textContent = '👤 ' + localStorage.getItem('userName');
+        const addr = localStorage.getItem('userAddress');
+        if (addr) document.getElementById('deliveryAddress').value = addr;
+        loadCartSummary();
+    }
+
+    async function loadCartSummary() {
+        try {
+            const response = await fetch(`${API}/api/cart/${userId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+            const data = await response.json();
+            document.getElementById('summaryLoading').classList.add('d-none');
+            document.getElementById('summaryContent').classList.remove('d-none');
+
+            if (!data || !data.cartItems || data.cartItems.length === 0) {
+                showAlert('warning', 'Cart is empty!');
+                setTimeout(() => window.location.href = 'restaurants.html', 2000);
+                return;
+            }
+
+            cartTotal = data.totalPrice;
+            cartItems = data.cartItems;
+            const itemsDiv = document.getElementById('summaryItems');
+            itemsDiv.innerHTML = '';
+            let mrpTotal = 0;
+
+            data.cartItems.forEach(item => {
+                const iname = item.menuItemName || (item.menuItem && item.menuItem.name) || 'Item';
+                const qty   = item.quantity || 1;
+                const total = item.totalItemPrice || 0;
+                const unitPrice     = item.price || (total / qty);
+                const originalPrice = item.menuItem ? (item.menuItem.price || unitPrice) : unitPrice;
+                mrpTotal += originalPrice * qty;
+
+                itemsDiv.innerHTML += `
+                    <div class="summary-item">
+                        <div>
+                            <div class="summary-item-name">${iname}</div>
+                            <div class="summary-item-qty">× ${qty}</div>
+                        </div>
+                        <div class="summary-item-price">₹${total.toFixed(2)}</div>
+                    </div>`;
+            });
+
+            originalMRP = mrpTotal;
+            const discount = mrpTotal - data.totalPrice;
+            document.getElementById('summaryMRP').textContent = '₹' + mrpTotal.toFixed(2);
+            if (discount > 0.01) {
+                document.getElementById('discountRow').classList.remove('d-none');
+                document.getElementById('summaryDiscount').textContent = '-₹' + discount.toFixed(2);
+            } else {
+                document.getElementById('discountRow').classList.add('d-none');
+            }
+            document.getElementById('summaryTotal').textContent = '₹' + data.totalPrice.toFixed(2);
+        } catch (error) { showAlert('danger', 'Cannot load cart!'); }
+    }
+
+    function selectPayment(method) {
+        selectedPayment = method;
+        ['COD', 'UPI', 'CARD'].forEach(m => {
+            document.getElementById('pay_' + m).classList.remove('selected');
+            document.getElementById('check_' + m).className = 'bi bi-circle fs-5 text-muted';
+        });
+        const key = method === 'CASH_ON_DELIVERY' ? 'COD' : method === 'UPI' ? 'UPI' : 'CARD';
+        document.getElementById('pay_' + key).classList.add('selected');
+        document.getElementById('check_' + key).className = 'bi bi-check-circle-fill fs-5 text-success';
+        document.getElementById('upiInput').classList.add('d-none');
+        document.getElementById('cardInput').classList.add('d-none');
+        if (method === 'UPI')  document.getElementById('upiInput').classList.remove('d-none');
+        if (method === 'CARD') document.getElementById('cardInput').classList.remove('d-none');
+    }
+
+    function formatCard(input) {
+        let val = input.value.replace(/\D/g, '').substring(0, 16);
+        input.value = val.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function formatExpiry(input) {
+        let val = input.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2);
+        input.value = val;
+    }
+
+    function validatePayment() {
+        if (selectedPayment === 'UPI') {
+            const upi = document.getElementById('upiId').value.trim();
+            if (!upi || !upi.includes('@')) { showAlert('warning', 'Enter a valid UPI ID (e.g. name@upi)'); return false; }
+        }
+        if (selectedPayment === 'CARD') {
+            const num = document.getElementById('cardNumber').value.replace(/\s/g,'');
+            const exp = document.getElementById('cardExpiry').value;
+            const cvv = document.getElementById('cardCvv').value;
+            const cname = document.getElementById('cardName').value.trim();
+            if (num.length !== 16) { showAlert('warning', 'Enter valid 16-digit card number!'); return false; }
+            if (!exp || exp.length < 5) { showAlert('warning', 'Enter valid expiry date (MM/YY)!'); return false; }
+            if (cvv.length !== 3) { showAlert('warning', 'Enter valid 3-digit CVV!'); return false; }
+            if (!cname) { showAlert('warning', 'Enter name on card!'); return false; }
+        }
+        return true;
+    }
+
+    async function placeOrder() {
+        const address = document.getElementById('deliveryAddress').value.trim();
+        const city    = document.getElementById('deliveryCity').value.trim();
+        const pincode = document.getElementById('deliveryPincode').value.trim();
+
+        if (!address) { showAlert('warning', 'Please enter delivery address!'); return; }
+        if (!city)    { showAlert('warning', 'Please enter city!'); return; }
+        if (!pincode || pincode.length !== 6) { showAlert('warning', 'Enter valid 6-digit pincode!'); return; }
+        if (!cartItems || cartItems.length === 0 || cartTotal <= 0) { showAlert('warning', 'Cart is empty!'); setTimeout(() => window.location.href = 'restaurants.html', 2000); return; }
+        if (!validatePayment()) return;
+
+        const finalRestaurantId = localStorage.getItem('selectedRestaurantId') || localStorage.getItem('cartRestaurantId');
+        if (!finalRestaurantId) { showAlert('warning', 'Restaurant not found! Please go back and select restaurant.'); return; }
+
+        const fullAddress = `${address}, ${city} - ${pincode}`;
+        if (selectedPayment !== 'CASH_ON_DELIVERY') await simulatePayment();
+        await submitOrder(fullAddress, finalRestaurantId);
+    }
+
+    async function simulatePayment() {
+        const overlay = document.getElementById('paymentOverlay');
+        const bar     = document.getElementById('paymentBar');
+        const step    = document.getElementById('paymentStep');
+        const icon    = document.getElementById('paymentIcon');
+        const title   = document.getElementById('paymentTitle');
+        overlay.style.display = 'flex';
+        const steps = [
+            { pct:20, msg:'Connecting to payment gateway...', wait:800 },
+            { pct:45, msg:'Verifying payment details...',     wait:900 },
+            { pct:65, msg:'Processing transaction...',        wait:900 },
+            { pct:85, msg:'Authenticating payment...',        wait:800 },
+            { pct:100, msg:'Payment successful! ✅',          wait:600 },
+        ];
+        for (const s of steps) {
+            bar.style.width  = s.pct + '%';
+            step.textContent = s.msg;
+            await sleep(s.wait);
+        }
+        icon.textContent  = '✅';
+        title.textContent = 'Payment Successful!';
+        document.getElementById('paymentMsg').textContent = 'Placing your order now...';
+        await sleep(1000);
+        overlay.style.display = 'none';
+        bar.style.width = '0%';
+    }
+
+    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    async function submitOrder(fullAddress, finalRestaurantId) {
+        const spinner = document.getElementById('orderSpinner');
+        spinner.classList.remove('d-none');
+        try {
+            const response = await fetch(`${API}/api/order/place/${userId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({
+                    restaurantId:    parseInt(finalRestaurantId),
+                    deliveryAddress: fullAddress,
+                    paymentMethod:   selectedPayment,
+                    totalAmount:     cartTotal
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                cartTotal = 0; cartItems = [];
+                localStorage.removeItem('cartRestaurantId');
+                localStorage.removeItem('cartRestaurantName');
+                localStorage.removeItem('selectedRestaurantId');
+                document.getElementById('successIcon').textContent    = selectedPayment === 'CASH_ON_DELIVERY' ? '🎉' : '✅';
+                document.getElementById('successTitle').textContent   = selectedPayment === 'CASH_ON_DELIVERY' ? 'Order Placed!' : 'Payment Successful!';
+                document.getElementById('successMessage').textContent = selectedPayment === 'CASH_ON_DELIVERY'
+                    ? `Your order is confirmed! Pay ₹${data.totalAmount} when delivered.`
+                    : `Payment of ₹${data.totalAmount} received! Your order is confirmed.`;
+                document.getElementById('modalOrderId').textContent = 'Order ID: #' + data.id;
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            } else {
+                showAlert('danger', data.message || 'Order failed! Please try again.');
+            }
+        } catch (error) {
+            showAlert('danger', 'Server error! Please try again.');
+        } finally {
+            spinner.classList.add('d-none');
+        }
+    }
+
+    function goToOrders() { window.location.href = 'orders.html'; }
+
+    function showAlert(type, msg) {
+        const el = document.getElementById('alertBox');
+        el.className = `alert alert-${type}`;
+        el.textContent = msg;
+        el.classList.remove('d-none');
+        setTimeout(() => el.classList.add('d-none'), 4000);
+    }
+</script>
+</body>
+</html>
